@@ -72,7 +72,7 @@ const ADMIN_PSEUDOS = ["test"];
 const isAdmin = () => !!me && ADMIN_PSEUDOS.includes(me.pseudo.toLowerCase());
 
 const ui = {
-  admin: { test: false, mode: "luck", rarity: "divin", luck: 50 },   // mode : "force" | "luck"
+  admin: { open: false, test: false, mode: "luck", rarity: "divin", luck: 50 },   // mode : "force" | "luck"
   tab: "boosters",            // boosters | collection | profile
   loading: true,
   fatal: null,                // message d'erreur bloquant
@@ -83,7 +83,7 @@ const ui = {
   modal: null,                // { id, confirm }
   authMode: null,             // login | create
   confirmReset: false,
-  friendsTab: "friends",      // friends | trades (sous-onglets de l'onglet Amis)
+  friendsTab: "friends",      // friends | trades | ranking (sous-onglets de l'onglet Amis)
   visit: null,                // { pseudo, data } : profil d'un ami en cours de visite
   search: { q: "", results: null },
   trade: null,                // brouillon de proposition d'échange
@@ -91,11 +91,15 @@ const ui = {
 
 /* ---------- Utilitaires ---------- */
 
+// checked/selected/open... doivent être des PROPRIÉTÉS du DOM (un attribut ne suit pas l'état réel).
+const BOOL_PROPS = new Set(["checked", "selected", "disabled", "open"]);
+
 function el(tag, props = {}, ...children) {
   const node = document.createElement(tag);
   for (const [k, v] of Object.entries(props)) {
     if (k === "class") node.className = v;
-    else if (k === "onclick") node.addEventListener("click", v);
+    else if (k.startsWith("on") && typeof v === "function") node.addEventListener(k.slice(2), v);
+    else if (BOOL_PROPS.has(k)) node[k] = v !== undefined && v !== null && v !== false;   // "" = présent
     else if (v !== undefined && v !== null) node.setAttribute(k, v);
   }
   for (const c of children.flat(Infinity)) {
@@ -137,6 +141,9 @@ function friendlyError(err) {
   if (status === 429 || /rate limit|too many/i.test(msg)) return "Trop de tentatives. Réessaie dans quelques minutes.";
   if (/CONFIRM_EMAIL/.test(msg)) return "Configuration : désactive « Confirm email » dans Supabase (Authentication > Sign In / Providers > Email).";
   if (/email.*(invalid|not allowed)|invalid.*email/i.test(msg)) return "Configuration : Supabase refuse le domaine e-mail. Change EMAIL_DOMAIN dans config.js.";
+  if (/already_claimed/.test(msg)) return "Succès déjà réclamé.";
+  if (/not_unlocked/.test(msg)) return "Ce succès n'est pas encore débloqué.";
+  if (/unknown_achievement/.test(msg)) return "Succès inconnu.";
   if (/unauthorized/.test(msg)) return "Action réservée au compte testeur.";
   if (/invalid_rarity/.test(msg)) return "Aucune carte de cette rareté sur le serveur.";
   if (/no_booster/.test(msg)) return "Plus aucun booster disponible.";
@@ -361,6 +368,8 @@ async function logout() {
   ui.friendsTab = "friends";
   ui.search = { q: "", results: null };
   social = emptySocial();
+  achievements = null;
+  board = null;
   closeModal();
   render();
 }
@@ -597,7 +606,8 @@ function nav() {
         ui.confirmReset = false;
         render();
         window.scrollTo(0, 0);
-        if (id === "friends") refreshSocial();
+        if (id === "friends") { refreshSocial(); if (ui.friendsTab === "ranking") loadBoard(); }
+        if (id === "profile") loadAchievements();
       },
     },
       el("span", { class: "nav-ico" }, icon),
@@ -785,9 +795,37 @@ function viewProfile() {
     el("h2", { class: "section-title" }, "Progression par rareté"),
     el("div", { class: "odds" }, rows),
     el("button", { class: "secondary", onclick: logout }, "Se déconnecter"),
+    achievementsSection(),
     reset,
     isAdmin() ? adminPanel() : null
   );
+}
+
+function achievementsSection() {
+  if (!achievements) return el("p", { class: "muted small" }, "Chargement des succès…");
+  const done = achievements.filter((x) => x.claimed).length;
+  const items = achievements.map((x) => {
+    const ui_ = ACH_UI[x.id] || { icon: "🎯", title: x.id, desc: "" };
+    const unlocked = x.progress >= x.target;
+    const state = x.claimed ? "claimed" : unlocked ? "ready" : "locked";
+    const pct = Math.min(100, Math.round((x.progress / x.target) * 100));
+    const bar = el("div", { class: "ach-bar" }, el("i", {}));
+    bar.firstChild.style.width = `${pct}%`;
+    return el("div", { class: `ach ${state}` },
+      el("div", { class: "ach-ico" }, state === "locked" ? "🔒" : ui_.icon),
+      el("div", { class: "ach-body" },
+        el("strong", {}, ui_.title),
+        el("small", {}, ui_.desc),
+        bar,
+        el("small", { class: "ach-prog" }, `${fmtNum(x.progress)} / ${fmtNum(x.target)}`)),
+      state === "claimed" ? el("span", { class: "ach-done" }, "✓ Réclamé")
+        : state === "ready"
+          ? el("button", { class: "ach-claim", disabled: ui.busy ? "" : null, onclick: () => claimAchievement(x.id) }, `Réclamer +${fmtNum(x.reward)} Abri$`)
+          : el("span", { class: "ach-reward" }, `+${fmtNum(x.reward)} Abri$`));
+  });
+  return el("div", {},
+    el("h2", { class: "section-title" }, `Succès (${done}/${achievements.length})`),
+    el("div", { class: "ach-list" }, items));
 }
 
 async function adminRefill() {
@@ -807,19 +845,23 @@ function adminPanel() {
   const a = ui.admin;
   const set = (patch) => { Object.assign(a, patch); render(); };
   const rarSelect = el("select", { onchange: (e) => { a.rarity = e.target.value; } },
-    RARITIES.map((r) => el("option", { value: r.key, selected: r.key === a.rarity ? "" : null }, `${r.tier} · ${r.label}`)));
+    RARITIES.map((r) => el("option", { value: r.key, selected: r.key === a.rarity }, `${r.tier} · ${r.label}`)));
   const luck = el("input", { type: "number", min: "1", max: "1000", step: "1", value: String(a.luck),
     onchange: (e) => { a.luck = Math.min(1000, Math.max(1, Number(e.target.value) || 1)); e.target.value = a.luck; } });
 
-  return el("details", { class: "admin-panel" },
+  return el("details", {
+    class: "admin-panel",
+    open: a.open || a.test,
+    ontoggle: (e) => { a.open = e.currentTarget.open; },
+  },
     el("summary", {}, "🧪 Mode testeur"),
     el("button", { class: "secondary", disabled: ui.busy ? "" : null, onclick: adminRefill }, "Recharger boosters + 1000 Abri$"),
     el("label", { class: "admin-row" },
-      el("input", { type: "checkbox", checked: a.test ? "" : null, onchange: (e) => set({ test: e.target.checked }) }),
+      el("input", { type: "checkbox", checked: a.test, onchange: (e) => set({ test: e.target.checked }) }),
       " Boosters de test (infinis) sur l'onglet Boosters"),
     a.test ? el("div", { class: "admin-opts" },
-      el("label", {}, el("input", { type: "radio", name: "admode", checked: a.mode === "luck" ? "" : null, onchange: () => set({ mode: "luck" }) }), " Luck ×", luck),
-      el("label", {}, el("input", { type: "radio", name: "admode", checked: a.mode === "force" ? "" : null, onchange: () => set({ mode: "force" }) }), " Rareté forcée ", rarSelect)
+      el("label", {}, el("input", { type: "radio", name: "admode", checked: a.mode === "luck", onchange: () => set({ mode: "luck" }) }), " Luck ×", luck),
+      el("label", {}, el("input", { type: "radio", name: "admode", checked: a.mode === "force", onchange: () => set({ mode: "force" }) }), " Rareté forcée ", rarSelect)
     ) : null
   );
 }
@@ -828,6 +870,57 @@ function adminPanel() {
 
 const emptySocial = () => ({ friends: [], incoming: [], outgoing: [], tradesIn: [], tradesOut: [], history: [] });
 let social = emptySocial();
+
+/* ---------- Succès & classement (calculés et validés par le serveur) ---------- */
+
+// Seuls l'icône et les textes sont ici ; objectifs et récompenses viennent de list_achievements().
+const ACH_UI = {
+  unique_3:        { icon: "🃏", title: "Premiers pas",       desc: "Possède 3 cartes différentes" },
+  unique_5:        { icon: "📚", title: "Collectionneur",     desc: "Possède 5 cartes différentes" },
+  complete_all:    { icon: "🏆", title: "Collection complète", desc: "Possède toutes les cartes du jeu" },
+  have_legendaire: { icon: "🌟", title: "Légende vivante",    desc: "Obtiens une carte Légendaire" },
+  have_divin:      { icon: "👑", title: "Hors-barème",        desc: "Obtiens une carte Divin" },
+  rich_1000:       { icon: "💰", title: "Petit trésor",       desc: "Atteins 1 000 Abri$ en réserve" },
+  friend_1:        { icon: "🤝", title: "Premier ami",        desc: "Ajoute un ami" },
+  friend_3:        { icon: "👥", title: "Bande de potes",     desc: "Aie 3 amis" },
+};
+let achievements = null;   // [{id, target, reward, progress, claimed}]
+let board = null;          // {top, me, total_cards, players}
+
+async function loadAchievements() {
+  if (!me) return;
+  try {
+    achievements = await rpc("list_achievements");
+    if (ui.tab === "profile" && !ui.opening) render();
+  } catch (err) { console.warn("[achievements]", err); }
+}
+
+async function claimAchievement(id) {
+  if (ui.busy) return;
+  const a = (achievements || []).find((x) => x.id === id);
+  ui.busy = true;
+  render();
+  try {
+    await profileCall("claim_achievement", { p_id: id });
+    toast(`🎉 +${money(a ? a.reward : 0)}`);
+  } catch (err) {
+    toast(friendlyError(err));
+  }
+  ui.busy = false;
+  await loadAchievements();
+  render();
+}
+
+async function loadBoard() {
+  if (!me) return;
+  try {
+    board = await rpc("get_leaderboard");
+  } catch (err) {
+    console.warn("[leaderboard]", err);
+    board = { error: true };
+  }
+  if (ui.tab === "friends" && ui.friendsTab === "ranking" && !ui.visit) render();
+}
 const socialBadge = () => social.incoming.length + social.tradesIn.length;
 
 // Recharge amis, demandes et échanges. Redessine l'onglet Amis s'il est ouvert
@@ -938,14 +1031,48 @@ function viewFriends() {
   const seg = (id, label, count) =>
     el("button", {
       class: ui.friendsTab === id ? "active" : "", type: "button",
-      onclick: () => { ui.friendsTab = id; render(); },
+      onclick: () => { ui.friendsTab = id; render(); if (id === "ranking") loadBoard(); },
     }, label, count > 0 ? el("span", { class: "seg-count" }, String(count)) : null);
 
   return el("section", { class: "view" },
     el("div", { class: "seg" },
       seg("friends", "Amis", social.incoming.length),
-      seg("trades", "Échanges", social.tradesIn.length)),
-    ui.friendsTab === "trades" ? viewTrades() : viewFriendList()
+      seg("trades", "Échanges", social.tradesIn.length),
+      seg("ranking", "Classement", 0)),
+    ui.friendsTab === "trades" ? viewTrades() : ui.friendsTab === "ranking" ? viewRanking() : viewFriendList()
+  );
+}
+
+function viewRanking() {
+  if (!board) return el("p", { class: "muted center loading" }, "Chargement du classement…");
+  if (board.error) return el("p", { class: "warning" }, "Classement indisponible (exécute achievements.sql dans Supabase).");
+
+  const mine = (p) => p.pseudo.toLowerCase() === me.pseudo.toLowerCase();
+  const medal = (r) => ["🥇", "🥈", "🥉"][r - 1] || String(r);
+  const sub = (p) => `${p.unique_owned}/${board.total_cards} cartes · ${p.top_cards} ✨`;
+
+  const podium = board.top.slice(0, 3).map((p) => {
+    const d = el("div", { class: `podium-step rank-${p.rank}${mine(p) ? " me" : ""}` },
+      el("div", { class: "podium-medal" }, medal(p.rank)),
+      el("div", { class: "podium-name" }, p.pseudo),
+      el("div", { class: "podium-sub" }, `${p.unique_owned}/${board.total_cards}`),
+      el("div", { class: "podium-sub gold" }, money(p.value)));
+    return d;
+  });
+  // ordre visuel : 2e, 1er, 3e
+  const ordered = [podium[1], podium[0], podium[2]].filter(Boolean);
+
+  const row = (p) => el("div", { class: "rank-row" + (mine(p) ? " me" : "") },
+    el("span", { class: "rank-n" }, medal(p.rank)),
+    el("span", { class: "rank-who" }, el("strong", {}, p.pseudo), el("small", {}, sub(p))),
+    el("span", { class: "rank-val" }, money(p.value)));
+
+  const inTop = board.me && board.top.some(mine);
+  return el("div", {},
+    el("p", { class: "muted small" }, `${board.players} joueur${board.players > 1 ? "s" : ""} · classés par cartes uniques, puis valeur de revente de la collection.`),
+    ordered.length ? el("div", { class: "podium" }, ordered) : null,
+    el("div", { class: "rank-list" }, board.top.slice(3).map(row)),
+    board.me && !inTop ? [el("p", { class: "muted center small" }, "···"), el("div", { class: "rank-list" }, row(board.me))] : null
   );
 }
 
