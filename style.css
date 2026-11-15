@@ -136,8 +136,8 @@ h1 { text-align: center; margin: 0; font-size: 2rem; }
 .odd-sell { color: var(--gold); min-width: 5.5em; }
 
 .reveal-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 14px 0; }
-.flip { width: calc((100% - 20px) / 3); background: none; padding: 0; perspective: 800px; aspect-ratio: 3 / 4; position: relative; }
-.flip-inner { position: relative; width: 100%; height: 100%; transition: transform .6s; transform-style: preserve-3d; }
+.flip { width: calc((100% - 20px) / 3); background: none; padding: 0; perspective: 1000px; aspect-ratio: 3 / 4; position: relative; }
+.flip-inner { position: relative; width: 100%; height: 100%; transition: transform .7s cubic-bezier(.4, .2, .2, 1); transform-style: preserve-3d; }
 .flip.revealed .flip-inner { transform: rotateY(180deg); }
 .face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 12px; }
 .face.front {
@@ -159,11 +159,10 @@ h1 { text-align: center; margin: 0; font-size: 2rem; }
 
 /* ---------- Carte ---------- */
 .gcard {
-  --glow: 0px;
   position: relative;
   display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center;
   background: var(--panel);
-  background: linear-gradient(165deg, color-mix(in srgb, var(--rc, #9aa0b8) 16%, var(--panel)), var(--panel) 75%);
+  background: linear-gradient(165deg, color-mix(in srgb, var(--rc, #94a3b8) 16%, var(--panel)), var(--panel) 75%);
   border: 2px solid var(--rc, var(--muted));
   border-radius: 12px;
   padding: 6px 6px 8px;
@@ -171,13 +170,31 @@ h1 { text-align: center; margin: 0; font-size: 2rem; }
   width: 100%;
   max-width: 100%;
   overflow: hidden;
-  box-shadow: 0 0 var(--glow) color-mix(in srgb, var(--rc, transparent) 55%, transparent);
 }
-.gcard[data-tier="1"] { --glow: 6px; }
-.gcard[data-tier="2"] { --glow: 10px; }
-.gcard[data-tier="3"] { --glow: 16px; }
-.gcard[data-tier="4"] { --glow: 22px; background: linear-gradient(165deg, color-mix(in srgb, var(--rc) 32%, var(--panel)), var(--panel) 80%); }
-.gcard[data-tier="5"] { --glow: 30px; background: linear-gradient(165deg, color-mix(in srgb, var(--rc) 38%, var(--panel)), var(--panel) 85%); }
+/* Paliers de rareté : --rc (couleur) est posée en JS depuis RARITIES */
+.gcard[data-tier="0"] { box-shadow: 0 0 0 transparent; }
+.gcard[data-tier="1"] { box-shadow: 0 0 8px color-mix(in srgb, var(--rc) 45%, transparent); }
+.gcard[data-tier="2"] { box-shadow: 0 0 12px color-mix(in srgb, var(--rc) 50%, transparent); }
+.gcard[data-tier="3"] { /* épique : lueur violette fixe */
+  box-shadow: 0 0 18px 2px rgba(192, 132, 252, .55), inset 0 0 12px rgba(192, 132, 252, .18);
+  background: linear-gradient(165deg, color-mix(in srgb, var(--rc) 28%, var(--panel)), var(--panel) 80%);
+}
+.gcard[data-tier="4"] { /* légendaire */
+  background: linear-gradient(165deg, color-mix(in srgb, var(--rc) 32%, var(--panel)), var(--panel) 80%);
+  animation: pulse-gold 2.4s ease-in-out infinite;
+}
+.gcard[data-tier="5"] { /* divin */
+  background: linear-gradient(165deg, color-mix(in srgb, var(--rc) 40%, var(--panel)), var(--panel) 85%);
+  animation: pulse-divine 1.8s ease-in-out infinite;
+}
+@keyframes pulse-gold {
+  0%, 100% { box-shadow: 0 0 12px 1px rgba(251, 191, 36, .45); }
+  50%      { box-shadow: 0 0 26px 4px rgba(251, 191, 36, .85); }
+}
+@keyframes pulse-divine {
+  0%, 100% { box-shadow: 0 0 18px 3px rgba(244, 63, 94, .6), 0 0 40px 6px rgba(244, 63, 94, .25); transform: scale(1); }
+  50%      { box-shadow: 0 0 34px 8px rgba(244, 63, 94, 1), 0 0 64px 14px rgba(244, 63, 94, .45); transform: scale(1.03); }
+}
 
 /* Reflet animé réservé aux cartes Divin */
 .gcard[data-tier="5"]::after {
@@ -205,7 +222,26 @@ h1 { text-align: center; margin: 0; font-size: 2rem; }
 .gcard.big .g-name { font-size: 1.05rem; }
 .gcard.big .g-meta { font-size: .75rem; }
 
+.g-stats { list-style: none; margin: 0; padding: 0; width: 100%; display: grid; gap: 1px; }
+.g-stats li { display: flex; justify-content: space-between; gap: 4px; font-size: .56rem; line-height: 1.2; color: var(--muted); }
+.g-stats span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.g-stats b { color: var(--text); font-weight: 700; text-align: right; }
+.gcard.big .g-stats li { font-size: .75rem; }
+
 /* ---------- Collection ---------- */
+.dex-counter { margin: 2px 0 10px; font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+
+/* Pokédex : carte non possédée = silhouette + cadenas */
+.tile.card-locked { position: relative; pointer-events: none; }
+.tile.card-locked > .gcard {
+  filter: brightness(0) contrast(0.1) opacity(0.4);
+  animation: none; box-shadow: none; transform: none;
+}
+.tile.card-locked > .gcard::after { content: none; }
+.tile.card-locked::after {
+  content: "🔒"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  font-size: 1.6rem; line-height: 1; opacity: .85; pointer-events: none;
+}
 .chips { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0 10px; scrollbar-width: none; }
 .chips::-webkit-scrollbar { display: none; }
 .chips.sub { padding-top: 0; }
@@ -312,6 +348,6 @@ button.row-item { width: 100%; text-align: left; }
 
 @media (prefers-reduced-motion: reduce) {
   .pack, .flip.revealed[data-tier="4"], .flip.revealed[data-tier="5"], .modal-box, .toast,
-  .gcard[data-tier="5"]::after { animation: none; }
+  .gcard[data-tier="4"], .gcard[data-tier="5"], .gcard[data-tier="5"]::after { animation: none; }
   .flip-inner { transition: none; }
 }

@@ -19,12 +19,12 @@ const BOOSTER_EVERY_MS = 60 * 60 * 1000;  // idem : private.regen (1 heure)
 // 6 raretés. Ici : couleurs, textes et valeurs AFFICHÉES. Les vraies probabilités et les
 // vrais prix de revente sont dans la table "rarities" de Supabase (schema.sql).
 const RARITIES = [
-  { key: "commun",     label: "Commun",     tagline: "Peut mieux faire", color: "#6d9eeb", weight: 60,   sell: 5 },
-  { key: "peu-commun", label: "Peu commun", tagline: "Encouragements",   color: "#8e7cc3", weight: 25,   sell: 10 },
-  { key: "rare",       label: "Rare",       tagline: "Bien",             color: "#c27ba0", weight: 10,   sell: 25 },
-  { key: "epique",     label: "Épique",     tagline: "Très bien",        color: "#e06666", weight: 4,    sell: 75 },
-  { key: "legendaire", label: "Légendaire", tagline: "Félicitations",    color: "#f6b26b", weight: 0.9,  sell: 200 },
-  { key: "divin",      label: "Divin",      tagline: "Hors-barème",      color: "#ffd966", weight: 0.1,  sell: 500 },
+  { key: "commun",     label: "Commun",     tagline: "Peut mieux faire", color: "#94a3b8", weight: 60,   sell: 5 },
+  { key: "peu-commun", label: "Peu commun", tagline: "Encouragements",   color: "#38bdf8", weight: 25,   sell: 10 },
+  { key: "rare",       label: "Rare",       tagline: "Bien",             color: "#818cf8", weight: 10,   sell: 25 },
+  { key: "epique",     label: "Épique",     tagline: "Très bien",        color: "#c084fc", weight: 4,    sell: 75 },
+  { key: "legendaire", label: "Légendaire", tagline: "Félicitations",    color: "#fbbf24", weight: 0.9,  sell: 200 },
+  { key: "divin",      label: "Divin",      tagline: "Hors-barème",      color: "#f43f5e", weight: 0.1,  sell: 500 },
 ];
 RARITIES.forEach((r, i) => { r.tier = i; });
 const RARITY_BY_KEY = new Map(RARITIES.map((r) => [r.key, r]));
@@ -216,6 +216,17 @@ function msToNextBooster(p, now = nowServer()) {
 
 /* ---------- Catalogue (cards.json) ---------- */
 
+// "Capacité : 500 élèves | Bruit : 85 dB"  ->  [["Capacité","500 élèves"],["Bruit","85 dB"]]
+// (un objet {clé: valeur} reste accepté)
+function parseStats(s) {
+  if (!s) return [];
+  if (typeof s === "object") return Object.entries(s);
+  return String(s).split("|").map((part) => {
+    const i = part.indexOf(":");
+    return i < 0 ? ["", part.trim()] : [part.slice(0, i).trim(), part.slice(i + 1).trim()];
+  }).filter(([, v]) => v);
+}
+
 function normalizeCard(raw, index) {
   const label = `carte n°${index + 1}${raw && raw.id ? ` (${raw.id})` : ""}`;
   if (!raw || !raw.id || !raw.titre) {
@@ -237,7 +248,7 @@ function normalizeCard(raw, index) {
     categorie: raw.categorie ? String(raw.categorie) : "Divers",
     sous: raw.sous_categorie ? String(raw.sous_categorie) : "",
     rarity,
-    stats: raw.statistiques && typeof raw.statistiques === "object" ? Object.entries(raw.statistiques) : [],
+    stats: parseStats(raw.statistiques),
     image: raw.image ? String(raw.image) : "",
     description: raw.description ? String(raw.description) : "",
   };
@@ -370,11 +381,15 @@ function cardArt(card) {
   return art;
 }
 
-function cardFace(card, { big = false } = {}) {
+function cardFace(card, { big = false, stats = false } = {}) {
   const r = card.rarity;
   const node = el("div", { class: "gcard" + (big ? " big" : ""), "data-tier": String(r.tier) },
     cardArt(card),
     el("div", { class: "g-name" }, card.titre),
+    stats && card.stats.length
+      ? el("ul", { class: "g-stats" }, card.stats.slice(0, 2).map(([k, v]) =>
+          el("li", {}, k ? el("span", {}, k) : null, el("b", {}, fmtNum(v)))))
+      : null,
     el("div", { class: "g-meta" }, r.label)
   );
   node.style.setProperty("--rc", r.color);
@@ -655,7 +670,7 @@ function viewOpening() {
       el("div", { class: "flip-inner" },
         el("div", { class: "face front" }, "?"),
         el("div", { class: "face back" },
-          cardFace(item.card),
+          cardFace(item.card, { stats: true }),
           item.isNew ? el("span", { class: "new" }, "NEW") : null
         )
       )
@@ -706,9 +721,9 @@ function viewCollection() {
     cards.map((card) => {
       const count = me.owned[card.id] || 0;
       if (!count) {
-        return el("div", { class: "tile missing" },
-          el("div", { class: "g-emoji" }, "?"),
-          el("div", { class: "g-meta" }, "Pas encore découverte"));
+        // Carte non possédée : silhouette verrouillée (filtre + cadenas en CSS)
+        return el("div", { class: "tile card-locked", role: "img", "aria-label": "Carte pas encore découverte" },
+          cardFace(card));
       }
       return el("button", { class: "tile", onclick: () => showCard(card) },
         cardFace(card),
@@ -721,7 +736,11 @@ function viewCollection() {
     ? el("p", { class: "warning" }, `⚠️ ${catalogIssues.length} carte(s) de cards.json ignorée(s). Détails dans la console du navigateur.`)
     : null;
 
-  return el("section", { class: "view" }, issues, catRow, subRow, grid);
+  const g = collectionStats();
+  const pct = g.total ? Math.round((g.owned / g.total) * 100) : 0;
+  const counter = el("h2", { class: "dex-counter" }, `Collection : ${g.owned}/${g.total} cartes (${pct}%)`);
+
+  return el("section", { class: "view" }, counter, issues, catRow, subRow, grid);
 }
 
 /* ---------- Interface : profil ---------- */
