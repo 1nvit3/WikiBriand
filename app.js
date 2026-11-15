@@ -68,7 +68,7 @@ let me = null;
 let clockOffset = 0;          // heure du serveur - heure de l'appareil (ms)
 
 // Mode testeur : l'affichage du panneau est cosmétique, le serveur revérifie (admin.sql).
-const ADMIN_PSEUDOS = ["ton_pseudo"];
+const ADMIN_PSEUDOS = ["test"];
 const isAdmin = () => !!me && ADMIN_PSEUDOS.includes(me.pseudo.toLowerCase());
 
 const ui = {
