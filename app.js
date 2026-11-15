@@ -67,7 +67,12 @@ let catalogIssues = [];
 let me = null;
 let clockOffset = 0;          // heure du serveur - heure de l'appareil (ms)
 
+// Mode testeur : l'affichage du panneau est cosmétique, le serveur revérifie (admin.sql).
+const ADMIN_PSEUDOS = ["ton_pseudo"];
+const isAdmin = () => !!me && ADMIN_PSEUDOS.includes(me.pseudo.toLowerCase());
+
 const ui = {
+  admin: { test: false, mode: "luck", rarity: "divin", luck: 50 },   // mode : "force" | "luck"
   tab: "boosters",            // boosters | collection | profile
   loading: true,
   fatal: null,                // message d'erreur bloquant
@@ -132,6 +137,8 @@ function friendlyError(err) {
   if (status === 429 || /rate limit|too many/i.test(msg)) return "Trop de tentatives. Réessaie dans quelques minutes.";
   if (/CONFIRM_EMAIL/.test(msg)) return "Configuration : désactive « Confirm email » dans Supabase (Authentication > Sign In / Providers > Email).";
   if (/email.*(invalid|not allowed)|invalid.*email/i.test(msg)) return "Configuration : Supabase refuse le domaine e-mail. Change EMAIL_DOMAIN dans config.js.";
+  if (/unauthorized/.test(msg)) return "Action réservée au compte testeur.";
+  if (/invalid_rarity/.test(msg)) return "Aucune carte de cette rareté sur le serveur.";
   if (/no_booster/.test(msg)) return "Plus aucun booster disponible.";
   if (/not_enough_cards/.test(msg)) return "Tu ne possèdes pas assez d'exemplaires de cette carte.";
   if (/no_cards/.test(msg)) return "Aucune carte n'est enregistrée sur le serveur (exécute seed_cards.sql).";
@@ -295,11 +302,16 @@ const fmtStats = (s) => `(${s.owned}/${s.total})`;
 /* ---------- Actions (toutes passent par le serveur) ---------- */
 
 async function doOpenBooster() {
-  if (ui.busy || !me || me.boosters <= 0) return;
+  const test = isAdmin() && ui.admin.test;
+  if (ui.busy || !me || (me.boosters <= 0 && !test)) return;
   ui.busy = "open";
   render();
   try {
-    const j = await profileCall("open_booster");
+    const j = test
+      ? await profileCall("admin_open_booster", ui.admin.mode === "force"
+          ? { p_force_rarity: ui.admin.rarity, p_luck: 1 }
+          : { p_force_rarity: null, p_luck: ui.admin.luck })
+      : await profileCall("open_booster");
     ui.opening = j.cards.map((c) => ({ card: cardFromServer(c.id, c.rarete), isNew: c.is_new, revealed: false }));
   } catch (err) {
     toast(friendlyError(err));
@@ -626,7 +638,8 @@ function viewBoosters() {
     : el("p", { class: "muted center" }, "Prochain booster dans ",
         el("strong", { "data-countdown": "" }, fmtClock(msToNextBooster(me))));
 
-  const canOpen = me.boosters > 0 && !ui.busy;
+  const testMode = isAdmin() && ui.admin.test;
+  const canOpen = (me.boosters > 0 || testMode) && !ui.busy;
 
   return el("section", { class: "view" },
     el("div", { class: "pack" }, "📦"),
@@ -636,7 +649,7 @@ function viewBoosters() {
     el("button", {
       class: "primary", disabled: canOpen ? null : "",
       onclick: doOpenBooster,
-    }, ui.busy === "open" ? "Ouverture…" : me.boosters > 0 ? `Ouvrir un booster (${BOOSTER_SIZE} cartes)` : "Aucun booster disponible"),
+    }, ui.busy === "open" ? "Ouverture…" : testMode ? `🧪 Booster de test (${BOOSTER_SIZE} cartes)` : me.boosters > 0 ? `Ouvrir un booster (${BOOSTER_SIZE} cartes)` : "Aucun booster disponible"),
     el("h2", { class: "section-title" }, "Chances par carte et prix de revente"),
     el("div", { class: "odds" },
       RARITIES.map((r) => {
@@ -772,7 +785,42 @@ function viewProfile() {
     el("h2", { class: "section-title" }, "Progression par rareté"),
     el("div", { class: "odds" }, rows),
     el("button", { class: "secondary", onclick: logout }, "Se déconnecter"),
-    reset
+    reset,
+    isAdmin() ? adminPanel() : null
+  );
+}
+
+async function adminRefill() {
+  if (ui.busy) return;
+  ui.busy = true;
+  try {
+    await profileCall("admin_refill");
+    toast("Stock rechargé : 5 boosters, +1000 Abri$");
+  } catch (err) {
+    toast(friendlyError(err));
+  }
+  ui.busy = false;
+  render();
+}
+
+function adminPanel() {
+  const a = ui.admin;
+  const set = (patch) => { Object.assign(a, patch); render(); };
+  const rarSelect = el("select", { onchange: (e) => { a.rarity = e.target.value; } },
+    RARITIES.map((r) => el("option", { value: r.key, selected: r.key === a.rarity ? "" : null }, `${r.tier} · ${r.label}`)));
+  const luck = el("input", { type: "number", min: "1", max: "1000", step: "1", value: String(a.luck),
+    onchange: (e) => { a.luck = Math.min(1000, Math.max(1, Number(e.target.value) || 1)); e.target.value = a.luck; } });
+
+  return el("details", { class: "admin-panel" },
+    el("summary", {}, "🧪 Mode testeur"),
+    el("button", { class: "secondary", disabled: ui.busy ? "" : null, onclick: adminRefill }, "Recharger boosters + 1000 Abri$"),
+    el("label", { class: "admin-row" },
+      el("input", { type: "checkbox", checked: a.test ? "" : null, onchange: (e) => set({ test: e.target.checked }) }),
+      " Boosters de test (infinis) sur l'onglet Boosters"),
+    a.test ? el("div", { class: "admin-opts" },
+      el("label", {}, el("input", { type: "radio", name: "admode", checked: a.mode === "luck" ? "" : null, onchange: () => set({ mode: "luck" }) }), " Luck ×", luck),
+      el("label", {}, el("input", { type: "radio", name: "admode", checked: a.mode === "force" ? "" : null, onchange: () => set({ mode: "force" }) }), " Rareté forcée ", rarSelect)
+    ) : null
   );
 }
 

@@ -351,3 +351,11 @@ button.row-item { width: 100%; text-align: left; }
   .gcard[data-tier="4"], .gcard[data-tier="5"], .gcard[data-tier="5"]::after { animation: none; }
   .flip-inner { transition: none; }
 }
+
+/* ---------- Mode testeur ---------- */
+.admin-panel { margin-top: 24px; padding: 10px 12px; border: 1px dashed var(--panel-2); border-radius: 12px; font-size: .85rem; color: var(--muted); }
+.admin-panel summary { cursor: pointer; }
+.admin-panel button { margin: 10px 0; width: 100%; }
+.admin-row, .admin-opts label { display: block; margin: 6px 0; }
+.admin-opts input[type=number] { width: 5em; }
+.admin-panel select, .admin-panel input[type=number] { background: var(--panel); color: var(--text); border: 1px solid var(--panel-2); border-radius: 8px; padding: 4px 6px; }
