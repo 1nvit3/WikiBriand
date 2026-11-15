@@ -1,84 +1,58 @@
 {
   "cards": [
-    {
-      "id": "einstein",
-      "titre": "Albert Einstein",
-      "categorie": "Sciences",
-      "sous_categorie": "Physique",
-      "rarete": "Divin",
-      "statistiques": { "Influence": 99, "Popularité": 97, "Mystère": 55 },
-      "image": "images/einstein.svg",
-      "description": "Physicien à l'origine de la théorie de la relativité."
-    },
-    {
-      "id": "cesar",
-      "titre": "Jules César",
-      "categorie": "Histoire",
-      "sous_categorie": "Antiquité",
-      "rarete": "Légendaire",
-      "statistiques": { "Influence": 95, "Popularité": 88, "Mystère": 40 },
-      "image": "images/cesar.svg",
-      "description": "Général et homme d'État romain, figure majeure de la fin de la République."
-    },
-    {
-      "id": "trou-noir",
-      "titre": "Trou noir",
-      "categorie": "Sciences",
-      "sous_categorie": "Physique",
-      "rarete": "Épique",
-      "statistiques": { "Influence": 70, "Popularité": 85, "Mystère": 98 },
-      "image": "images/trou-noir.svg",
-      "description": "Région de l'espace d'où même la lumière ne peut s'échapper."
-    },
-    {
-      "id": "pyramide",
-      "titre": "Pyramide de Khéops",
-      "categorie": "Histoire",
-      "sous_categorie": "Antiquité",
-      "rarete": "Rare",
-      "statistiques": { "Influence": 60, "Popularité": 80, "Mystère": 85 },
-      "image": "images/pyramide.svg",
-      "description": "La plus grande des pyramides de Gizeh, en Égypte."
-    },
-    {
-      "id": "adn",
-      "titre": "ADN",
-      "categorie": "Sciences",
-      "sous_categorie": "Biologie",
-      "rarete": "Rare",
-      "statistiques": { "Influence": 90, "Popularité": 70, "Mystère": 50 },
-      "image": "images/adn.svg",
-      "description": "Molécule qui porte l'information génétique des êtres vivants."
-    },
-    {
-      "id": "france",
-      "titre": "France",
-      "categorie": "Géographie",
-      "sous_categorie": "Pays",
-      "rarete": "Peu commun",
-      "statistiques": { "Influence": 75, "Popularité": 90, "Mystère": 20 },
-      "image": "images/france.svg",
-      "description": "Pays d'Europe de l'Ouest dont la capitale est Paris."
-    },
-    {
-      "id": "gravite",
-      "titre": "Gravité",
-      "categorie": "Sciences",
-      "sous_categorie": "Physique",
-      "rarete": "Commun",
-      "statistiques": { "Influence": 65, "Popularité": 60, "Mystère": 45 },
-      "image": "images/gravite.svg",
-      "description": "Force d'attraction entre les masses."
-    },
-    {
-      "id": "cellule",
-      "titre": "Cellule",
-      "categorie": "Sciences",
-      "sous_categorie": "Biologie",
-      "rarete": "Commun",
-      "statistiques": { "Influence": 55, "Popularité": 50, "Mystère": 30 },
-      "image": "images/cellule.svg",
-      "description": "Unité de base de tous les êtres vivants."
-    }
-  ]
+  {
+    "id": "bat_coeur",
+    "titre": "Le Cœur",
+    "categorie": "Bâtiments",
+    "rarete": "commun",
+    "statistiques": "Capacité : 500 élèves | Bruit : 85 dB",
+    "image": "images/batiments/le_coeur.jpg",
+    "description": "Le point de ralliement central du lycée. C'est ici que toutes les rumeurs naissent entre deux sonneries."
+  },
+  {
+    "id": "bus_h1",
+    "titre": "Ligne H1 (Gavy / Montoir)",
+    "categorie": "Bus",
+    "rarete": "peu-commun",
+    "statistiques": "Fréquence : 10 min | Affluence : 95%",
+    "image": "images/bus/h1.jpg",
+    "description": "Le bus légendaire du matin. Réussir à y trouver une place assise à 7h45 relève de l'exploit sportif."
+  },
+  {
+    "id": "spe_nsi",
+    "titre": "Spécialité NSI",
+    "categorie": "Matières",
+    "rarete": "rare",
+    "statistiques": "Langage : Python/SQL | Caféine : +200%",
+    "image": "images/matieres/nsi.jpg",
+    "description": "Là où l'on code des jeux de cartes au lieu de réviser le bac. Les bugs disparaissent mystérieusement quand le prof s'approche."
+  },
+  {
+    "id": "bat_m_aero",
+    "titre": "Bâtiment M (Aéronautique)",
+    "categorie": "Bâtiments",
+    "rarete": "epique",
+    "statistiques": "Altitude : 0m | Style : Hangar VIP",
+    "image": "images/batiments/batiment_m.jpg",
+    "description": "Une zone quasi mythique pour les élèves de filière générale. On raconte qu'il y a de vrais avions à l'intérieur."
+  },
+  {
+    "id": "opt_maths_expertes",
+    "titre": "Option Maths Expertes",
+    "categorie": "Matières",
+    "rarete": "legendaire",
+    "statistiques": "Nombres complexes : ∞ | Sommeil : -50%",
+    "image": "images/matieres/maths_expertes.png",
+    "description": "Réservé aux survivants qui trouvent que 6h de maths par semaine ne suffisent pas. Les matrices n'ont plus aucun secret pour eux."
+  },
+  {
+    "id": "event_blocus",
+    "titre": "Le Blocus Historique",
+    "categorie": "Vie Scolaire",
+    "rarete": "divin",
+    "statistiques": "Poubelles : 42 | Cours annulés : 100%",
+    "image": "images/vie_scolaire/blocus.jpg",
+    "description": "Un événement rarissime qui paralyse les grilles dès 7h30 et offre une matinée libre inespérée à tout l'établissement."
+  }
+]
 }
