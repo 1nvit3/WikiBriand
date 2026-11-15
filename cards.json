@@ -56,12 +56,11 @@
     }
   ]
 }
-```[cite: 19]
 
 ### Ce qu'il te reste à faire :
 1. Enregistre ce fichier `cards.json` mis à jour (avec `name`, `cat`, et `rarity`).
-2. Relance ton script dans ton terminal : `py tools/cards_to_sql.py` (pour être raccord avec la base SQL)[cite: 9].
-3. Exécute le nouveau `seed_cards.sql` dans Supabase si nécessaire[cite: 9].
+2. Relance ton script dans ton terminal : `py tools/cards_to_sql.py` (pour être raccord avec la base SQL).
+3. Exécute le nouveau `seed_cards.sql` dans Supabase si nécessaire.
 4. Pousse ton nouveau `cards.json` (et ton dossier `/images/` sans accents dans les noms de dossiers) sur **GitHub**.
 
 Une fois que c'est fait, les vrais noms s'afficheront et les images chargeront correctement !
