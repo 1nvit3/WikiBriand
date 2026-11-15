@@ -73,8 +73,18 @@ h1 { text-align: center; margin: 0; font-size: 2rem; }
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
-.nav-btn { flex: 1; max-width: 200px; background: transparent; padding: 10px 4px; border-radius: 10px; font-size: .9rem; }
+.nav-btn {
+  position: relative; flex: 1; min-width: 0; max-width: 160px;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  background: transparent; padding: 6px 2px; border-radius: 10px; font-size: .72rem;
+}
+.nav-ico { font-size: 1.25rem; line-height: 1.1; }
 .nav-btn.active { background: var(--panel-2); color: var(--accent); font-weight: 700; }
+.nav-badge {
+  position: absolute; top: 0; left: calc(50% + 8px);
+  min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px;
+  background: var(--danger); color: #fff; font-size: .65rem; font-weight: 800; line-height: 18px; text-align: center;
+}
 
 /* ---------- Boutons ---------- */
 .primary, .secondary {
@@ -237,6 +247,58 @@ h1 { text-align: center; margin: 0; font-size: 2rem; }
 .stat { background: var(--panel); border-radius: 10px; padding: 8px 10px; min-width: 0; }
 .stat dt { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
 .stat dd { margin: 2px 0 0; font-weight: 800; font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+
+/* ---------- Amis, profils visités, échanges ---------- */
+.field select {
+  font: inherit; color: var(--text); background: var(--panel); border: 2px solid var(--panel-2);
+  border-radius: 10px; padding: 12px; width: 100%; min-width: 0;
+}
+.linklike.left { margin: 4px 0 8px; text-align: left; }
+
+.seg { display: flex; gap: 4px; background: var(--panel); border-radius: 12px; padding: 4px; margin-bottom: 14px; }
+.seg button {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+  background: transparent; padding: 9px; border-radius: 9px; font-weight: 600;
+}
+.seg button.active { background: var(--panel-2); color: var(--accent); }
+.seg-count { background: var(--danger); color: #fff; font-size: .68rem; font-weight: 800; min-width: 18px; height: 18px; line-height: 18px; border-radius: 9px; padding: 0 5px; }
+
+.search { display: flex; gap: 8px; }
+.search input {
+  flex: 1; min-width: 0; font: inherit; color: var(--text);
+  background: var(--panel); border: 2px solid var(--panel-2); border-radius: 10px; padding: 11px 12px;
+}
+.search button { flex: none; background: var(--accent); color: #fff; font-weight: 700; border-radius: 10px; padding: 0 16px; }
+.results { margin-top: 10px; }
+
+.rows { display: flex; flex-direction: column; gap: 8px; }
+.row-item {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; min-width: 0;
+  background: var(--panel); border-radius: 12px; padding: 10px 12px;
+}
+button.row-item { width: 100%; text-align: left; }
+.row-item .who { font-weight: 700; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row-actions { display: flex; gap: 6px; flex: none; align-items: center; }
+
+.btn-sm { padding: 8px 12px; border-radius: 10px; font-weight: 700; font-size: .85rem; background: var(--accent); color: #fff; white-space: nowrap; }
+.btn-sm.ghost { background: var(--panel-2); color: var(--text); }
+
+.section-title.big { font-size: 1.4rem; margin-top: 8px; }
+.visit-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0 0 12px; }
+.visit-stats .gold { color: var(--gold); }
+.progress { height: 10px; border-radius: 6px; background: var(--panel-2); overflow: hidden; }
+.progress > span { display: block; height: 100%; background: var(--ok); border-radius: 6px; }
+
+.trade { background: var(--panel); border-radius: var(--radius); padding: 12px; margin-bottom: 10px; }
+.trade-head { margin: 0; }
+.trade .warning { margin: 0 0 10px; }
+.trade-actions { display: flex; gap: 8px; }
+.trade-actions .btn-sm { flex: 1; padding: 11px 8px; }
+.swap { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 12px 0; }
+.swap .side { width: min(104px, 28vw); display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.swap .arrow { font-size: 1.4rem; color: var(--muted); }
+.side-label { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.hist { font-size: .85rem; color: var(--muted); margin: 0; padding: 8px 0; border-bottom: 1px solid var(--panel-2); overflow-wrap: anywhere; }
 
 /* ---------- Notifications ---------- */
 #toasts {
