@@ -72,6 +72,8 @@ const ADMIN_PSEUDOS = ["test"];
 const isAdmin = () => !!me && ADMIN_PSEUDOS.includes(me.pseudo.toLowerCase());
 
 const ui = {
+  rarity: null,               // filtre de rareté (clé de RARITIES) ou null
+  sort: { key: "rarity", dir: "desc" },   // rarity | name | obtained
   admin: { open: false, test: false, mode: "luck", rarity: "divin", luck: 50 },   // mode : "force" | "luck"
   tab: "boosters",            // boosters | collection | profile
   loading: true,
@@ -179,7 +181,7 @@ async function rpc(name, args) {
 }
 
 function applyProfile(j) {
-  me = { pseudo: j.pseudo, abris: j.abris, boosters: j.boosters, owned: j.owned || {}, lastTick: j.last_tick_ms };
+  me = { pseudo: j.pseudo, abris: j.abris, boosters: j.boosters, owned: j.owned || {}, obtainedAt: j.obtained_at || {}, lastTick: j.last_tick_ms };
   clockOffset = j.server_now_ms - Date.now();
 }
 
@@ -298,13 +300,40 @@ function cardFromServer(id, rarete) {
 
 /* ---------- Collection ---------- */
 
-function collectionStats(cat = null, sub = null) {
-  const cards = catalog.filter((c) => (!cat || c.categorie === cat) && (!sub || c.sous === sub));
+function collectionStats(cat = null, sub = null, rarity = null) {
+  const cards = catalog.filter((c) => (!cat || c.categorie === cat) && (!sub || c.sous === sub) && (!rarity || c.rarity.key === rarity));
   const owned = cards.filter((c) => (me.owned[c.id] || 0) > 0).length;
   return { owned, total: cards.length };
 }
 
 const fmtStats = (s) => `(${s.owned}/${s.total})`;
+
+/* ---------- Tri de la collection ---------- */
+
+const SORTS = {
+  rarity:   { label: "Rareté",    dir: "desc", hint: { desc: "Divin→Commun", asc: "Commun→Divin" } },
+  name:     { label: "Nom",       dir: "asc",  hint: { asc: "A→Z", desc: "Z→A" } },
+  obtained: { label: "Obtention", dir: "desc", hint: { desc: "Récentes", asc: "Anciennes" } },
+};
+
+function sortCards(cards) {
+  const { key, dir } = ui.sort;
+  const k = dir === "asc" ? 1 : -1;                       // sens demandé, pour la clé choisie
+  const byName = (a, b) => a.titre.localeCompare(b.titre, "fr");
+  const when = (c) => (me.owned[c.id] || 0) > 0 ? (me.obtainedAt[c.id] || 0) : null;
+  return [...cards].sort((a, b) => {
+    if (key === "name") return k * byName(a, b);
+    if (key === "obtained") {
+      const x = when(a), y = when(b);
+      if (x === null || y === null) {                     // non possédées : toujours en fin de liste
+        if (x === y) return b.rarity.tier - a.rarity.tier || byName(a, b);
+        return x === null ? 1 : -1;
+      }
+      return k * (x - y) || byName(a, b);
+    }
+    return k * (a.rarity.tier - b.rarity.tier) || byName(a, b);   // rareté, puis nom A→Z
+  });
+}
 
 /* ---------- Actions (toutes passent par le serveur) ---------- */
 
@@ -738,9 +767,35 @@ function viewCollection() {
       )
     : null;
 
-  const cards = catalog.filter((c) => (!ui.cat || c.categorie === ui.cat) && (!ui.sub || c.sous === ui.sub));
+  // Rareté : compteurs adaptés à la catégorie / sous-catégorie choisies
+  const rarRow = el("div", { class: "chips sub rar" },
+    chip(`Toutes ${fmtStats(collectionStats(ui.cat, ui.sub))}`, !ui.rarity, () => { ui.rarity = null; render(); }),
+    RARITIES.map((r) => {
+      const b = chip(`${r.label} ${fmtStats(collectionStats(ui.cat, ui.sub, r.key))}`, ui.rarity === r.key,
+        () => { ui.rarity = ui.rarity === r.key ? null : r.key; render(); });
+      b.classList.add("rar-chip");
+      b.style.setProperty("--rc", r.color);
+      return b;
+    })
+  );
+
+  const select = el("select", {
+    class: "sort-select", "aria-label": "Trier par",
+    onchange: (e) => { ui.sort = { key: e.target.value, dir: SORTS[e.target.value].dir }; render(); },
+  }, Object.entries(SORTS).map(([k, s]) => el("option", { value: k, selected: ui.sort.key === k }, s.label)));
+  const dirBtn = el("button", {
+    class: "sort-dir", type: "button",
+    title: "Inverser l'ordre",
+    "aria-label": `Ordre : ${SORTS[ui.sort.key].hint[ui.sort.dir]} (toucher pour inverser)`,
+    onclick: () => { ui.sort = { key: ui.sort.key, dir: ui.sort.dir === "asc" ? "desc" : "asc" }; render(); },
+  }, el("b", {}, ui.sort.dir === "asc" ? "↑" : "↓"), el("span", {}, SORTS[ui.sort.key].hint[ui.sort.dir]));
+  const sortBar = el("div", { class: "sort-bar" }, select, dirBtn);
+
+  const cards = sortCards(catalog.filter((c) =>
+    (!ui.cat || c.categorie === ui.cat) && (!ui.sub || c.sous === ui.sub) && (!ui.rarity || c.rarity.key === ui.rarity)));
 
   const grid = el("div", { class: "tile-grid" },
+    cards.length ? null : el("p", { class: "muted small empty-grid" }, "Aucune carte avec ces filtres."),
     cards.map((card) => {
       const count = me.owned[card.id] || 0;
       if (!count) {
@@ -763,7 +818,7 @@ function viewCollection() {
   const pct = g.total ? Math.round((g.owned / g.total) * 100) : 0;
   const counter = el("h2", { class: "dex-counter" }, `Collection : ${g.owned}/${g.total} cartes (${pct}%)`);
 
-  return el("section", { class: "view" }, counter, issues, catRow, subRow, grid);
+  return el("section", { class: "view" }, counter, issues, catRow, subRow, rarRow, sortBar, grid);
 }
 
 /* ---------- Interface : profil ---------- */

@@ -394,3 +394,18 @@ button.row-item { width: 100%; text-align: left; }
 .rank-who strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .rank-who small { color: var(--muted); font-size: .72rem; }
 .rank-val { color: var(--gold); font-size: .85rem; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* ---------- Filtre de rareté + tri ---------- */
+.chip.rar-chip { border: 1px solid color-mix(in srgb, var(--rc) 55%, transparent); }
+.chip.rar-chip.active { background: var(--rc); border-color: var(--rc); color: #0b0d14; font-weight: 800; }
+.sort-bar { display: flex; gap: 8px; align-items: stretch; margin: 2px 0 10px; }
+.sort-select {
+  flex: 1; min-width: 0; background: var(--panel); color: var(--text); border: 1px solid var(--panel-2);
+  border-radius: 12px; padding: 9px 12px; font: inherit; font-size: .9rem;
+}
+.sort-dir {
+  flex: none; display: flex; align-items: center; gap: 6px; background: var(--panel); color: var(--text);
+  border: 1px solid var(--panel-2); border-radius: 12px; padding: 9px 12px; font-size: .85rem; white-space: nowrap;
+}
+.sort-dir b { color: var(--accent); font-size: 1.05rem; line-height: 1; }
+.empty-grid { grid-column: 1 / -1; text-align: center; padding: 18px 0; }
