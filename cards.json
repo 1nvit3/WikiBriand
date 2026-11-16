@@ -31,7 +31,7 @@
       "id": "bat_m_aero",
       "titre": "Bâtiment M (Aéronautique)",
       "categorie": "Bâtiments",
-      "rarete": "epique",
+      "rarete": "legendaire",
       "statistiques": "Altitude : 0m | Style : Hangar VIP",
       "image": "images/batiments/batiment_m.jpg",
       "description": "Une zone quasi mythique pour les élèves de filière générale. On raconte qu'il y a de vrais avions à l'intérieur."
@@ -40,7 +40,7 @@
       "id": "opt_maths_expertes",
       "titre": "Option Maths Expertes",
       "categorie": "Matières",
-      "rarete": "legendaire",
+      "rarete": "epique",
       "statistiques": "Nombres complexes : ∞ | Sommeil : -50%",
       "image": "images/matieres/maths_expertes.png",
       "description": "Réservé aux survivants qui trouvent que 6h de maths par semaine ne suffisent pas. Les matrices n'ont plus aucun secret pour eux."
@@ -53,6 +53,78 @@
       "statistiques": "Poubelles : 42 | Cours annulés : 100%",
       "image": "images/vie_scolaire/blocus.jpg",
       "description": "Un événement rarissime qui paralyse les grilles dès 7h30 et offre une matinée libre inespérée à tout l'établissement."
+    },
+    {
+      "id": "bus_h2",
+      "titre": "Ligne H2 (Trignac / St-Marc les Jaunais )",
+      "categorie": "Bus",
+      "rarete": "peu-commun",
+      "statistiques": "Fréquence : 10 min | Affluence : 75%",
+      "image": "images/bus/h2.jpg",
+      "description": "Un bus au final. Deuxieme bus le plus rempli de St-Nazaire, mais pas de electrique, on va pas se poser de question."
+    },
+    {
+      "id": "bus_l13",
+      "titre": "L13",
+      "categorie": "Bus",
+      "rarete": "rare",
+      "statistiques": "Fréquence : de temps en temps | Passage : Aléatoire",
+      "image": "images/bus/l13.png",
+      "description": "Bus aléatoire, avec zéro espace, mais heureusement très peu de personne le prennent. Est-ce que ça craint? Oui."
+    },
+    {
+      "id": "opt_sciences_ingenieur",
+      "titre": "Option Science de l'Ingénieur",
+      "categorie": "Matières",
+      "rarete": "rare",
+      "statistiques": "Potins :  ∞  | Compréhension : 10%",
+      "image": "images/matieres/opt_si.jpeg",
+      "description": "Option de seconde où on fait tout, sauf de la SI. Entre séance potins, jeux sur ordi, et créations d'une maison en 3D, difficile de s'ennuyer. "
+    },
+    {
+      "id": "bat_g",
+      "titre": "Bâtiment G",
+      "categorie": "Bâtiments",
+      "rarete": "rare",
+      "statistiques": "Eleve Presents : Peu | Possibilités : ∞ | Style : Chômage",
+      "image": "images/batiments/batiment_g.jpeg",
+      "description": "Le Batiment detesté de tous, a l'autre bout du campus.  Y aller un jour de pluie? = Prendre une douche "
+    },
+    {
+      "id": "gym_nord",
+      "titre": "Gymnase Nord",
+      "categorie": "Bâtiments",
+      "rarete": "rare",
+      "statistiques": "Etat : Minable",
+      "image": "images/batiments/gym_nord.jpg",
+      "description": "Gymnase à l'autre bout de la planete, dans un etat pitoyable. Les personnes ayant cours là-bas ont tout notre courage. "
+    },
+    {
+      "id": "gym_leo",
+      "titre": "Gymnase Léo Lagrange",
+      "categorie": "Bâtiments",
+      "rarete": "peu-commun",
+      "statistiques": " jsp a mettre",
+      "image": "images/batiments/gym_leo.png",
+      "description": "JSP"
+    },
+    {
+      "id": "es_svt",
+      "titre": "L'ES SVT",
+      "categorie": "Matières",
+      "rarete": "peu commun",
+      "statistiques": "Utilité : 0 |  Apprecié par : Personne  ",
+      "image": "images/matieres/es_svt.jpeg",
+      "description": "Tout le monde se demande à quoi ça sert,  personne n'a la réponse. Au final, ça donne juste des notes éclatés"
+    },
+    {
+      "id": "es_pc",
+      "titre": "L'ES Physique Chimie",
+      "categorie": "Matières",
+      "rarete": "peu-commun",
+      "statistiques": "Utilité : 0 |  Apprecié par : Personne  ",
+      "image": "images/matieres/es_pc.jpeg",
+      "description": "Tout le monde se demande à quoi ça sert,  personne n'a la réponse. Au final, ça donne juste des notes éclatés"
     }
   ]
 }
