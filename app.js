@@ -1335,7 +1335,23 @@ async function start() {
   });
 
   if ("serviceWorker" in navigator && location.protocol.startsWith("http") && !window.__CARDS__) {
-    navigator.serviceWorker.register("sw.js").catch((e) => console.warn("SW:", e));
+    // Recharge UNE fois quand une nouvelle version du service worker prend le contrôle.
+    // Pas de rechargement à la toute première installation (aucun contrôleur avant).
+    const hadController = !!navigator.serviceWorker.controller;
+    let reloading = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (!hadController || reloading) return;
+      reloading = true;
+      window.location.reload();
+    });
+    navigator.serviceWorker.register("sw.js", { updateViaCache: "none" })
+      .then((reg) => {
+        // Cherche une nouvelle version au retour sur l'app et toutes les 30 min
+        const check = () => reg.update().catch(() => {});
+        document.addEventListener("visibilitychange", () => { if (!document.hidden) check(); });
+        setInterval(check, 30 * 60 * 1000);
+      })
+      .catch((e) => console.warn("SW:", e));
   }
 }
 
