@@ -416,6 +416,60 @@ async function enterGame({ isNew = false } = {}) {
   refreshSocial();
 }
 
+/* ---------- Habillage : avatar, paquet de booster, inclinaison 3D ---------- */
+
+// Pastille ronde avec l'initiale du pseudo ; la teinte dépend du pseudo (toujours la même pour un joueur)
+function avatar(pseudo, big = false) {
+  let h = 0;
+  for (const ch of String(pseudo)) h = (h * 31 + ch.charCodeAt(0)) % 360;
+  const node = el("span", { class: "avatar" + (big ? " big" : ""), "aria-hidden": "true" },
+    (String(pseudo).trim()[0] || "?").toUpperCase());
+  node.style.setProperty("--h", String(h));
+  return node;
+}
+
+function boosterPack(testMode) {
+  const empty = me.boosters === 0 && !testMode;
+  return el("div", { class: "pack-stage" },
+    el("div", {
+      class: "booster-pack" + (empty ? " empty" : "") + (testMode ? " test" : ""),
+      role: "img", "aria-label": empty ? "Booster verrouillé : aucun booster en stock" : "Booster Collecto",
+    },
+      el("div", { class: "bp-seal top" }),
+      el("div", { class: "bp-body" },
+        el("div", { class: "bp-emblem" }, "🃏"),
+        el("div", { class: "bp-title" }, "COLLECTO"),
+        el("div", { class: "bp-sub" }, `${BOOSTER_SIZE} CARTES`)),
+      el("div", { class: "bp-seal bottom" }),
+      el("i", { class: "bp-shine" }),
+      empty ? el("span", { class: "bp-lock" }, "🔒") : null
+    )
+  );
+}
+
+// Légère inclinaison 3D au doigt / à la souris + reflet qui suit le pointeur
+function enableTilt(card) {
+  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const reset = () => {
+    card.classList.remove("tilting");
+    card.style.removeProperty("--rx"); card.style.removeProperty("--ry");
+  };
+  const move = (e) => {
+    const r = card.getBoundingClientRect();
+    if (!r.width || !r.height) return;
+    const px = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+    const py = Math.min(1, Math.max(0, (e.clientY - r.top) / r.height));
+    card.classList.add("tilting");
+    card.style.setProperty("--ry", `${((px - 0.5) * 22).toFixed(1)}deg`);
+    card.style.setProperty("--rx", `${(-(py - 0.5) * 22).toFixed(1)}deg`);
+    card.style.setProperty("--mx", `${(px * 100).toFixed(0)}%`);
+    card.style.setProperty("--my", `${(py * 100).toFixed(0)}%`);
+  };
+  card.addEventListener("pointermove", move);
+  card.addEventListener("pointerdown", move);
+  ["pointerleave", "pointerup", "pointercancel"].forEach((t) => card.addEventListener(t, reset));
+}
+
 /* ---------- Interface : carte ---------- */
 
 function cardArt(card) {
@@ -499,6 +553,7 @@ function renderModal() {
     el("button", { class: "secondary", onclick: closeModal }, "Fermer")
   );
   box.style.setProperty("--rc", r.color);
+  enableTilt(box.querySelector(".gcard.big"));
 
   $modal.replaceChildren(
     el("div", { class: "modal-backdrop", onclick: (e) => { if (e.target === e.currentTarget) closeModal(); } }, box)
@@ -681,7 +736,7 @@ function viewBoosters() {
   const canOpen = (me.boosters > 0 || testMode) && !ui.busy;
 
   return el("section", { class: "view" },
-    el("div", { class: "pack" }, "📦"),
+    boosterPack(testMode),
     pips,
     el("p", { class: "center stock-line" }, `${me.boosters} / ${MAX_BOOSTERS} boosters`),
     timer,
@@ -817,8 +872,11 @@ function viewCollection() {
   const g = collectionStats();
   const pct = g.total ? Math.round((g.owned / g.total) * 100) : 0;
   const counter = el("h2", { class: "dex-counter" }, `Collection : ${g.owned}/${g.total} cartes (${pct}%)`);
+  const dexBar = el("div", { class: "dex-bar", role: "progressbar", "aria-valuemin": "0", "aria-valuemax": "100", "aria-valuenow": String(pct) },
+    el("i", {}));
+  dexBar.firstChild.style.setProperty("--w", `${pct}%`);
 
-  return el("section", { class: "view" }, counter, issues, catRow, subRow, rarRow, sortBar, grid);
+  return el("section", { class: "view" }, counter, dexBar, issues, catRow, subRow, rarRow, sortBar, grid);
 }
 
 /* ---------- Interface : profil ---------- */
@@ -845,7 +903,7 @@ function viewProfile() {
     : el("button", { class: "linklike", onclick: () => { ui.confirmReset = true; render(); } }, "Remettre ma collection à zéro");
 
   return el("section", { class: "view" },
-    el("h2", { class: "section-title" }, me.pseudo),
+    el("div", { class: "profile-head" }, avatar(me.pseudo, true), el("h2", { class: "section-title" }, me.pseudo)),
     el("p", { class: "muted" }, `${money(me.abris)} · ${s.owned} / ${s.total} cartes uniques · ${copies} cartes au total`),
     el("h2", { class: "section-title" }, "Progression par rareté"),
     el("div", { class: "odds" }, rows),
@@ -1067,6 +1125,7 @@ const smallBtn = (label, onclick, cls = "") => el("button", { class: "btn-sm " +
 
 function personRow(pseudo, ...actions) {
   return el("div", { class: "row-item" },
+    avatar(pseudo),
     el("span", { class: "who" }, pseudo),
     el("div", { class: "row-actions" }, actions));
 }
@@ -1177,6 +1236,7 @@ function viewFriendList() {
     social.friends.length
       ? el("div", { class: "rows" }, social.friends.map((f) =>
           el("button", { class: "row-item friend", type: "button", onclick: () => openVisit(f.pseudo) },
+            avatar(f.pseudo),
             el("span", { class: "who" }, f.pseudo),
             el("span", { class: "muted small" }, "Voir le profil ›"))))
       : el("p", { class: "muted small" }, "Pas encore d'amis. Cherche un pseudo ci-dessus pour envoyer une demande.")
@@ -1200,7 +1260,7 @@ function viewVisit() {
 
   return el("section", { class: "view" },
     back,
-    el("h2", { class: "section-title big" }, d.pseudo),
+    el("div", { class: "profile-head" }, avatar(d.pseudo, true), el("h2", { class: "section-title big" }, d.pseudo)),
     el("dl", { class: "visit-stats" },
       el("div", { class: "stat" }, el("dt", {}, "Solde"), el("dd", { class: "gold" }, money(d.abris))),
       el("div", { class: "stat" }, el("dt", {}, "Collection"), el("dd", {}, `${pct} %`))),
