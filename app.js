@@ -73,6 +73,10 @@ const isAdmin = () => !!me && ADMIN_PSEUDOS.includes(me.pseudo.toLowerCase());
 
 const ui = {
   rarity: null,               // filtre de rareté (clé de RARITIES) ou null
+  filtersOpen: !!(window.matchMedia && window.matchMedia("(min-width: 768px)").matches),   // tiroir de filtres
+  openStage: "tear",          // ouverture d'un booster : tear | reveal | recap
+  openIdx: 0,                 // carte courante de la pile
+  tq: { mine: "", theirs: "" },   // filtres rapides de la modale d'échange
   sort: { key: "rarity", dir: "desc" },   // rarity | name | obtained
   admin: { open: false, test: false, mode: "luck", rarity: "divin", luck: 50 },   // mode : "force" | "luck"
   tab: "boosters",            // boosters | collection | profile
@@ -109,6 +113,53 @@ function el(tag, props = {}, ...children) {
     node.append(c.nodeType ? c : document.createTextNode(c));
   }
   return node;
+}
+
+/* ---------- Icônes SVG (currentColor, trait 2 px) ---------- */
+
+const SVG_NS = "http://www.w3.org/2000/svg";
+const ICONS = {
+  booster:   '<path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="m3 8 9 5 9-5"/><path d="M12 13v8"/>',
+  collection:'<rect x="3" y="6" width="12" height="15" rx="2"/><path d="M8 3h11a2 2 0 0 1 2 2v12"/>',
+  friends:   '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  profile:   '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  userplus:  '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6"/><path d="M22 11h-6"/>',
+  coin:      '<circle cx="12" cy="12" r="9"/><path d="M12 6.5v11"/><path d="M15 9.2c-.5-.9-1.6-1.4-3-1.4-1.7 0-3 .8-3 2.1s1.3 1.8 3 2.1 3 .8 3 2.1-1.3 2.1-3 2.1c-1.4 0-2.5-.5-3-1.4"/>',
+  lock:      '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+  swap:      '<path d="M4 8h16"/><path d="m16 4 4 4-4 4"/><path d="M20 16H4"/><path d="m8 12-4 4 4 4"/>',
+  crown:     '<path d="m3 8 4.5 4L12 5l4.5 7L21 8l-2 11H5z"/><path d="M5 21h14"/>',
+  medal:     '<circle cx="12" cy="15" r="6"/><path d="M8.6 10 6 3h4l2 4 2-4h4l-2.6 7"/>',
+  trophy:    '<path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3"/><path d="M7 5H4v2a3 3 0 0 0 3 3"/>',
+  star:      '<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',
+  card:      '<rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="m12 8 2.6 4-2.6 4-2.6-4z"/>',
+  close:     '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+  back:      '<path d="M19 12H5"/><path d="m12 19-7-7 7-7"/>',
+  check:     '<path d="m5 12 5 5L20 7"/>',
+  chevron:   '<path d="m9 18 6-6-6-6"/>',
+  flask:     '<path d="M10 3h4"/><path d="M11 3v6l-6 10a2 2 0 0 0 1.7 3h10.6A2 2 0 0 0 19 19l-6-10V3"/>',
+  filter:    '<path d="M4 6h9"/><path d="M17 6h3"/><circle cx="15" cy="6" r="2"/><path d="M4 12h3"/><path d="M11 12h9"/><circle cx="9" cy="12" r="2"/><path d="M4 18h11"/><path d="M19 18h1"/><circle cx="17" cy="18" r="2"/>',
+  arrowdown: '<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>',
+  reset:     '<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>',
+  alert:     '<path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>',
+  search:    '<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
+  sparkle:   '<path d="M12 3v4"/><path d="M12 17v4"/><path d="M3 12h4"/><path d="M17 12h4"/><path d="m6 6 2 2"/><path d="m16 16 2 2"/><path d="m18 6-2 2"/><path d="m8 16-2 2"/>',
+};
+
+function icon(name, size = 20) {
+  const s = document.createElementNS(SVG_NS, "svg");
+  s.setAttribute("viewBox", "0 0 24 24");
+  s.setAttribute("width", String(size));
+  s.setAttribute("height", String(size));
+  s.setAttribute("fill", "none");
+  s.setAttribute("stroke", "currentColor");
+  s.setAttribute("stroke-width", "2");
+  s.setAttribute("stroke-linecap", "round");
+  s.setAttribute("stroke-linejoin", "round");
+  s.setAttribute("aria-hidden", "true");
+  s.setAttribute("focusable", "false");
+  s.setAttribute("class", `ico ico-${name}`);
+  s.innerHTML = ICONS[name] || "";
+  return s;
 }
 
 const fmtNum = (n) => (typeof n === "number" ? n.toLocaleString("fr-FR") : String(n));
@@ -349,6 +400,8 @@ async function doOpenBooster() {
           : { p_force_rarity: null, p_luck: ui.admin.luck })
       : await profileCall("open_booster");
     ui.opening = j.cards.map((c) => ({ card: cardFromServer(c.id, c.rarete), isNew: c.is_new, revealed: false }));
+    ui.openStage = "tear";
+    ui.openIdx = 0;
   } catch (err) {
     toast(friendlyError(err));
     await refreshProfile({ force: true });
@@ -412,7 +465,7 @@ async function enterGame({ isNew = false } = {}) {
   ui.loading = false;
   render();
   if (isNew) toast(`Bienvenue ${me.pseudo} ! ${money(START_ABRIS)} offerts.`);
-  else if (j.gained > 0) toast(`📦 +${j.gained} booster${j.gained > 1 ? "s" : ""} reçu${j.gained > 1 ? "s" : ""} pendant ton absence`);
+  else if (j.gained > 0) toast(`+${j.gained} booster${j.gained > 1 ? "s" : ""} reçu${j.gained > 1 ? "s" : ""} pendant ton absence`);
   refreshSocial();
 }
 
@@ -428,23 +481,25 @@ function avatar(pseudo, big = false) {
   return node;
 }
 
-function boosterPack(testMode) {
-  const empty = me.boosters === 0 && !testMode;
-  return el("div", { class: "pack-stage" },
-    el("div", {
-      class: "booster-pack" + (empty ? " empty" : "") + (testMode ? " test" : ""),
-      role: "img", "aria-label": empty ? "Booster verrouillé : aucun booster en stock" : "Booster Collecto",
-    },
-      el("div", { class: "bp-seal top" }),
-      el("div", { class: "bp-body" },
-        el("div", { class: "bp-emblem" }, "🃏"),
-        el("div", { class: "bp-title" }, "COLLECTO"),
-        el("div", { class: "bp-sub" }, `${BOOSTER_SIZE} CARTES`)),
-      el("div", { class: "bp-seal bottom" }),
-      el("i", { class: "bp-shine" }),
-      empty ? el("span", { class: "bp-lock" }, "🔒") : null
-    )
+function makePack({ empty = false, test = false, big = false, tear = false } = {}) {
+  return el("div", {
+    class: "booster-pack" + (empty ? " empty" : "") + (test ? " test" : "") + (big ? " big" : ""),
+    role: "img", "aria-label": empty ? "Booster verrouillé : aucun booster en stock" : "Booster Collecto",
+  },
+    el("div", { class: "bp-seal top" }),
+    tear ? el("div", { class: "bp-cut" }) : null,
+    el("div", { class: "bp-body" },
+      el("div", { class: "bp-emblem" }, icon("card", 30)),
+      el("div", { class: "bp-title" }, "COLLECTO"),
+      el("div", { class: "bp-sub" }, `${BOOSTER_SIZE} CARTES`)),
+    el("div", { class: "bp-seal bottom" }),
+    el("i", { class: "bp-shine" }),
+    empty ? el("span", { class: "bp-lock" }, icon("lock", 26)) : null
   );
+}
+
+function boosterPack(testMode) {
+  return el("div", { class: "pack-stage" }, makePack({ empty: me.boosters === 0 && !testMode, test: testMode }));
 }
 
 // Légère inclinaison 3D au doigt / à la souris + reflet qui suit le pointeur
@@ -470,11 +525,18 @@ function enableTilt(card) {
   ["pointerleave", "pointerup", "pointercancel"].forEach((t) => card.addEventListener(t, reset));
 }
 
+function emptyState(ico, title, text) {
+  return el("div", { class: "empty-state" },
+    el("span", { class: "empty-ico" }, icon(ico, 26)),
+    el("strong", {}, title),
+    text ? el("p", { class: "muted small" }, text) : null);
+}
+
 /* ---------- Interface : carte ---------- */
 
 function cardArt(card) {
   const art = el("div", { class: "g-art" });
-  const fallback = () => el("div", { class: "g-fallback" }, "🃏");
+  const fallback = () => el("div", { class: "g-fallback" }, icon("card", 34));
   if (card.image) {
     const img = el("img", { src: card.image, alt: "", loading: "lazy" });
     img.addEventListener("error", () => img.replaceWith(fallback()));
@@ -540,6 +602,7 @@ function renderModal() {
   }
 
   const box = el("div", { class: "modal-box", role: "dialog", "aria-label": card.titre },
+    el("button", { class: "modal-x", type: "button", "aria-label": "Fermer", onclick: closeModal }, icon("close", 20)),
     cardFace(card, { big: true }),
     el("p", { class: "tagline" }, `${r.label} · ${r.tagline}`),
     card.description ? el("p", { class: "center" }, card.description) : null,
@@ -564,7 +627,7 @@ function renderModal() {
 
 function viewMessage(title, ...lines) {
   return el("section", { class: "auth" },
-    el("div", { class: "pack" }, "🃏"),
+    el("div", { class: "pack" }, icon("card", 72)),
     el("h1", {}, title),
     lines.map((l) => (typeof l === "string" ? el("p", { class: "muted center" }, l) : l))
   );
@@ -660,7 +723,7 @@ function viewAuth() {
   }, isCreate ? "J'ai déjà un profil" : "Créer un nouveau profil");
 
   return el("section", { class: "auth" },
-    el("div", { class: "pack" }, "🃏"),
+    el("div", { class: "pack" }, icon("card", 72)),
     el("h1", {}, "Collecto"),
     el("p", { class: "muted center" }, isCreate ? "Crée ton profil pour commencer ta collection." : "Connecte-toi pour retrouver ta collection."),
     form,
@@ -672,16 +735,16 @@ function viewAuth() {
 
 function header() {
   return el("header", { class: "topbar" },
-    el("strong", {}, "🃏 Collecto"),
+    el("strong", { class: "brand" }, icon("card", 20), "Collecto"),
     el("div", { class: "pills" },
-      el("span", { class: "pill", title: "Boosters en stock" }, "📦 ", el("span", { "data-stock": "" }, `${me.boosters}/${MAX_BOOSTERS}`)),
-      el("span", { class: "pill gold", title: "Ton solde" }, money(me.abris))
+      el("span", { class: "pill", title: "Boosters en stock" }, icon("booster", 16), el("span", { "data-stock": "" }, `${me.boosters}/${MAX_BOOSTERS}`)),
+      el("span", { class: "pill gold", title: "Ton solde" }, icon("coin", 16), money(me.abris))
     )
   );
 }
 
 function nav() {
-  const tab = (id, icon, label, badge = 0) =>
+  const tab = (id, ico, label, badge = 0) =>
     el("button", {
       class: "nav-btn" + (ui.tab === id ? " active" : ""),
       onclick: () => {
@@ -694,15 +757,15 @@ function nav() {
         if (id === "profile") loadAchievements();
       },
     },
-      el("span", { class: "nav-ico" }, icon),
+      el("span", { class: "nav-ico" }, icon(ico, 22)),
       el("span", {}, label),
       badge > 0 ? el("span", { class: "nav-badge" }, String(badge)) : null
     );
   return el("nav", { class: "nav" },
-    tab("boosters", "📦", "Boosters"),
-    tab("collection", "🗂️", "Collection"),
-    tab("friends", "👥", "Amis", socialBadge()),
-    tab("profile", "👤", "Profil")
+    tab("boosters", "booster", "Boosters"),
+    tab("collection", "collection", "Collection"),
+    tab("friends", "friends", "Amis", socialBadge()),
+    tab("profile", "profile", "Profil")
   );
 }
 
@@ -743,7 +806,7 @@ function viewBoosters() {
     el("button", {
       class: "primary", disabled: canOpen ? null : "",
       onclick: doOpenBooster,
-    }, ui.busy === "open" ? "Ouverture…" : testMode ? `🧪 Booster de test (${BOOSTER_SIZE} cartes)` : me.boosters > 0 ? `Ouvrir un booster (${BOOSTER_SIZE} cartes)` : "Aucun booster disponible"),
+    }, ui.busy === "open" ? "Ouverture…" : testMode ? `Booster de test (${BOOSTER_SIZE} cartes)` : me.boosters > 0 ? `Ouvrir un booster (${BOOSTER_SIZE} cartes)` : "Aucun booster disponible"),
     el("h2", { class: "section-title" }, "Chances par carte et prix de revente"),
     el("div", { class: "odds" },
       RARITIES.map((r) => {
@@ -758,93 +821,232 @@ function viewBoosters() {
   );
 }
 
-function viewOpening() {
-  const items = ui.opening;
-  const controls = el("div", { class: "controls" });
+const reducedMotion = () => !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 
-  const updateControls = () => {
-    const allRevealed = items.every((i) => i.revealed);
-    controls.replaceChildren(
-      allRevealed
-        ? el("button", { class: "primary", onclick: () => { ui.opening = null; render(); } }, "Continuer")
-        : el("button", { class: "secondary", onclick: () => items.forEach((i) => i.reveal()) }, "Tout révéler")
-    );
+function viewOpening() {
+  if (ui.openStage === "tear") return viewTear();
+  if (ui.openStage === "recap" || ui.openIdx >= ui.opening.length) return viewRecap();
+  return viewStack();
+}
+
+// Étape 1 : on déchire le haut du paquet (glisser horizontalement) ou on le touche
+function viewTear() {
+  const pack = makePack({ big: true, tear: true });
+  const btn = el("button", { class: "tear-btn", type: "button", "aria-label": "Ouvrir le booster (glisse sur le haut du paquet ou touche-le)" }, pack);
+  const flash = el("div", { class: "tear-flash" });
+  let drag = null, dragged = false, done = false;
+
+  const tearNow = () => {
+    if (done) return;
+    done = true;
+    pack.style.setProperty("--tear", "1");
+    pack.classList.add("torn");
+    btn.after(flash);
+    if (navigator.vibrate) navigator.vibrate(30);
+    setTimeout(() => { ui.openStage = "reveal"; ui.openIdx = 0; render(); }, reducedMotion() ? 0 : 750);
   };
 
-  const grid = el("div", { class: "reveal-grid" });
-  for (const item of items) {
-    const btn = el("button", { class: "flip", "aria-label": "Retourner la carte", "data-tier": String(item.card.rarity.tier) },
-      el("div", { class: "flip-inner" },
-        el("div", { class: "face front" }, "?"),
-        el("div", { class: "face back" },
-          cardFace(item.card, { stats: true }),
-          item.isNew ? el("span", { class: "new" }, "NEW") : null
-        )
-      )
-    );
-    btn.style.setProperty("--rc", item.card.rarity.color);
-    item.reveal = () => {
+  btn.addEventListener("pointerdown", (e) => {
+    const r = pack.getBoundingClientRect();
+    dragged = false;
+    drag = e.clientY - r.top < r.height * 0.4 ? { x0: e.clientX, w: r.width } : null;   // zone de découpe : le haut
+    if (drag && btn.setPointerCapture) { try { btn.setPointerCapture(e.pointerId); } catch {} }
+  });
+  btn.addEventListener("pointermove", (e) => {
+    if (!drag || done) return;
+    const p = Math.min(1, Math.abs(e.clientX - drag.x0) / (drag.w * 0.65));
+    if (p > 0.06) dragged = true;
+    pack.style.setProperty("--tear", p.toFixed(3));
+    if (p >= 1) tearNow();
+  });
+  const release = () => {
+    if (!drag || done) return;
+    drag = null;
+    if (dragged) pack.style.setProperty("--tear", "0");   // pas assez tiré : la bande se remet en place
+  };
+  btn.addEventListener("pointerup", release);
+  btn.addEventListener("pointercancel", release);
+  btn.addEventListener("click", () => {
+    if (dragged && !done) { dragged = false; return; }
+    tearNow();
+  });
+
+  return el("section", { class: "view tear-stage" },
+    el("p", { class: "open-hint" }, "Glisse ton doigt sur le haut du paquet pour le déchirer"),
+    el("p", { class: "muted small center" }, "ou touche-le simplement"),
+    btn
+  );
+}
+
+// Étape 2 : pile de 5 cartes. Toucher = retourner ; glisser ou toucher une carte retournée = la suivante.
+function viewStack() {
+  const items = ui.opening;
+  const n = items.length;
+  const wrap = el("div", { class: "deck-wrap" });
+  const counter = el("span", { class: "deck-count" });
+  const hint = el("p", { class: "muted center small deck-hint" });
+  const revealAll = () => { items.forEach((i) => { i.revealed = true; }); ui.openStage = "recap"; render(); };
+
+  const draw = () => {
+    if (ui.openIdx >= n) { ui.openStage = "recap"; render(); return; }
+    const idx = ui.openIdx;
+    const item = items[idx];
+    counter.textContent = `${idx + 1}/${n}`;
+    hint.textContent = item.revealed ? "Glisse la carte ou touche-la pour passer à la suivante" : "Touche la carte pour la retourner";
+
+    const deck = el("div", { class: "deck" });
+    // cartes qui attendent derrière (dos seulement)
+    for (let k = Math.min(n - 1, idx + 2); k > idx; k--) {
+      deck.append(el("div", { class: `dk-card behind b${k - idx}`, "aria-hidden": "true" },
+        el("div", { class: "dk-shake" }, el("div", { class: "flip-inner" }, el("div", { class: "face front" }, icon("card", 40))))));
+    }
+    const tier = item.card.rarity.tier;
+    const top = el("button", {
+      class: "dk-card top" + (item.revealed ? " revealed" : ""), type: "button", "data-tier": String(tier),
+      "aria-label": item.revealed ? "Carte suivante" : "Retourner la carte",
+    },
+      el("div", { class: "dk-shake" },
+        el("div", { class: "flip-inner" },
+          el("div", { class: "face front" }, icon("card", 44)),
+          el("div", { class: "face back" },
+            cardFace(item.card, { stats: true }),
+            item.isNew ? el("span", { class: "new" }, "NEW") : null))));
+    top.style.setProperty("--rc", item.card.rarity.color);
+    deck.append(top);
+    wrap.replaceChildren(deck);
+
+    let drag = null, moved = false, leaving = false;
+    const next = (dir) => {
+      if (leaving) return;
+      leaving = true;
+      const finish = () => { ui.openIdx = idx + 1; draw(); };
+      if (reducedMotion()) return finish();
+      top.classList.add("leaving");
+      top.style.transform = `translateX(${dir * 135}%) rotate(${dir * 18}deg)`;
+      top.style.opacity = "0";
+      setTimeout(finish, 280);
+    };
+    const reveal = () => {
       if (item.revealed) return;
       item.revealed = true;
-      btn.classList.add("revealed");
-      updateControls();
+      top.classList.add("revealed");
+      if (tier >= 3) {                       // Épique / Légendaire / Divin : halo + légère secousse
+        top.classList.add("fx", `fx-${tier}`);
+        if (navigator.vibrate) navigator.vibrate(tier >= 4 ? [30, 40, 60] : 30);
+      }
+      hint.textContent = "Glisse la carte ou touche-la pour passer à la suivante";
     };
-    btn.addEventListener("click", item.reveal);
-    grid.append(btn);
-  }
-  updateControls();
 
+    top.addEventListener("pointerdown", (e) => {
+      drag = { x0: e.clientX };
+      moved = false;
+      if (top.setPointerCapture) { try { top.setPointerCapture(e.pointerId); } catch {} }
+    });
+    top.addEventListener("pointermove", (e) => {
+      if (!drag || !item.revealed || leaving) return;
+      const dx = e.clientX - drag.x0;
+      if (Math.abs(dx) > 8) moved = true;
+      if (moved) {
+        top.classList.add("dragging");
+        top.style.transform = `translateX(${dx}px) rotate(${dx / 18}deg)`;
+      }
+    });
+    const end = (e) => {
+      if (!drag) return;
+      const dx = e.clientX - drag.x0;
+      drag = null;
+      top.classList.remove("dragging");
+      if (moved && item.revealed && Math.abs(dx) > 70) next(dx > 0 ? 1 : -1);
+      else top.style.transform = "";
+    };
+    top.addEventListener("pointerup", end);
+    top.addEventListener("pointercancel", end);
+    top.addEventListener("click", () => {
+      if (moved) { moved = false; return; }
+      if (!item.revealed) reveal(); else next(1);
+    });
+  };
+  draw();
+
+  return el("section", { class: "view stack-stage" },
+    el("div", { class: "stack-head" }, el("span", { class: "muted small" }, "Carte"), counter),
+    wrap,
+    hint,
+    el("button", { class: "linklike reveal-all", type: "button", onclick: revealAll }, "Tout révéler")
+  );
+}
+
+// Fin : les 5 cartes d'un coup
+function viewRecap() {
+  const items = ui.opening;
   return el("section", { class: "view" },
-    el("p", { class: "muted center" }, "Touche les cartes pour les retourner"),
-    grid,
-    controls
+    el("h2", { class: "section-title center" }, "Contenu du booster"),
+    el("div", { class: "tile-grid recap" }, items.map((it) =>
+      el("button", { class: "tile", type: "button", onclick: () => showCard(it.card) },
+        cardFace(it.card),
+        it.isNew ? el("span", { class: "new" }, "NEW") : null))),
+    el("button", { class: "primary", onclick: () => { ui.opening = null; render(); } }, "Continuer")
   );
 }
 
 /* ---------- Interface : collection ---------- */
 
 function viewCollection() {
-  const chip = (label, active, onclick) =>
-    el("button", { class: "chip" + (active ? " active" : ""), onclick }, label);
+  const nFilters = (ui.cat ? 1 : 0) + (ui.sub ? 1 : 0) + (ui.rarity ? 1 : 0);
+  const reset = () => { ui.cat = ui.sub = ui.rarity = null; render(); };
 
-  const catRow = el("div", { class: "chips" },
-    chip(`Tout ${fmtStats(collectionStats())}`, !ui.cat, () => { ui.cat = null; ui.sub = null; render(); }),
-    [...tree.keys()].map((c) =>
-      chip(`${c} ${fmtStats(collectionStats(c))}`, ui.cat === c, () => { ui.cat = c; ui.sub = null; render(); }))
+  const chip = (label, active, onclick, color = null) => {
+    const b = el("button", { class: "chip" + (active ? " active" : "") + (color ? " rar-chip" : ""), type: "button", onclick },
+      color ? el("i", { class: "dot" }) : null, label);
+    if (color) b.style.setProperty("--rc", color);
+    return b;
+  };
+
+  // Pilules de tri : toucher la pilule active inverse le sens
+  const pill = (key, label) => {
+    const active = ui.sort.key === key;
+    const dir = active ? ui.sort.dir : SORTS[key].dir;
+    const b = el("button", {
+      class: "sort-pill" + (active ? ` active ${dir}` : ""), type: "button",
+      "aria-pressed": active ? "true" : "false",
+      "aria-label": `Trier par ${label}${active ? ` : ${SORTS[key].hint[dir]} (toucher pour inverser)` : ""}`,
+      onclick: () => {
+        ui.sort = active ? { key, dir: dir === "asc" ? "desc" : "asc" } : { key, dir: SORTS[key].dir };
+        render();
+      },
+    }, label, active ? icon("arrowdown", 14) : null);
+    return b;
+  };
+
+  const toolbar = el("div", { class: "coll-tools" },
+    el("div", { class: "sort-pills" }, pill("rarity", "Rareté"), pill("name", "Nom"), pill("obtained", "Date")),
+    el("div", { class: "tool-actions" },
+      el("button", { class: "tool-btn" + (ui.filtersOpen ? " on" : ""), type: "button", "aria-expanded": ui.filtersOpen ? "true" : "false",
+        onclick: () => { ui.filtersOpen = !ui.filtersOpen; render(); } },
+        icon("filter", 16), "Filtres", nFilters ? el("span", { class: "tool-badge" }, String(nFilters)) : null),
+      nFilters ? el("button", { class: "tool-btn ghost", type: "button", onclick: reset }, icon("reset", 15), "Réinitialiser") : null)
   );
 
+  // Tiroir : catégories, sous-catégories, raretés
   const subs = ui.cat ? [...tree.get(ui.cat)] : [];
-  const subRow = subs.length
-    ? el("div", { class: "chips sub" },
-        chip("Toutes", !ui.sub, () => { ui.sub = null; render(); }),
-        subs.map((s) =>
-          chip(`${s} ${fmtStats(collectionStats(ui.cat, s))}`, ui.sub === s, () => { ui.sub = s; render(); }))
-      )
+  const drawer = ui.filtersOpen
+    ? el("div", { class: "filter-drawer" },
+        el("h3", {}, "Catégorie"),
+        el("div", { class: "chip-wrap" },
+          chip(`Toutes ${fmtStats(collectionStats())}`, !ui.cat, () => { ui.cat = null; ui.sub = null; render(); }),
+          [...tree.keys()].map((c) => chip(`${c} ${fmtStats(collectionStats(c))}`, ui.cat === c, () => { ui.cat = c; ui.sub = null; render(); }))),
+        subs.length ? [
+          el("h3", {}, "Sous-catégorie"),
+          el("div", { class: "chip-wrap" },
+            chip("Toutes", !ui.sub, () => { ui.sub = null; render(); }),
+            subs.map((s) => chip(`${s} ${fmtStats(collectionStats(ui.cat, s))}`, ui.sub === s, () => { ui.sub = s; render(); }))),
+        ] : null,
+        el("h3", {}, "Rareté"),
+        el("div", { class: "chip-wrap" },
+          chip(`Toutes ${fmtStats(collectionStats(ui.cat, ui.sub))}`, !ui.rarity, () => { ui.rarity = null; render(); }),
+          RARITIES.map((r) => chip(`${r.label} ${fmtStats(collectionStats(ui.cat, ui.sub, r.key))}`, ui.rarity === r.key,
+            () => { ui.rarity = ui.rarity === r.key ? null : r.key; render(); }, r.color))))
     : null;
-
-  // Rareté : compteurs adaptés à la catégorie / sous-catégorie choisies
-  const rarRow = el("div", { class: "chips sub rar" },
-    chip(`Toutes ${fmtStats(collectionStats(ui.cat, ui.sub))}`, !ui.rarity, () => { ui.rarity = null; render(); }),
-    RARITIES.map((r) => {
-      const b = chip(`${r.label} ${fmtStats(collectionStats(ui.cat, ui.sub, r.key))}`, ui.rarity === r.key,
-        () => { ui.rarity = ui.rarity === r.key ? null : r.key; render(); });
-      b.classList.add("rar-chip");
-      b.style.setProperty("--rc", r.color);
-      return b;
-    })
-  );
-
-  const select = el("select", {
-    class: "sort-select", "aria-label": "Trier par",
-    onchange: (e) => { ui.sort = { key: e.target.value, dir: SORTS[e.target.value].dir }; render(); },
-  }, Object.entries(SORTS).map(([k, s]) => el("option", { value: k, selected: ui.sort.key === k }, s.label)));
-  const dirBtn = el("button", {
-    class: "sort-dir", type: "button",
-    title: "Inverser l'ordre",
-    "aria-label": `Ordre : ${SORTS[ui.sort.key].hint[ui.sort.dir]} (toucher pour inverser)`,
-    onclick: () => { ui.sort = { key: ui.sort.key, dir: ui.sort.dir === "asc" ? "desc" : "asc" }; render(); },
-  }, el("b", {}, ui.sort.dir === "asc" ? "↑" : "↓"), el("span", {}, SORTS[ui.sort.key].hint[ui.sort.dir]));
-  const sortBar = el("div", { class: "sort-bar" }, select, dirBtn);
 
   const cards = sortCards(catalog.filter((c) =>
     (!ui.cat || c.categorie === ui.cat) && (!ui.sub || c.sous === ui.sub) && (!ui.rarity || c.rarity.key === ui.rarity)));
@@ -854,9 +1056,10 @@ function viewCollection() {
     cards.map((card) => {
       const count = me.owned[card.id] || 0;
       if (!count) {
-        // Carte non possédée : silhouette verrouillée (filtre + cadenas en CSS)
+        // Carte non possédée : silhouette sur verre dépoli + cadenas
         return el("div", { class: "tile card-locked", role: "img", "aria-label": "Carte pas encore découverte" },
-          cardFace(card));
+          cardFace(card),
+          el("span", { class: "lock-badge" }, icon("lock", 18)));
       }
       return el("button", { class: "tile", onclick: () => showCard(card) },
         cardFace(card),
@@ -866,7 +1069,7 @@ function viewCollection() {
   );
 
   const issues = catalogIssues.length
-    ? el("p", { class: "warning" }, `⚠️ ${catalogIssues.length} carte(s) de cards.json ignorée(s). Détails dans la console du navigateur.`)
+    ? el("p", { class: "warning" }, icon("alert", 16), ` ${catalogIssues.length} carte(s) de cards.json ignorée(s). Détails dans la console du navigateur.`)
     : null;
 
   const g = collectionStats();
@@ -876,22 +1079,40 @@ function viewCollection() {
     el("i", {}));
   dexBar.firstChild.style.setProperty("--w", `${pct}%`);
 
-  return el("section", { class: "view" }, counter, dexBar, issues, catRow, subRow, rarRow, sortBar, grid);
+  return el("section", { class: "view" }, counter, dexBar, issues, toolbar, drawer, grid);
 }
 
 /* ---------- Interface : profil ---------- */
 
 function viewProfile() {
   const s = collectionStats();
-  const copies = Object.values(me.owned).reduce((a, b) => a + b, 0);
+  const copies = Object.values(me.owned).reduce((x, y) => x + y, 0);
+  const pct = s.total ? Math.round((s.owned / s.total) * 100) : 0;
+
+  const stat = (v, l) => el("div", { class: "pp-stat" }, el("b", {}, String(v)), el("span", {}, l));
+  const bar = el("div", { class: "dex-bar", role: "progressbar", "aria-valuemin": "0", "aria-valuemax": "100", "aria-valuenow": String(pct) }, el("i", {}));
+  bar.firstChild.style.setProperty("--w", `${pct}%`);
+
+  const passport = el("div", { class: "passport" },
+    el("div", { class: "pp-top" },
+      avatar(me.pseudo, true),
+      el("div", { class: "pp-id" },
+        el("span", { class: "pp-tag" }, "Passeport Collecto"),
+        el("h2", { class: "pp-name" }, me.pseudo),
+        el("span", { class: "pp-gold" }, icon("coin", 16), money(me.abris)))),
+    el("div", { class: "pp-stats" },
+      stat(`${pct}%`, "Complétion"), stat(`${s.owned}/${s.total}`, "Cartes uniques"), stat(fmtNum(copies), "Cartes au total")),
+    bar);
 
   const rows = RARITIES.map((r) => {
     const all = byRarity.get(r.key) || [];
     const have = all.filter((c) => (me.owned[c.id] || 0) > 0).length;
-    const row = el("div", { class: "odd" },
-      el("span", { class: "dot" }),
-      el("span", { class: "odd-name" }, el("strong", {}, r.label)),
-      el("span", { class: "odd-pct" }, `${have} / ${all.length}`));
+    const w = all.length ? Math.round((have / all.length) * 100) : 0;
+    const fill = el("i", {});
+    fill.style.width = `${w}%`;
+    const row = el("div", { class: "rbar" },
+      el("div", { class: "rbar-head" }, el("i", { class: "dot" }), el("strong", {}, r.label), el("span", { class: "odd-pct" }, `${have} / ${all.length}`)),
+      el("div", { class: "rbar-track" }, fill));
     row.style.setProperty("--rc", r.color);
     return row;
   });
@@ -903,12 +1124,11 @@ function viewProfile() {
     : el("button", { class: "linklike", onclick: () => { ui.confirmReset = true; render(); } }, "Remettre ma collection à zéro");
 
   return el("section", { class: "view" },
-    el("div", { class: "profile-head" }, avatar(me.pseudo, true), el("h2", { class: "section-title" }, me.pseudo)),
-    el("p", { class: "muted" }, `${money(me.abris)} · ${s.owned} / ${s.total} cartes uniques · ${copies} cartes au total`),
+    passport,
     el("h2", { class: "section-title" }, "Progression par rareté"),
-    el("div", { class: "odds" }, rows),
-    el("button", { class: "secondary", onclick: logout }, "Se déconnecter"),
+    el("div", { class: "rbars" }, rows),
     achievementsSection(),
+    el("button", { class: "secondary", onclick: logout }, "Se déconnecter"),
     reset,
     isAdmin() ? adminPanel() : null
   );
@@ -918,22 +1138,22 @@ function achievementsSection() {
   if (!achievements) return el("p", { class: "muted small" }, "Chargement des succès…");
   const done = achievements.filter((x) => x.claimed).length;
   const items = achievements.map((x) => {
-    const ui_ = ACH_UI[x.id] || { icon: "🎯", title: x.id, desc: "" };
+    const ui_ = ACH_UI[x.id] || { icon: "star", title: x.id, desc: "" };
     const unlocked = x.progress >= x.target;
     const state = x.claimed ? "claimed" : unlocked ? "ready" : "locked";
     const pct = Math.min(100, Math.round((x.progress / x.target) * 100));
     const bar = el("div", { class: "ach-bar" }, el("i", {}));
     bar.firstChild.style.width = `${pct}%`;
     return el("div", { class: `ach ${state}` },
-      el("div", { class: "ach-ico" }, state === "locked" ? "🔒" : ui_.icon),
+      el("div", { class: "ach-ico" }, icon(state === "locked" ? "lock" : ui_.icon, 22)),
       el("div", { class: "ach-body" },
         el("strong", {}, ui_.title),
         el("small", {}, ui_.desc),
         bar,
         el("small", { class: "ach-prog" }, `${fmtNum(x.progress)} / ${fmtNum(x.target)}`)),
-      state === "claimed" ? el("span", { class: "ach-done" }, "✓ Réclamé")
+      state === "claimed" ? el("span", { class: "ach-done" }, icon("check", 15), "Réclamé")
         : state === "ready"
-          ? el("button", { class: "ach-claim", disabled: ui.busy ? "" : null, onclick: () => claimAchievement(x.id) }, `Réclamer +${fmtNum(x.reward)} Abri$`)
+          ? el("button", { class: "ach-claim", disabled: ui.busy ? "" : null, onclick: () => claimAchievement(x.id) }, icon("coin", 15), `Réclamer +${fmtNum(x.reward)} Abri$`)
           : el("span", { class: "ach-reward" }, `+${fmtNum(x.reward)} Abri$`));
   });
   return el("div", {},
@@ -967,7 +1187,7 @@ function adminPanel() {
     open: a.open || a.test,
     ontoggle: (e) => { a.open = e.currentTarget.open; },
   },
-    el("summary", {}, "🧪 Mode testeur"),
+    el("summary", {}, icon("flask", 16), " Mode testeur"),
     el("button", { class: "secondary", disabled: ui.busy ? "" : null, onclick: adminRefill }, "Recharger boosters + 1000 Abri$"),
     el("label", { class: "admin-row" },
       el("input", { type: "checkbox", checked: a.test, onchange: (e) => set({ test: e.target.checked }) }),
@@ -988,14 +1208,14 @@ let social = emptySocial();
 
 // Seuls l'icône et les textes sont ici ; objectifs et récompenses viennent de list_achievements().
 const ACH_UI = {
-  unique_3:        { icon: "🃏", title: "Premiers pas",       desc: "Possède 3 cartes différentes" },
-  unique_5:        { icon: "📚", title: "Collectionneur",     desc: "Possède 5 cartes différentes" },
-  complete_all:    { icon: "🏆", title: "Collection complète", desc: "Possède toutes les cartes du jeu" },
-  have_legendaire: { icon: "🌟", title: "Légende vivante",    desc: "Obtiens une carte Légendaire" },
-  have_divin:      { icon: "👑", title: "Hors-barème",        desc: "Obtiens une carte Divin" },
-  rich_1000:       { icon: "💰", title: "Petit trésor",       desc: "Atteins 1 000 Abri$ en réserve" },
-  friend_1:        { icon: "🤝", title: "Premier ami",        desc: "Ajoute un ami" },
-  friend_3:        { icon: "👥", title: "Bande de potes",     desc: "Aie 3 amis" },
+  unique_3:        { icon: "card", title: "Premiers pas",       desc: "Possède 3 cartes différentes" },
+  unique_5:        { icon: "collection", title: "Collectionneur",     desc: "Possède 5 cartes différentes" },
+  complete_all:    { icon: "trophy", title: "Collection complète", desc: "Possède toutes les cartes du jeu" },
+  have_legendaire: { icon: "star", title: "Légende vivante",    desc: "Obtiens une carte Légendaire" },
+  have_divin:      { icon: "crown", title: "Hors-barème",        desc: "Obtiens une carte Divin" },
+  rich_1000:       { icon: "coin", title: "Petit trésor",       desc: "Atteins 1 000 Abri$ en réserve" },
+  friend_1:        { icon: "userplus", title: "Premier ami",        desc: "Ajoute un ami" },
+  friend_3:        { icon: "friends", title: "Bande de potes",     desc: "Aie 3 amis" },
 };
 let achievements = null;   // [{id, target, reward, progress, claimed}]
 let board = null;          // {top, me, total_cards, players}
@@ -1015,7 +1235,7 @@ async function claimAchievement(id) {
   render();
   try {
     await profileCall("claim_achievement", { p_id: id });
-    toast(`🎉 +${money(a ? a.reward : 0)}`);
+    toast(`Succès réclamé : +${money(a ? a.reward : 0)}`);
   } catch (err) {
     toast(friendlyError(err));
   }
@@ -1085,7 +1305,7 @@ const respondRequest = (pseudo, accept) => socialAction(
   accept ? `${pseudo} est maintenant ton ami.` : "Demande refusée."
 );
 
-const acceptTrade = (id) => socialAction(() => profileCall("accept_trade", { p_trade_id: id }), "Échange réussi ! 🎉");
+const acceptTrade = (id) => socialAction(() => profileCall("accept_trade", { p_trade_id: id }), "Échange réussi !");
 const declineTrade = (id) => socialAction(() => rpc("decline_trade", { p_trade_id: id }), "Proposition refusée.");
 const cancelTrade = (id) => socialAction(() => rpc("cancel_trade", { p_trade_id: id }), "Proposition annulée.");
 
@@ -1121,7 +1341,7 @@ async function openVisit(pseudo) {
 
 /* ---------- Communauté : interface ---------- */
 
-const smallBtn = (label, onclick, cls = "") => el("button", { class: "btn-sm " + cls, type: "button", onclick }, label);
+const smallBtn = (label, onclick, cls = "") => el("button", { class: "btn-sm with-ico " + cls, type: "button", onclick }, label);
 
 function personRow(pseudo, ...actions) {
   return el("div", { class: "row-item" },
@@ -1159,32 +1379,31 @@ function viewFriends() {
 
 function viewRanking() {
   if (!board) return el("p", { class: "muted center loading" }, "Chargement du classement…");
-  if (board.error) return el("p", { class: "warning" }, "Classement indisponible (exécute achievements.sql dans Supabase).");
+  if (board.error) return el("p", { class: "warning" }, icon("alert", 16), " Classement indisponible (exécute achievements.sql dans Supabase).");
 
   const mine = (p) => p.pseudo.toLowerCase() === me.pseudo.toLowerCase();
-  const medal = (r) => ["🥇", "🥈", "🥉"][r - 1] || String(r);
-  const sub = (p) => `${p.unique_owned}/${board.total_cards} cartes · ${p.top_cards} ✨`;
+  const detail = (p) => el("small", {}, `${p.unique_owned}/${board.total_cards} cartes · `, icon("star", 12), ` ${p.top_cards}`);
 
-  const podium = board.top.slice(0, 3).map((p) => {
-    const d = el("div", { class: `podium-step rank-${p.rank}${mine(p) ? " me" : ""}` },
-      el("div", { class: "podium-medal" }, medal(p.rank)),
-      el("div", { class: "podium-name" }, p.pseudo),
-      el("div", { class: "podium-sub" }, `${p.unique_owned}/${board.total_cards}`),
-      el("div", { class: "podium-sub gold" }, money(p.value)));
-    return d;
-  });
-  // ordre visuel : 2e, 1er, 3e
-  const ordered = [podium[1], podium[0], podium[2]].filter(Boolean);
+  const step = (p) => el("div", { class: `pod rank-${p.rank}${mine(p) ? " me" : ""}` },
+    p.rank === 1 ? el("span", { class: "pod-crown" }, icon("crown", 28)) : null,
+    avatar(p.pseudo, true),
+    el("div", { class: "pod-name" }, p.pseudo),
+    el("div", { class: "pod-sub" }, `${p.unique_owned}/${board.total_cards}`),
+    el("div", { class: "pod-sub gold" }, money(p.value)),
+    el("div", { class: "pod-block" }, el("b", {}, String(p.rank))));
+  const top3 = board.top.slice(0, 3).map(step);
+  const ordered = [top3[1], top3[0], top3[2]].filter(Boolean);     // 2e, 1er, 3e
 
   const row = (p) => el("div", { class: "rank-row" + (mine(p) ? " me" : "") },
-    el("span", { class: "rank-n" }, medal(p.rank)),
-    el("span", { class: "rank-who" }, el("strong", {}, p.pseudo), el("small", {}, sub(p))),
+    el("span", { class: "rank-n" }, String(p.rank)),
+    avatar(p.pseudo),
+    el("span", { class: "rank-who" }, el("strong", {}, p.pseudo, mine(p) ? el("em", { class: "you" }, "TOI") : null), detail(p)),
     el("span", { class: "rank-val" }, money(p.value)));
 
   const inTop = board.me && board.top.some(mine);
   return el("div", {},
     el("p", { class: "muted small" }, `${board.players} joueur${board.players > 1 ? "s" : ""} · classés par cartes uniques, puis valeur de revente de la collection.`),
-    ordered.length ? el("div", { class: "podium" }, ordered) : null,
+    ordered.length ? el("div", { class: "podium" }, ordered) : emptyState("trophy", "Personne dans le classement", "Ouvre un booster pour y entrer."),
     el("div", { class: "rank-list" }, board.top.slice(3).map(row)),
     board.me && !inTop ? [el("p", { class: "muted center small" }, "···"), el("div", { class: "rank-list" }, row(board.me))] : null
   );
@@ -1195,14 +1414,14 @@ function relationActions(r) {
     case "friend": return [smallBtn("Voir le profil", () => openVisit(r.pseudo), "ghost")];
     case "sent": return [el("span", { class: "muted small" }, "Demande envoyée")];
     case "received": return [smallBtn("Accepter", () => respondRequest(r.pseudo, true))];
-    default: return [smallBtn("Ajouter", () => sendRequest(r.pseudo))];
+    default: return [smallBtn([icon("userplus", 15), "Ajouter"], () => sendRequest(r.pseudo))];
   }
 }
 
 function renderSearchResults(box, hint) {
   const res = ui.search.results;
   if (!res) return box.replaceChildren(...(hint ? [el("p", { class: "muted small" }, hint)] : []));
-  if (!res.length) return box.replaceChildren(el("p", { class: "muted small" }, "Aucun joueur trouvé."));
+  if (!res.length) return box.replaceChildren(emptyState("search", "Aucun joueur trouvé", "Vérifie l'orthographe du pseudo."));
   box.replaceChildren(el("div", { class: "rows" }, res.map((r) => personRow(r.pseudo, ...relationActions(r)))));
 }
 
@@ -1238,8 +1457,8 @@ function viewFriendList() {
           el("button", { class: "row-item friend", type: "button", onclick: () => openVisit(f.pseudo) },
             avatar(f.pseudo),
             el("span", { class: "who" }, f.pseudo),
-            el("span", { class: "muted small" }, "Voir le profil ›"))))
-      : el("p", { class: "muted small" }, "Pas encore d'amis. Cherche un pseudo ci-dessus pour envoyer une demande.")
+            el("span", { class: "muted small go" }, "Voir le profil", icon("chevron", 16)))))
+      : emptyState("friends", "Pas encore d'amis", "Cherche un pseudo ci-dessus pour envoyer une demande.")
   );
 }
 
@@ -1247,7 +1466,7 @@ function viewFriendList() {
 
 function viewVisit() {
   const v = ui.visit;
-  const back = el("button", { class: "linklike left", type: "button", onclick: () => { ui.visit = null; render(); } }, "← Retour aux amis");
+  const back = el("button", { class: "linklike left with-ico", type: "button", onclick: () => { ui.visit = null; render(); } }, icon("back", 16), "Retour aux amis");
   if (!v.data) return el("section", { class: "view" }, back, el("p", { class: "muted center" }, "Chargement du profil…"));
 
   const d = v.data;
@@ -1266,7 +1485,7 @@ function viewVisit() {
       el("div", { class: "stat" }, el("dt", {}, "Collection"), el("dd", {}, `${pct} %`))),
     progress,
     el("p", { class: "muted small" }, `${d.unique_owned} carte(s) différente(s) sur ${d.total_cards}`),
-    el("button", { class: "primary", onclick: () => showTradeModal(d.pseudo) }, "🔁 Proposer un échange"),
+    el("button", { class: "primary with-ico", onclick: () => showTradeModal(d.pseudo) }, icon("swap", 18), "Proposer un échange"),
     el("h2", { class: "section-title" }, `Ses cartes (${cards.length})`),
     cards.length
       ? [el("p", { class: "muted small" }, "Touche une carte pour la demander en échange."),
@@ -1286,6 +1505,7 @@ function showTradeModal(pseudo, requestedId = null) {
   const mine = ownedCards(me.owned);
   const theirs = ownedCards(ui.visit.data.owned);
   ui.modal = null;
+  ui.tq = { mine: "", theirs: "" };
   ui.trade = {
     to: pseudo, mine, theirs,
     offered: mine.length ? mine[0].id : null,
@@ -1297,32 +1517,67 @@ function showTradeModal(pseudo, requestedId = null) {
 function renderTradeModal() {
   const t = ui.trade;
   if (!t) return;
+  const norm = (s) => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
-  const picker = (id, label, cards, owned, value, onChange) => {
-    const sel = el("select", { id },
-      cards.map((c) => el("option", { value: c.id, selected: c.id === value ? "" : null },
-        `${c.titre} · ${c.rarity.label}${owned[c.id] > 1 ? ` (×${owned[c.id]})` : ""}`)));
-    sel.addEventListener("change", () => onChange(sel.value));
-    return el("label", { class: "field", for: id }, label, sel);
-  };
   const side = (id, label) => {
     const card = byId.get(id);
     return el("div", { class: "side" }, el("span", { class: "side-label" }, label), card ? cardFace(card) : el("div", { class: "gcard" }, "?"));
   };
+  const makeDuel = () => el("div", { class: "swap duel" },
+    side(t.offered, "Tu donnes"), el("span", { class: "arrow" }, icon("swap", 26)), side(t.requested, "Tu reçois"));
+  let duel = makeDuel();
+  const refreshDuel = () => { const d = makeDuel(); duel.replaceWith(d); duel = d; };
+
+  // Sélecteur visuel + filtre rapide (nom ou rareté) : plus de longue liste <select>
+  const picker = (qKey, label, cards, owned, field) => {
+    const q = el("input", {
+      class: "pick-q", type: "search", autocomplete: "off", spellcheck: "false",
+      placeholder: "Filtrer par nom ou rareté…", "aria-label": `Filtrer : ${label}`, value: ui.tq[qKey],
+    });
+    const gridBox = el("div", { class: "pick-grid" });
+    const paint = () => {
+      const needle = norm(ui.tq[qKey]);
+      const list = cards.filter((c) => !needle || norm(`${c.titre} ${c.rarity.label}`).includes(needle));
+      gridBox.replaceChildren(...(list.length
+        ? list.map((c) => {
+            const b = el("button", { class: "pick-card" + (t[field] === c.id ? " sel" : ""), type: "button", "data-id": c.id, "aria-pressed": t[field] === c.id ? "true" : "false" },
+              cardFace(c),
+              owned[c.id] > 1 ? el("span", { class: "count" }, `×${owned[c.id]}`) : null);
+            b.addEventListener("click", () => {
+              t[field] = c.id;
+              gridBox.querySelectorAll(".pick-card").forEach((n) => {
+                const on = n.dataset.id === c.id;
+                n.classList.toggle("sel", on);
+                n.setAttribute("aria-pressed", on ? "true" : "false");
+              });
+              refreshDuel();
+            });
+            return b;
+          })
+        : [el("p", { class: "muted small empty-grid" }, "Aucune carte ne correspond.")]));
+    };
+    q.addEventListener("input", () => { ui.tq[qKey] = q.value; paint(); });
+    paint();
+    return el("div", { class: "pick" },
+      el("div", { class: "pick-head" }, el("strong", {}, label), el("span", { class: "muted small" }, `${cards.length} carte${cards.length > 1 ? "s" : ""}`)),
+      el("label", { class: "pick-search" }, icon("search", 16), q),
+      gridBox);
+  };
 
   const ready = t.mine.length > 0 && t.theirs.length > 0;
   const body = !t.mine.length
-    ? el("p", { class: "muted center" }, "Tu n'as encore aucune carte à proposer. Ouvre un booster !")
+    ? emptyState("booster", "Rien à proposer", "Tu n'as encore aucune carte. Ouvre un booster !")
     : !t.theirs.length
-      ? el("p", { class: "muted center" }, `${t.to} n'a encore aucune carte.`)
+      ? emptyState("collection", `${t.to} n'a encore aucune carte`)
       : [
-          picker("trade-offered", "Je donne", t.mine, me.owned, t.offered, (v) => { t.offered = v; renderTradeModal(); }),
-          picker("trade-requested", `Je veux (de ${t.to})`, t.theirs, ui.visit.data.owned, t.requested, (v) => { t.requested = v; renderTradeModal(); }),
-          el("div", { class: "swap" }, side(t.offered, "Tu donnes"), el("span", { class: "arrow" }, "⇄"), side(t.requested, "Tu reçois")),
+          duel,
+          picker("mine", "Je donne", t.mine, me.owned, "offered"),
+          picker("theirs", `Je veux (de ${t.to})`, t.theirs, ui.visit.data.owned, "requested"),
           el("p", { class: "muted small center" }, "L'échange ne se fait que si " + t.to + " accepte. Les cartes ne bougent qu'à ce moment-là."),
         ];
 
   const box = el("div", { class: "modal-box", role: "dialog", "aria-label": "Proposer un échange" },
+    el("button", { class: "modal-x", type: "button", "aria-label": "Fermer", onclick: closeModal }, icon("close", 20)),
     el("h2", { class: "section-title center" }, `Échange avec ${t.to}`),
     body,
     ready ? el("button", { class: "primary", onclick: sendTrade }, "Envoyer la proposition") : null,
@@ -1355,13 +1610,16 @@ async function sendTrade() {
 function swapRow(giveId, giveRarete, getId, getRarete, giveLabel, getLabel) {
   const side = (id, rarete, label) =>
     el("div", { class: "side" }, el("span", { class: "side-label" }, label), cardFace(cardFromServer(id, rarete)));
-  return el("div", { class: "swap" }, side(giveId, giveRarete, giveLabel), el("span", { class: "arrow" }, "⇄"), side(getId, getRarete, getLabel));
+  return el("div", { class: "swap duel" }, side(giveId, giveRarete, giveLabel),
+    el("span", { class: "arrow" }, icon("swap", 26)), side(getId, getRarete, getLabel));
 }
 
 function viewTrades() {
   const incoming = social.tradesIn.map((t) =>
     el("div", { class: "trade" },
-      el("p", { class: "trade-head" }, el("strong", {}, t.from), " te propose un échange"),
+      el("div", { class: "trade-top" }, avatar(t.from),
+        el("p", { class: "trade-head" }, el("strong", {}, t.from), " te propose un échange"),
+        el("span", { class: "badge reply" }, "À toi de répondre")),
       // t.offered = ce que l'ami donne (tu le reçois) ; t.requested = ce qu'il veut (tu le donnes)
       swapRow(t.requested, t.requested_rarete, t.offered, t.offered_rarete, "Tu donnes", "Tu reçois"),
       t.can_accept ? null : el("p", { class: "warning" }, "Échange impossible pour le moment : l'une des deux cartes n'est plus disponible."),
@@ -1371,7 +1629,9 @@ function viewTrades() {
 
   const outgoing = social.tradesOut.map((t) =>
     el("div", { class: "trade" },
-      el("p", { class: "trade-head" }, "Proposition à ", el("strong", {}, t.to), " · en attente"),
+      el("div", { class: "trade-top" }, avatar(t.to),
+        el("p", { class: "trade-head" }, "Proposition à ", el("strong", {}, t.to)),
+        el("span", { class: "badge wait" }, "En attente")),
       swapRow(t.offered, t.offered_rarete, t.requested, t.requested_rarete, "Tu donnes", "Tu reçois"),
       el("div", { class: "trade-actions" },
         el("button", { class: "btn-sm ghost", onclick: () => cancelTrade(t.id) }, "Annuler la proposition"))));
@@ -1380,15 +1640,16 @@ function viewTrades() {
     const other = h.i_am_sender ? h.to : h.from;
     const give = h.i_am_sender ? h.offered : h.requested;
     const get = h.i_am_sender ? h.requested : h.offered;
-    return el("p", { class: "hist" },
-      `${h.status === "accepted" ? "✅" : "❌"} ${other} · tu donnes ${cardName(give)} contre ${cardName(get)}`);
+    const ok = h.status === "accepted";
+    return el("p", { class: "hist " + (ok ? "ok" : "ko") },
+      icon(ok ? "check" : "close", 15), ` ${other} · tu donnes ${cardName(give)} contre ${cardName(get)}`);
   });
 
   return el("div", {},
     el("h2", { class: "section-title" }, `Propositions reçues (${incoming.length})`),
-    incoming.length ? incoming : el("p", { class: "muted small" }, "Aucune proposition en attente. Tes amis peuvent t'en envoyer depuis ton profil."),
+    incoming.length ? incoming : emptyState("swap", "Aucune proposition reçue", "Tes amis peuvent t'en envoyer depuis ton profil."),
     el("h2", { class: "section-title" }, `Mes propositions envoyées (${outgoing.length})`),
-    outgoing.length ? outgoing : el("p", { class: "muted small" }, "Aucune. Ouvre le profil d'un ami pour lui proposer un échange."),
+    outgoing.length ? outgoing : emptyState("userplus", "Aucune proposition envoyée", "Ouvre le profil d'un ami pour lui proposer un échange."),
     history.length ? [el("h2", { class: "section-title" }, "Derniers échanges"), history] : null
   );
 }
@@ -1399,7 +1660,7 @@ function tick() {
   if (!me) return;
   const gained = syncBoosters(me);
   if (gained > 0) {
-    toast(`📦 Nouveau booster disponible${gained > 1 ? ` (+${gained})` : ""} !`);
+    toast(`Nouveau booster disponible${gained > 1 ? ` (+${gained})` : ""} !`);
     if (!ui.opening && !ui.busy) render();
     refreshProfile();   // confirme avec le serveur
   }
