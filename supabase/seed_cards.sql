@@ -49,8 +49,9 @@ insert into public.cards (id, rarete) values
   ('spe_physique_chimie', 'rare'),
   ('spe_si', 'rare'),
   ('spe_svt', 'rare'),
-  ('spe_ses', 'rare')
+  ('spe_ses', 'rare'),
+  ('louan', 'divin')
 on conflict (id) do update set rarete = excluded.rarete;
 
 -- Retire du tirage les cartes supprimées de cards.json
-delete from public.cards where id not in ('bat_coeur', 'bat_m_aero', 'bat_g', 'bat_cantine', 'gym_nord', 'gym_leo', 'bus_h1', 'bus_h2', 'bus_l13', 'spe_nsi', 'opt_maths_expertes', 'opt_sciences_ingenieur', 'es_svt', 'es_pc', 'event_blocus', 'ordi_hall_c', 'radiateur_froid', 'radiateur_chaud', 'bat_j', 'bat_prefa1', 'bat_prefa2', 'salle_permanence', 'poubelle_tague', 'banc_j_b', 'video_proj', 'alarme_incendie', 'ppms_risq_maj', 'ppms_att_intrus', 'sport_bad', 'sport_danse', 'sport_cdd', 'sport_co', 'sport_volley', 'sport_hand', 'sport_basket', 'sport_muscu', 'sport_natation', 'fil_sti2d', 'fil_st2s', 'fil_stmg', 'fil_stl', 'spe_hggsp', 'spe_hlp', 'spe_llce', 'spe_maths', 'spe_musique', 'spe_physique_chimie', 'spe_si', 'spe_svt', 'spe_ses');
+delete from public.cards where id not in ('bat_coeur', 'bat_m_aero', 'bat_g', 'bat_cantine', 'gym_nord', 'gym_leo', 'bus_h1', 'bus_h2', 'bus_l13', 'spe_nsi', 'opt_maths_expertes', 'opt_sciences_ingenieur', 'es_svt', 'es_pc', 'event_blocus', 'ordi_hall_c', 'radiateur_froid', 'radiateur_chaud', 'bat_j', 'bat_prefa1', 'bat_prefa2', 'salle_permanence', 'poubelle_tague', 'banc_j_b', 'video_proj', 'alarme_incendie', 'ppms_risq_maj', 'ppms_att_intrus', 'sport_bad', 'sport_danse', 'sport_cdd', 'sport_co', 'sport_volley', 'sport_hand', 'sport_basket', 'sport_muscu', 'sport_natation', 'fil_sti2d', 'fil_st2s', 'fil_stmg', 'fil_stl', 'spe_hggsp', 'spe_hlp', 'spe_llce', 'spe_maths', 'spe_musique', 'spe_physique_chimie', 'spe_si', 'spe_svt', 'spe_ses', 'louan');

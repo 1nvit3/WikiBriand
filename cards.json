@@ -135,10 +135,10 @@
 
     {
       "id": "event_blocus",
-      "titre": "Le Blocus Historique",
+      "titre": "Le Blocus",
       "categorie": "Vie Scolaire",
       "rarete": "divin",
-      "statistiques": "Poubelles : 42 | Cours annulés : 100%",
+      "statistiques": "Poubelles : en feu | Cours annulés : 100%",
       "image": "images/vie_scolaire/blocus.jpg",
       "description": "Un événement rarissime qui paralyse les grilles dès 7h30 et offre une matinée libre inespérée à tout l'établissement."
     },
@@ -456,6 +456,15 @@
       "statistiques": "JSP a mettre",
       "image": "images/matieres/spe_ses.jpg",
       "description": "jsp"
+    },
+    {
+      "id": "louan",
+      "titre": "LOUAN",
+      "categorie": "Vie Scolaire",
+      "rarete": "divin",
+      "statistiques": "Responsabliter : ∞  | projet : nothing is imposible ",
+      "image": "images/vie_scolaire/louan.png",
+      "description": "Louan le seul et l'unique ! el dictador del lycée ! 'Miam' - Louan 2026"
     }
   ]
 }
