@@ -1,5 +1,6 @@
 {
   "cards": [
+
     {
       "id": "bat_coeur",
       "titre": "Le Cœur",
@@ -8,24 +9,6 @@
       "statistiques": "Capacité : 500 élèves | Bruit : 85 dB",
       "image": "images/batiments/le_coeur.jpg",
       "description": "Le point de ralliement central du lycée. C'est ici que toutes les rumeurs naissent entre deux sonneries."
-    },
-    {
-      "id": "bus_h1",
-      "titre": "Ligne H1 (Gavy / Montoir)",
-      "categorie": "Bus",
-      "rarete": "peu-commun",
-      "statistiques": "Fréquence : 10 min | Affluence : 95%",
-      "image": "images/bus/h1.jpg",
-      "description": "Le bus légendaire du matin. Réussir à y trouver une place assise à 7h45 relève de l'exploit sportif."
-    },
-    {
-      "id": "spe_nsi",
-      "titre": "Spécialité NSI",
-      "categorie": "Matières",
-      "rarete": "rare",
-      "statistiques": "Langage : Python/SQL | Caféine : +200%",
-      "image": "images/matieres/nsi.jpg",
-      "description": "Là où l'on code des jeux de cartes au lieu de réviser le bac. Les bugs disparaissent mystérieusement quand le prof s'approche."
     },
     {
       "id": "bat_m_aero",
@@ -37,22 +20,51 @@
       "description": "Une zone quasi mythique pour les élèves de filière générale. On raconte qu'il y a de vrais avions à l'intérieur."
     },
     {
-      "id": "opt_maths_expertes",
-      "titre": "Option Maths Expertes",
-      "categorie": "Matières",
-      "rarete": "epique",
-      "statistiques": "Nombres complexes : ∞ | Sommeil : -50%",
-      "image": "images/matieres/maths_expertes.png",
-      "description": "Réservé aux survivants qui trouvent que 6h de maths par semaine ne suffisent pas. Les matrices n'ont plus aucun secret pour eux."
+      "id": "bat_g",
+      "titre": "Bâtiment G",
+      "categorie": "Bâtiments",
+      "rarete": "rare",
+      "statistiques": "Eleve Presents : Peu | Possibilités : ∞ | Style : Chômage",
+      "image": "images/batiments/batiment_g.jpeg",
+      "description": "Le Batiment detesté de tous, a l'autre bout du campus.  Y aller un jour de pluie? = Prendre une douche "
     },
     {
-      "id": "event_blocus",
-      "titre": "Le Blocus Historique",
-      "categorie": "Vie Scolaire",
-      "rarete": "divin",
-      "statistiques": "Poubelles : 42 | Cours annulés : 100%",
-      "image": "images/vie_scolaire/blocus.jpg",
-      "description": "Un événement rarissime qui paralyse les grilles dès 7h30 et offre une matinée libre inespérée à tout l'établissement."
+      "id": "bat_cantine",
+      "titre": "La Cantine",
+      "categorie": "Bâtiments",
+      "rarete": "peu-commun",
+      "statistiques": "Attente : 1h | Qualité : 50 ",
+      "image": "images/batiments/bat_cantine.jpeg",
+      "description": "Ce lieu, ce moment de la journée où tu peux discuter et retrouver tes amis. C'est peut-etre pas les bons petits plats de la maison, mais au moins on rigole bien."
+    },
+    {
+      "id": "gym_nord",
+      "titre": "Gymnase Nord",
+      "categorie": "Bâtiments",
+      "rarete": "rare",
+      "statistiques": "État : Vétuste | Odeur : Vestiaire des années 80",
+      "image": "images/batiments/gym_nord.jpg",
+      "description": "Gymnase à l'autre bout de la planete, dans un etat pitoyable. Les personnes ayant cours là-bas ont tout notre courage. "
+    },
+    {
+      "id": "gym_leo",
+      "titre": "Gymnase Léo Lagrange",
+      "categorie": "Bâtiments",
+      "rarete": "peu-commun",
+      "statistiques": "Équipement : Standard | Distance : Accessible",
+      "image": "images/batiments/gym_leo.png",
+      "description": "Un gymnase tout ce qu'il y a de plus classique à l'echelle du lycée."
+    },
+
+
+    {
+      "id": "bus_h1",
+      "titre": "Ligne H1 (Gavy / Montoir)",
+      "categorie": "Bus",
+      "rarete": "peu-commun",
+      "statistiques": "Fréquence : 10 min | Affluence : 95%",
+      "image": "images/bus/h1.jpg",
+      "description": "Le bus légendaire du matin. Réussir à y trouver une place assise à 7h45 relève de l'exploit sportif."
     },
     {
       "id": "bus_h2",
@@ -72,6 +84,26 @@
       "image": "images/bus/l13.png",
       "description": "Bus aléatoire, avec zéro espace, mais heureusement très peu de personne le prennent. Est-ce que ça craint? Oui."
     },
+
+
+    {
+      "id": "spe_nsi",
+      "titre": "Spécialité NSI",
+      "categorie": "Matières",
+      "rarete": "rare",
+      "statistiques": "Langage : Python/SQL | Caféine : +200%",
+      "image": "images/matieres/nsi.jpg",
+      "description": "Là où l'on code des jeux de cartes au lieu de réviser le bac. Les bugs disparaissent mystérieusement quand le prof s'approche."
+    },
+    {
+      "id": "opt_maths_expertes",
+      "titre": "Option Maths Expertes",
+      "categorie": "Matières",
+      "rarete": "epique",
+      "statistiques": "Nombres complexes : ∞ | Sommeil : -50%",
+      "image": "images/matieres/maths_expertes.png",
+      "description": "Réservé aux survivants qui trouvent que 6h de maths par semaine ne suffisent pas. Les matrices n'ont plus aucun secret pour eux."
+    },
     {
       "id": "opt_sciences_ingenieur",
       "titre": "Option Science de l'Ingénieur",
@@ -80,33 +112,6 @@
       "statistiques": "Potins :  ∞  | Compréhension : 10%",
       "image": "images/matieres/opt_si.jpeg",
       "description": "Option de seconde où on fait tout, sauf de la SI. Entre séance potins, jeux sur ordi, et créations d'une maison en 3D, difficile de s'ennuyer. "
-    },
-    {
-      "id": "bat_g",
-      "titre": "Bâtiment G",
-      "categorie": "Bâtiments",
-      "rarete": "rare",
-      "statistiques": "Eleve Presents : Peu | Possibilités : ∞ | Style : Chômage",
-      "image": "images/batiments/batiment_g.jpeg",
-      "description": "Le Batiment detesté de tous, a l'autre bout du campus.  Y aller un jour de pluie? = Prendre une douche "
-    },
-    {
-      "id": "gym_nord",
-      "titre": "Gymnase Nord",
-      "categorie": "Bâtiments",
-      "rarete": "rare",
-      "statistiques": "Etat : Minable",
-      "image": "images/batiments/gym_nord.jpg",
-      "description": "Gymnase à l'autre bout de la planete, dans un etat pitoyable. Les personnes ayant cours là-bas ont tout notre courage. "
-    },
-    {
-      "id": "gym_leo",
-      "titre": "Gymnase Léo Lagrange",
-      "categorie": "Bâtiments",
-      "rarete": "peu-commun",
-      "statistiques": " jsp a mettre",
-      "image": "images/batiments/gym_leo.png",
-      "description": "JSP"
     },
     {
       "id": "es_svt",
@@ -125,6 +130,44 @@
       "statistiques": "Utilité : 0 |  Apprecié par : Personne  ",
       "image": "images/matieres/es_pc.jpeg",
       "description": "Tout le monde se demande à quoi ça sert,  personne n'a la réponse. Au final, ça donne juste des notes éclatés"
+    },
+
+
+    {
+      "id": "event_blocus",
+      "titre": "Le Blocus Historique",
+      "categorie": "Vie Scolaire",
+      "rarete": "divin",
+      "statistiques": "Poubelles : 42 | Cours annulés : 100%",
+      "image": "images/vie_scolaire/blocus.jpg",
+      "description": "Un événement rarissime qui paralyse les grilles dès 7h30 et offre une matinée libre inespérée à tout l'établissement."
+    },
+    {
+      "id": "ordi_hall_c",
+      "titre": "Les Ordinateurs du Hall C",
+      "categorie": "Vie Scolaire",
+      "rarete": "commun",
+      "statistiques": "Présence : Inexistante | Style : Prison",
+      "image": "images/vie_scolaire/ordi_hall_c.jpeg",
+      "description": "Ordinateurs datant surement de la création du lycée, dans une boite qui nous amene à nous demander si on est vraiment en prison."
+    },
+    {
+      "id": "radiateur_froid",
+      "titre": "Radiateur Froid",
+      "categorie": "Vie Scolaire",
+      "rarete": "commun",
+      "statistiques": "Espoir : -1000 | Utilité : 0",
+      "image": "images/vie_scolaire/radiateur_froid.png",
+      "description": "L'illusion parfaite. Tu t'approches en espérant te réchauffer les mains, mais tu te rends compte qu'il est curieusement plus glacial que le mur extérieur.  Et le pire, c'est que tu continue de t'approcher des suivants, espérant tomber sur le saint-Graal."
+    },
+    {
+      "id": "radiateur_chaud",
+      "titre": "Radiateur Chaud",
+      "categorie": "Vie Scolaire",
+      "rarete": "epique",
+      "statistiques": "Espoir : +1000 | Utilité : 10000",
+      "image": "images/vie_scolaire/radiateur_chaud.png",
+      "description": "Chance inouie de tomber dessus, c'est le Saint-Graal du lycée, l'objet qui te fait retrouver retrouver de l'espoir alors qu'il fait -4 dehors et que tu enchaine les evals. "
     }
   ]
 }
