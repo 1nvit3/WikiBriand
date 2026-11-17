@@ -117,7 +117,7 @@
       "id": "es_svt",
       "titre": "L'ES SVT",
       "categorie": "Matières",
-      "rarete": "peu commun",
+      "rarete": "peu-commun",
       "statistiques": "Utilité : 0 |  Apprecié par : Personne  ",
       "image": "images/matieres/es_svt.jpeg",
       "description": "Tout le monde se demande à quoi ça sert,  personne n'a la réponse. Au final, ça donne juste des notes éclatés"
@@ -168,6 +168,294 @@
       "statistiques": "Espoir : +1000 | Utilité : 10000",
       "image": "images/vie_scolaire/radiateur_chaud.png",
       "description": "Chance inouie de tomber dessus, c'est le Saint-Graal du lycée, l'objet qui te fait retrouver retrouver de l'espoir alors qu'il fait -4 dehors et que tu enchaine les evals. "
+    },
+    {
+      "id": "bat_j",
+      "titre": "Bâtiment J",
+      "categorie": "Bâtiments",
+      "rarete": "commun",
+      "statistiques": "jsp a mettre",
+      "image": "images/batiments/bat_j.jpg",
+      "description": "JSP"
+    },
+    {
+      "id": "bat_prefa1",
+      "titre": "Prefa 1 et 2",
+      "categorie": "Bâtiments",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/batiments/bat_prefa1.jpeg",
+      "description": "JSP"
+    },
+    {
+      "id": "bat_prefa2",
+      "titre": "Prefa 3 et 4",
+      "categorie": "Bâtiments",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/batiments/prefa2.jpeg",
+      "description": "JSP"
+    },
+    {
+      "id": "salle_permanence",
+      "titre": "Salle de Permanence",
+      "categorie": "Vie Scolaire",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/vie_scolaire/salle_permanence.jpeg",
+      "description": "JSP"
+    },
+    {
+      "id": "poubelle_tague",
+      "titre": "Poubelle Taguée",
+      "categorie": "Vie Scolaire",
+      "rarete": "peu-commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/vie_scolaire/poubelle_tague.jpeg",
+      "description": "JSP"
+    },
+    {
+      "id": "banc_j_b",
+      "titre": "Banc entre le J et le B",
+      "categorie": "Vie Scolaire",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/vie_scolaire/banc_j_b.jpeg",
+      "description": "JSP"
+    },
+    {
+      "id": "video_proj",
+      "titre": "Projecteur",
+      "categorie": "Materiel",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/materiel/video_proj.png",
+      "description": "JSP"
+    },
+    {
+      "id": "alarme_incendie",
+      "titre": "Incendie",
+      "categorie": "Alarme",
+      "rarete": "epique",
+      "statistiques": "JSP a mettre",
+      "image": "images/alames/alarme_incendie.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "ppms_risq_maj",
+      "titre": "PPMS Risques Majeurs",
+      "categorie": "Alarme",
+      "rarete": "legendaire",
+      "statistiques": "JSP a mettre",
+      "image": "images/alames/ppms_risq_maj.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "ppms_att_intrus",
+      "titre": "PPMS Attentat-Intrusion",
+      "categorie": "Alarme",
+      "rarete": "legendaire",
+      "statistiques": "JSP a mettre",
+      "image": "images/alames/ppms_att_intrus.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "sport_bad",
+      "titre": "Badminton",
+      "categorie": "Sport",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/sport/sport_bad.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "sport_danse",
+      "titre": "Danse",
+      "categorie": "Sport",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/sport/sport_danse.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "sport_cdd",
+      "titre": "CDD",
+      "categorie": "Sport",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/sport/sport_cdd.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "sport_co",
+      "titre": "CO",
+      "categorie": "Sport",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/sport/sport_co.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "sport_volley",
+      "titre": "Volley",
+      "categorie": "Sport",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/sport/sport_volley.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "sport_hand",
+      "titre": "Hand-ball",
+      "categorie": "Sport",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/sport/sport_hand.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "sport_basket",
+      "titre": "Basket-ball",
+      "categorie": "Sport",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/sport/sport_basket.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "sport_muscu",
+      "titre": "Musculation",
+      "categorie": "Sport",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/sport/sport_muscu.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "sport_natation",
+      "titre": "Natation",
+      "categorie": "Sport",
+      "rarete": "rare",
+      "statistiques": "JSP a mettre",
+      "image": "images/sport/sport_natation.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "fil_sti2d",
+      "titre": "STI2D",
+      "categorie": "Matières",
+      "rarete": "rare",
+      "statistiques": "JSP a mettre",
+      "image": "images/matieres/fil_sti2d.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "fil_st2s",
+      "titre": "ST2S",
+      "categorie": "Matières",
+      "rarete": "rare",
+      "statistiques": "JSP a mettre",
+      "image": "images/matieres/fil_st2s.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "fil_stmg",
+      "titre": "STMG",
+      "categorie": "Matières",
+      "rarete": "rare",
+      "statistiques": "JSP a mettre",
+      "image": "images/matieres/fil_stmg.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "fil_stl",
+      "titre": "STL",
+      "categorie": "Matières",
+      "rarete": "rare",
+      "statistiques": "JSP a mettre",
+      "image": "images/matieres/fil_stl.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "spe_hggsp",
+      "titre": "Spécialité HGGSP",
+      "categorie": "Matières",
+      "rarete": "rare",
+      "statistiques": "JSP a mettre",
+      "image": "images/matieres/spe_hggsp.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "spe_hlp",
+      "titre": "Spécialité HLP",
+      "categorie": "Matières",
+      "rarete": "rare",
+      "statistiques": "JSP a mettre",
+      "image": "images/matieres/spe_hlp.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "spe_llce",
+      "titre": "Spécialité LLCE",
+      "categorie": "Matières",
+      "rarete": "rare",
+      "statistiques": "JSP a mettre",
+      "image": "images/matieres/spe_llce.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "spe_maths",
+      "titre": "Spécialité Maths",
+      "categorie": "Matières",
+      "rarete": "rare",
+      "statistiques": "JSP a mettre",
+      "image": "images/matieres/spe_maths.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "spe_musique",
+      "titre": "Spécialité Musique",
+      "categorie": "Matières",
+      "rarete": "rare",
+      "statistiques": "JSP a mettre",
+      "image": "images/matieres/spe_musique.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "spe_physique_chimie",
+      "titre": "Spécialité Physique-Chimie",
+      "categorie": "Matières",
+      "rarete": "rare",
+      "statistiques": "JSP a mettre",
+      "image": "images/matieres/spe_physique_chimie.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "spe_si",
+      "titre": "Spécialité SI",
+      "categorie": "Matières",
+      "rarete": "rare",
+      "statistiques": "JSP a mettre",
+      "image": "images/matieres/spe_si.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "spe_svt",
+      "titre": "Spécialité SVT",
+      "categorie": "Matières",
+      "rarete": "rare",
+      "statistiques": "JSP a mettre",
+      "image": "images/matieres/spe_svt.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "spe_ses",
+      "titre": "Spécialité SES",
+      "categorie": "Matières",
+      "rarete": "rare",
+      "statistiques": "JSP a mettre",
+      "image": "images/matieres/spe_ses.jpg",
+      "description": "jsp"
     }
   ]
 }
