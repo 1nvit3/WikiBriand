@@ -229,7 +229,7 @@
       "categorie": "Materiel",
       "rarete": "commun",
       "statistiques": "JSP a mettre",
-      "image": "images/materiel/projecteur.jpg",
+      "image": "images/vie_scolaire/projecteur.jpg",
       "description": "JSP"
     },
     {
@@ -265,7 +265,7 @@
       "categorie": "Sport",
       "rarete": "commun",
       "statistiques": "JSP a mettre",
-      "image": "images/sport/sport_bad.jpg",
+      "image": "images/sport/bad.jpg",
       "description": "jsp"
     },
     {
@@ -283,7 +283,7 @@
       "categorie": "Sport",
       "rarete": "commun",
       "statistiques": "JSP a mettre",
-      "image": "images/sport/sport_cdd.jpg",
+      "image": "images/sport/sport_cdd.jpeg",
       "description": "jsp"
     },
     {
@@ -328,7 +328,7 @@
       "categorie": "Sport",
       "rarete": "commun",
       "statistiques": "JSP a mettre",
-      "image": "images/sport/sport_muscu.jpg",
+      "image": "images/sport/sport_muscu.jpeg",
       "description": "jsp"
     },
     {
@@ -346,7 +346,7 @@
       "categorie": "Matières",
       "rarete": "rare",
       "statistiques": "JSP a mettre",
-      "image": "images/matieres/fil_sti2d.jpg",
+      "image": "images/matieres/filiere_sti2d.jpg",
       "description": "jsp"
     },
     {
