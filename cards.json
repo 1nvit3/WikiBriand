@@ -238,7 +238,7 @@
       "categorie": "Alarme",
       "rarete": "epique",
       "statistiques": "JSP a mettre",
-      "image": "images/vie_scolaire/alarme_incendie.jpg",
+      "image": "images/alarmes/alarme_incendie.jpg",
       "description": "jsp"
     },
     {
@@ -247,7 +247,7 @@
       "categorie": "Alarme",
       "rarete": "legendaire",
       "statistiques": "JSP a mettre",
-      "image": "images/vie_scolaire/alarme.jpeg",
+      "image": "images/alarmes/alarme.jpeg",
       "description": "jsp"
     },
     {
@@ -256,7 +256,7 @@
       "categorie": "Alarme",
       "rarete": "legendaire",
       "statistiques": "JSP a mettre",
-      "image": "images/vie_scolaire/alarme.jpeg",
+      "image": "images/alarmes/alarme.jpeg",
       "description": "jsp"
     },
     {
@@ -599,6 +599,223 @@
       "rarete": "commun",
       "statistiques": "JSP",
       "image":"images/cantine/oublie_carte_cantine.jpg",
+      "description": "jsp"
+    }
+    ,
+    {
+      "id": "coupe_feu",
+      "titre": "Porte coupe feu",
+      "categorie": "Alarme",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/alarmes/coupe_feu.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "vroom_mdl",
+      "titre": "Voiture devant la MDL",
+      "categorie": "Vie Scolaire",
+      "rarete": "rare",
+      "statistiques": "JSP a mettre",
+      "image": "images/vie_scolaire/vroom_mdl.jpeg",
+      "description": "jsp"
+    },
+    {
+      "id": "souche_arbre",
+      "titre": "Souche d'arbre",
+      "categorie": "Vie Scolaire",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/vie_scolaire/souche_arbre.jpeg",
+      "description": "Arbre Coupé"
+    },
+    {
+      "id": "trousse",
+      "titre": "Trousse",
+      "categorie": "Materiel",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/materiel/trousse.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "sac_a_dos",
+      "titre": "Sac à dos",
+      "categorie": "Materiel",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/materiel/sac_a_dos.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "sac_a_main",
+      "titre": "Sac à main",
+      "categorie": "Materiel",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/materiel/sac_a_main.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "gourde",
+      "titre": "Gourde",
+      "categorie": "Materiel",
+      "rarete": "peu-commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/materiel/gourde.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "stylo_bic",
+      "titre": "Stylo bic",
+      "categorie": "Materiel",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/materiel/stylo_bic.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "stylo_4_couleur",
+      "titre": "Stylo 4 couleurs",
+      "categorie": "Materiel",
+      "rarete": "peu-commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/materiel/stylo_4_couleur.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "surligneur",
+      "titre": "Surligneur",
+      "categorie": "Materiel",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/materiel/surligneur.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "materiel_regle",
+      "titre": "Règle",
+      "categorie": "Materiel",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/materiel/materiel_regle.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "gomme",
+      "titre": "Gomme",
+      "categorie": "Materiel",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/materiel/gomme.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "criterium",
+      "titre": "Criterium",
+      "categorie": "Materiel",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/materiel/criterium.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "crayon_de_bois",
+      "titre": "Crayon de bois",
+      "categorie": "Materiel",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/materiel/crayon_de_bois.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "materiel_colle",
+      "titre": "Colle",
+      "categorie": "Materiel",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/materiel/materiel_colle.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "interdiction_portable",
+      "titre": "Interdiction du portable",
+      "categorie": "Reglement",
+      "rarete": "epique",
+      "statistiques": "JSP a mettre",
+      "image": "images/reglement/interdiction_portable.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "delegue",
+      "titre": "Délégué",
+      "categorie": "Instance",
+      "rarete": "rare",
+      "statistiques": "JSP a mettre",
+      "image": "images/instance/delegue.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "eco_delegue",
+      "titre": "éco-délégué",
+      "categorie": "Instance",
+      "rarete": "epique",
+      "statistiques": "JSP a mettre",
+      "image": "images/instance/eco_delegue.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "membre_mdl",
+      "titre": "Membre de la MDL",
+      "categorie": "Instance",
+      "rarete": "epique",
+      "statistiques": "JSP a mettre",
+      "image": "images/instance/membre_mdl.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "elu_cvl",
+      "titre": "élu CVL",
+      "categorie": "Instance",
+      "rarete": "legendaire",
+      "statistiques": "JSP a mettre",
+      "image": "images/instance/elu_cvl.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "elu_ca",
+      "titre": "élu au Conseil d'Administration",
+      "categorie": "Instance",
+      "rarete": "legendaire",
+      "statistiques": "JSP a mettre",
+      "image": "images/instance/elu_ca.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "conseil_de_classe",
+      "titre": "Conseil de classe",
+      "categorie": "Instance",
+      "rarete": "rare",
+      "statistiques": "JSP a mettre",
+      "image": "images/instance/conseil_de_classe.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "conseil_de_discipline",
+      "titre": "Conseil de discipline",
+      "categorie": "Instance",
+      "rarete": "legendaire",
+      "statistiques": "JSP a mettre",
+      "image": "images/instance/conseil_de_discipline.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "incendie_batj",
+      "titre": "Incendie dans le bat J",
+      "categorie": "Vie Scolaire",
+      "rarete": "divin",
+      "statistiques": "JSP a mettre",
+      "image": "images/vie_scolaire/incendie_batj.jpg",
       "description": "jsp"
     }
   ]
