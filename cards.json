@@ -202,7 +202,7 @@
       "categorie": "Vie Scolaire",
       "rarete": "commun",
       "statistiques": "JSP a mettre",
-      "image": "images/vie_scolaire/salle_permanence.jpeg",
+      "image": "images/vie_scolaire/permanence.jpeg",
       "description": "JSP"
     },
     {
@@ -229,7 +229,7 @@
       "categorie": "Materiel",
       "rarete": "commun",
       "statistiques": "JSP a mettre",
-      "image": "images/materiel/video_proj.png",
+      "image": "images/materiel/projecteur.jpg",
       "description": "JSP"
     },
     {
@@ -238,7 +238,7 @@
       "categorie": "Alarme",
       "rarete": "epique",
       "statistiques": "JSP a mettre",
-      "image": "images/alames/alarme_incendie.jpg",
+      "image": "images/vie_scolaire/alarme_incendie.jpg",
       "description": "jsp"
     },
     {
@@ -247,7 +247,7 @@
       "categorie": "Alarme",
       "rarete": "legendaire",
       "statistiques": "JSP a mettre",
-      "image": "images/alames/ppms_risq_maj.jpg",
+      "image": "images/vie_scolaire/alarme.jpeg",
       "description": "jsp"
     },
     {
@@ -256,7 +256,7 @@
       "categorie": "Alarme",
       "rarete": "legendaire",
       "statistiques": "JSP a mettre",
-      "image": "images/alames/ppms_att_intrus.jpg",
+      "image": "images/vie_scolaire/alarme.jpeg",
       "description": "jsp"
     },
     {
@@ -355,7 +355,7 @@
       "categorie": "Matières",
       "rarete": "rare",
       "statistiques": "JSP a mettre",
-      "image": "images/matieres/fil_st2s.jpg",
+      "image": "images/matieres/filiere_st2s.jpeg",
       "description": "jsp"
     },
     {
@@ -364,7 +364,7 @@
       "categorie": "Matières",
       "rarete": "rare",
       "statistiques": "JSP a mettre",
-      "image": "images/matieres/fil_stmg.jpg",
+      "image": "images/matieres/stmg.jpeg",
       "description": "jsp"
     },
     {
@@ -373,7 +373,7 @@
       "categorie": "Matières",
       "rarete": "rare",
       "statistiques": "JSP a mettre",
-      "image": "images/matieres/fil_stl.jpg",
+      "image": "images/matieres/filiere_stl.jpeg",
       "description": "jsp"
     },
     {
@@ -409,7 +409,7 @@
       "categorie": "Matières",
       "rarete": "rare",
       "statistiques": "JSP a mettre",
-      "image": "images/matieres/spe_maths.jpg",
+      "image": "images/matieres/spe_maths.jpeg",
       "description": "jsp"
     },
     {
@@ -418,7 +418,7 @@
       "categorie": "Matières",
       "rarete": "rare",
       "statistiques": "JSP a mettre",
-      "image": "images/matieres/spe_musique.jpg",
+      "image": "images/matieres/spe_musique.jpeg",
       "description": "jsp"
     },
     {
