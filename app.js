@@ -132,6 +132,8 @@ const ICONS = {
   trophy:    '<path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3"/><path d="M7 5H4v2a3 3 0 0 0 3 3"/>',
   star:      '<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',
   card:      '<rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="m12 8 2.6 4-2.6 4-2.6-4z"/>',
+  plus:      '<path d="M12 5v14"/><path d="M5 12h14"/>',
+  minus:     '<path d="M5 12h14"/>',
   close:     '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
   back:      '<path d="M19 12H5"/><path d="m12 19-7-7 7-7"/>',
   check:     '<path d="m5 12 5 5L20 7"/>',
@@ -210,15 +212,22 @@ function friendlyError(err) {
   if (/too_many_requests/.test(msg)) return "Trop de demandes en attente. Attends des réponses avant d'en envoyer d'autres.";
   if (/request_not_found/.test(msg)) return "Cette demande n'existe plus.";
   if (/not_friends/.test(msg)) return "Vous n'êtes pas amis.";
-  if (/same_card/.test(msg)) return "Choisis deux cartes différentes.";
-  if (/card_not_owned/.test(msg)) return "Tu ne possèdes plus la carte que tu proposes.";
-  if (/friend_lacks_card/.test(msg)) return "Ton ami ne possède plus la carte demandée.";
+  if (/same_card/.test(msg)) return "Une même carte ne peut pas être des deux côtés de l'échange.";
+  if (/invalid_card_count/.test(msg)) return "Chaque camp doit avoir entre 1 et 5 cartes (ou des Abri$ contre au moins 1 carte).";
+  if (/abris_both_sides/.test(msg)) return "Des Abri$ d'un seul côté à la fois.";
+  if (/invalid_abris/.test(msg)) return "Montant d'Abri$ invalide.";
+  if (/friend_not_enough_abris/.test(msg)) return "Ton ami n'a pas assez d'Abri$ pour cette demande.";
+  if (/not_enough_abris/.test(msg)) return "Tu n'as pas assez d'Abri$ pour cette offre.";
+  if (/sender_lacks_abris/.test(msg)) return "Échange impossible : ton ami n'a plus assez d'Abri$.";
+  if (/you_lack_abris/.test(msg)) return "Échange impossible : tu n'as plus assez d'Abri$.";
+  if (/card_not_owned/.test(msg)) return "Tu ne possèdes plus toutes les cartes que tu proposes.";
+  if (/friend_lacks_card/.test(msg)) return "Ton ami ne possède plus toutes les cartes demandées.";
   if (/trade_already_proposed/.test(msg)) return "Tu as déjà proposé exactement cet échange.";
   if (/too_many_trades/.test(msg)) return "Trop de propositions en attente. Attends des réponses avant d'en envoyer d'autres.";
   if (/trade_not_found/.test(msg)) return "Cette proposition n'existe plus.";
   if (/trade_not_pending/.test(msg)) return "Cette proposition a déjà reçu une réponse.";
-  if (/sender_lacks_card/.test(msg)) return "Échange impossible : ton ami n'a plus la carte proposée.";
-  if (/you_lack_card/.test(msg)) return "Échange impossible : tu n'as plus la carte demandée.";
+  if (/sender_lacks_card/.test(msg)) return "Échange impossible : ton ami n'a plus toutes les cartes proposées.";
+  if (/you_lack_card/.test(msg)) return "Échange impossible : tu n'as plus toutes les cartes demandées.";
   if (/unknown_card/.test(msg)) return "Cette carte n'est pas connue du serveur (exécute seed_cards.sql).";
   if (/profile_not_found|not_authenticated|JWT/i.test(msg)) return "Session expirée. Reconnecte-toi.";
   if (/Failed to fetch|NetworkError|Load failed|network/i.test(msg)) return "Connexion impossible. Vérifie ta connexion internet.";
@@ -486,8 +495,14 @@ function makePack({ empty = false, test = false, big = false, tear = false } = {
     class: "booster-pack" + (empty ? " empty" : "") + (test ? " test" : "") + (big ? " big" : ""),
     role: "img", "aria-label": empty ? "Booster verrouillé : aucun booster en stock" : "Booster Collecto",
   },
-    el("div", { class: "bp-seal top" }),
-    tear ? el("div", { class: "bp-cut" }) : null,
+    tear
+      // languette supérieure en deux morceaux : la partie encore collée (att) et la partie déjà déchirée (flap)
+      ? el("div", { class: "bp-top" },
+          el("i", { class: "bp-seal top bp-strip att" }),
+          el("i", { class: "bp-seal top bp-strip flap" }),
+          el("div", { class: "bp-cut" }))
+      : el("div", { class: "bp-seal top" }),
+    tear ? el("i", { class: "bp-seal bp-lip" }) : null,
     el("div", { class: "bp-body" },
       el("div", { class: "bp-emblem" }, icon("card", 30)),
       el("div", { class: "bp-title" }, "COLLECTO"),
@@ -824,85 +839,64 @@ function viewBoosters() {
 const reducedMotion = () => !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 
 function viewOpening() {
-  if (ui.openStage === "tear") return viewTear();
+  if (ui.openStage === "tear") return viewOpenStage();
   if (ui.openStage === "recap" || ui.openIdx >= ui.opening.length) return viewRecap();
-  return viewStack();
+  return viewOpenStage();
 }
 
-// Étape 1 : on déchire le haut du paquet (glisser horizontalement) ou on le touche
-function viewTear() {
-  const pack = makePack({ big: true, tear: true });
-  const btn = el("button", { class: "tear-btn", type: "button", "aria-label": "Ouvrir le booster (glisse sur le haut du paquet ou touche-le)" }, pack);
-  const flash = el("div", { class: "tear-flash" });
-  let drag = null, dragged = false, done = false;
-
-  const tearNow = () => {
-    if (done) return;
-    done = true;
-    pack.style.setProperty("--tear", "1");
-    pack.classList.add("torn");
-    btn.after(flash);
-    if (navigator.vibrate) navigator.vibrate(30);
-    setTimeout(() => { ui.openStage = "reveal"; ui.openIdx = 0; render(); }, reducedMotion() ? 0 : 750);
-  };
-
-  btn.addEventListener("pointerdown", (e) => {
-    const r = pack.getBoundingClientRect();
-    dragged = false;
-    drag = e.clientY - r.top < r.height * 0.4 ? { x0: e.clientX, w: r.width } : null;   // zone de découpe : le haut
-    if (drag && btn.setPointerCapture) { try { btn.setPointerCapture(e.pointerId); } catch {} }
-  });
-  btn.addEventListener("pointermove", (e) => {
-    if (!drag || done) return;
-    const p = Math.min(1, Math.abs(e.clientX - drag.x0) / (drag.w * 0.65));
-    if (p > 0.06) dragged = true;
-    pack.style.setProperty("--tear", p.toFixed(3));
-    if (p >= 1) tearNow();
-  });
-  const release = () => {
-    if (!drag || done) return;
-    drag = null;
-    if (dragged) pack.style.setProperty("--tear", "0");   // pas assez tiré : la bande se remet en place
-  };
-  btn.addEventListener("pointerup", release);
-  btn.addEventListener("pointercancel", release);
-  btn.addEventListener("click", () => {
-    if (dragged && !done) { dragged = false; return; }
-    tearNow();
-  });
-
-  return el("section", { class: "view tear-stage" },
-    el("p", { class: "open-hint" }, "Glisse ton doigt sur le haut du paquet pour le déchirer"),
-    el("p", { class: "muted small center" }, "ou touche-le simplement"),
-    btn
-  );
+// Calque fixe plein écran : les cartes éjectées s'y envolent sans jamais créer de défilement
+function flyLayer() {
+  let l = document.getElementById("fly-layer");
+  if (!l) { l = el("div", { id: "fly-layer", "aria-hidden": "true" }); document.body.append(l); }
+  return l;
 }
 
-// Étape 2 : pile de 5 cartes. Toucher = retourner ; glisser ou toucher une carte retournée = la suivante.
-function viewStack() {
+/* Ouverture en une seule scène :
+   1. le paquet se déchire progressivement de gauche à droite (la languette se soulève, une fente sombre s'ouvre) ;
+   2. le sachet ouvert descend et reste visible en bas ;
+   3. les cartes en sortent une par une, face cachée ; toucher = retourner ;
+   4. une carte retournée se lance dans n'importe quelle direction (glisser > 75 px, ou simple tap) et la suivante sort du sachet. */
+function viewOpenStage() {
   const items = ui.opening;
   const n = items.length;
-  const wrap = el("div", { class: "deck-wrap" });
+  const THRESH = 75;
+  let torn = ui.openStage === "reveal";
+  let tearDone = torn;
+
+  const pack = makePack({ big: true, tear: true });
+  const btn = el("button", { class: "tear-btn", type: "button", "aria-label": "Ouvrir le booster (glisse sur le haut du paquet de gauche à droite, ou touche-le)" }, pack);
+  const slit = el("div", { class: "os-slit" });
+  const pouch = el("div", { class: "os-pouch" }, slit, btn);
+  pouch.style.setProperty("--tear", torn ? "1" : "0");
+  const stage = el("div", { class: "os" }, pouch);
+  const flash = el("div", { class: "tear-flash" });
+
   const counter = el("span", { class: "deck-count" });
+  const head = el("div", { class: "stack-head" }, el("span", { class: "muted small" }, "Carte"), counter);
+  const title = el("div", { class: "open-title" },
+    el("p", { class: "open-hint" }, "Déchire le paquet : glisse ton doigt sur le haut, de gauche à droite"),
+    el("p", { class: "muted small center" }, "ou touche-le simplement"));
   const hint = el("p", { class: "muted center small deck-hint" });
-  const revealAll = () => { items.forEach((i) => { i.revealed = true; }); ui.openStage = "recap"; render(); };
+  const allBtn = el("button", { class: "linklike reveal-all", type: "button" }, "Tout révéler");
+  allBtn.addEventListener("click", () => { items.forEach((i) => { i.revealed = true; }); ui.openStage = "recap"; render(); });
 
-  const draw = () => {
-    if (ui.openIdx >= n) { ui.openStage = "recap"; render(); return; }
-    const idx = ui.openIdx;
+  const setMode = () => {
+    head.style.visibility = torn ? "visible" : "hidden";
+    allBtn.style.visibility = torn ? "visible" : "hidden";
+    title.classList.toggle("gone", torn);
+    if (!torn) hint.textContent = "";
+  };
+
+  /* ----- cartes qui sortent du sachet ----- */
+  const emerge = (idx, instant) => {
     const item = items[idx];
-    counter.textContent = `${idx + 1}/${n}`;
-    hint.textContent = item.revealed ? "Glisse la carte ou touche-la pour passer à la suivante" : "Touche la carte pour la retourner";
-
-    const deck = el("div", { class: "deck" });
-    // cartes qui attendent derrière (dos seulement)
-    for (let k = Math.min(n - 1, idx + 2); k > idx; k--) {
-      deck.append(el("div", { class: `dk-card behind b${k - idx}`, "aria-hidden": "true" },
-        el("div", { class: "dk-shake" }, el("div", { class: "flip-inner" }, el("div", { class: "face front" }, icon("card", 40))))));
-    }
     const tier = item.card.rarity.tier;
-    const top = el("button", {
-      class: "dk-card top" + (item.revealed ? " revealed" : ""), type: "button", "data-tier": String(tier),
+    counter.textContent = `${idx + 1}/${n}`;
+    hint.textContent = item.revealed ? "Glisse la carte dans n'importe quel sens, ou touche-la" : "Touche la carte pour la retourner";
+
+    const card = el("button", {
+      class: "dk-card os-card" + (instant ? "" : " in-pouch") + (item.revealed ? " revealed" : ""),
+      type: "button", "data-tier": String(tier),
       "aria-label": item.revealed ? "Carte suivante" : "Retourner la carte",
     },
       el("div", { class: "dk-shake" },
@@ -911,69 +905,159 @@ function viewStack() {
           el("div", { class: "face back" },
             cardFace(item.card, { stats: true }),
             item.isNew ? el("span", { class: "new" }, "NEW") : null))));
-    top.style.setProperty("--rc", item.card.rarity.color);
-    deck.append(top);
-    wrap.replaceChildren(deck);
+    card.style.setProperty("--rc", item.card.rarity.color);
+    pouch.insertBefore(card, btn);
+    if (!instant) {
+      void card.offsetWidth;
+      requestAnimationFrame(() => requestAnimationFrame(() => card.classList.remove("in-pouch")));
+    }
 
-    let drag = null, moved = false, leaving = false;
-    const next = (dir) => {
-      if (leaving) return;
-      leaving = true;
-      const finish = () => { ui.openIdx = idx + 1; draw(); };
-      if (reducedMotion()) return finish();
-      top.classList.add("leaving");
-      top.style.transform = `translateX(${dir * 135}%) rotate(${dir * 18}deg)`;
-      top.style.opacity = "0";
-      setTimeout(finish, 280);
+    let drag = null, moved = false, gone = false, usedPointer = false;
+    const t = { x: 0, y: 0 };
+    const setT = (x, y) => {
+      t.x = x; t.y = y;
+      card.style.translate = x || y ? `${x}px ${y}px` : "";
+      const rot = Math.max(-60, Math.min(60, x * 0.12));
+      card.style.rotate = rot ? `${rot}deg` : "";
     };
+
     const reveal = () => {
       if (item.revealed) return;
       item.revealed = true;
-      top.classList.add("revealed");
-      if (tier >= 3) {                       // Épique / Légendaire / Divin : halo + légère secousse
-        top.classList.add("fx", `fx-${tier}`);
+      card.classList.add("revealed");
+      card.setAttribute("aria-label", "Carte suivante");
+      if (tier >= 3) {                       // Épique / Légendaire / Divin : halo + secousse
+        card.classList.add("fx", `fx-${tier}`);
         if (navigator.vibrate) navigator.vibrate(tier >= 4 ? [30, 40, 60] : 30);
       }
-      hint.textContent = "Glisse la carte ou touche-la pour passer à la suivante";
+      hint.textContent = "Glisse la carte dans n'importe quel sens, ou touche-la";
     };
 
-    top.addEventListener("pointerdown", (e) => {
-      drag = { x0: e.clientX };
-      moved = false;
-      if (top.setPointerCapture) { try { top.setPointerCapture(e.pointerId); } catch {} }
-    });
-    top.addEventListener("pointermove", (e) => {
-      if (!drag || !item.revealed || leaving) return;
-      const dx = e.clientX - drag.x0;
-      if (Math.abs(dx) > 8) moved = true;
-      if (moved) {
-        top.classList.add("dragging");
-        top.style.transform = `translateX(${dx}px) rotate(${dx / 18}deg)`;
+    // la carte s'envole dans la direction exacte du geste (dx*3, dy*3, au minimum 650 px) puis la suivante sort du sachet
+    const fling = (dx, dy) => {
+      if (gone) return;
+      gone = true;
+      let d = Math.hypot(dx, dy);
+      if (d < 8) {                           // simple tap : direction aléatoire vers le haut
+        const a = (-90 + (Math.random() * 90 - 45)) * Math.PI / 180;
+        dx = Math.cos(a) * 220; dy = Math.sin(a) * 220; d = 220;
       }
+      const k = Math.max(3, 650 / d);
+      const tx = dx * k, ty = dy * k;
+      const rot = Math.max(-80, Math.min(80, dx * 0.12)) * 2;
+
+      const r = card.getBoundingClientRect();
+      const w = card.offsetWidth, h = card.offsetHeight;
+      const cx = r.left + r.width / 2 - t.x, cy = r.top + r.height / 2 - t.y;
+      card.classList.remove("dragging", "in-pouch");
+      card.classList.add("flying");
+      Object.assign(card.style, { left: `${cx - w / 2}px`, top: `${cy - h / 2}px`, width: `${w}px`, height: `${h}px` });
+      const layer = flyLayer();
+      layer.append(card);
+      if (reducedMotion()) card.remove();
+      else {
+        void card.offsetWidth;
+        requestAnimationFrame(() => {
+          card.style.translate = `${tx}px ${ty}px`;
+          card.style.rotate = `${rot}deg`;
+          card.style.opacity = "0";
+        });
+        setTimeout(() => card.remove(), 650);
+      }
+      if (navigator.vibrate) navigator.vibrate(12);
+      ui.openIdx = idx + 1;
+      if (idx + 1 >= n) setTimeout(() => { ui.openStage = "recap"; render(); }, reducedMotion() ? 0 : 420);
+      else setTimeout(() => emerge(idx + 1, reducedMotion()), reducedMotion() ? 0 : 140);
+    };
+
+    card.addEventListener("dragstart", (e) => e.preventDefault());
+    card.addEventListener("pointerdown", (e) => {
+      if (gone) return;
+      usedPointer = true;
+      drag = { x0: e.clientX, y0: e.clientY };
+      moved = false;
+      if (card.setPointerCapture) { try { card.setPointerCapture(e.pointerId); } catch {} }
+    });
+    card.addEventListener("pointermove", (e) => {
+      if (!drag || gone || !item.revealed) return;
+      const dx = e.clientX - drag.x0, dy = e.clientY - drag.y0;
+      if (Math.hypot(dx, dy) > 8) moved = true;
+      if (moved) { card.classList.add("dragging"); setT(dx, dy); }
     });
     const end = (e) => {
       if (!drag) return;
-      const dx = e.clientX - drag.x0;
+      const dx = e.clientX - drag.x0, dy = e.clientY - drag.y0;
       drag = null;
-      top.classList.remove("dragging");
-      if (moved && item.revealed && Math.abs(dx) > 70) next(dx > 0 ? 1 : -1);
-      else top.style.transform = "";
+      card.classList.remove("dragging");
+      if (!item.revealed) { reveal(); setT(0, 0); return; }
+      if (moved && Math.hypot(dx, dy) > THRESH) fling(dx, dy);
+      else if (!moved) fling(0, 0);          // simple tap
+      else setT(0, 0);                       // pas assez tiré : la carte revient
     };
-    top.addEventListener("pointerup", end);
-    top.addEventListener("pointercancel", end);
-    top.addEventListener("click", () => {
-      if (moved) { moved = false; return; }
-      if (!item.revealed) reveal(); else next(1);
+    card.addEventListener("pointerup", end);
+    card.addEventListener("pointercancel", () => { drag = null; card.classList.remove("dragging"); setT(0, 0); });
+    card.addEventListener("click", () => {   // clavier / lecteur d'écran (les gestes tactiles passent par pointerup)
+      if (usedPointer) { usedPointer = false; return; }
+      if (!item.revealed) reveal(); else fling(0, 0);
     });
   };
-  draw();
 
-  return el("section", { class: "view stack-stage" },
-    el("div", { class: "stack-head" }, el("span", { class: "muted small" }, "Carte"), counter),
-    wrap,
-    hint,
-    el("button", { class: "linklike reveal-all", type: "button", onclick: revealAll }, "Tout révéler")
-  );
+  /* ----- déchirure ----- */
+  const dock = (instant) => {
+    pouch.classList.toggle("instant", !!instant);
+    pouch.classList.add("docked");
+  };
+  const tearNow = () => {
+    if (tearDone) return;
+    tearDone = true; torn = true;
+    pouch.style.setProperty("--tear", "1");
+    pack.classList.add("torn");
+    ui.openStage = "reveal"; ui.openIdx = 0;
+    if (navigator.vibrate) navigator.vibrate(30);
+    setMode();
+    if (reducedMotion()) { dock(true); emerge(0, true); return; }
+    stage.after(flash);
+    setTimeout(() => dock(false), 380);
+    setTimeout(() => emerge(0, false), 1050);
+  };
+
+  let drag = null, dragged = false, p = 0;
+  btn.addEventListener("pointerdown", (e) => {
+    if (tearDone) return;
+    const r = pack.getBoundingClientRect();
+    dragged = false;
+    drag = e.clientY - r.top < r.height * 0.45 ? { left: r.left, w: r.width } : null;   // zone de découpe : le haut
+    if (drag && btn.setPointerCapture) { try { btn.setPointerCapture(e.pointerId); } catch {} }
+  });
+  btn.addEventListener("pointermove", (e) => {
+    if (!drag || tearDone) return;
+    p = Math.max(0, Math.min(1, (e.clientX - drag.left) / drag.w));
+    if (p > 0.05) dragged = true;
+    pouch.style.setProperty("--tear", p.toFixed(3));
+    if (p >= 0.97) tearNow();
+  });
+  const release = () => {
+    if (!drag || tearDone) return;
+    drag = null;
+    if (!dragged) return;
+    if (p > 0.6) tearNow();                  // presque déchiré : on termine
+    else pouch.style.setProperty("--tear", "0");   // pas assez tiré : la languette se remet en place
+  };
+  btn.addEventListener("pointerup", release);
+  btn.addEventListener("pointercancel", release);
+  btn.addEventListener("click", () => {
+    if (dragged && !tearDone) { dragged = false; return; }
+    tearNow();
+  });
+
+  setMode();
+  if (torn) {                                // re-rendu en cours d'ouverture : on restaure l'état
+    pack.classList.add("torn", "restored");
+    dock(true);
+    emerge(Math.min(ui.openIdx, n - 1), true);
+  }
+
+  return el("section", { class: "view stack-stage open-scene" }, head, title, stage, hint, allBtn);
 }
 
 // Fin : les 5 cartes d'un coup
@@ -1499,6 +1583,43 @@ function viewVisit() {
   );
 }
 
+/* --- Lots de cartes (affichage compact) --- */
+
+const MAX_TRADE_CARDS = 5;
+
+// Regroupe les doublons en gardant l'ordre : [a, a, b] -> [[a,2],[b,1]]
+function groupCards(list) {
+  const m = new Map();
+  list.forEach((c) => m.set(c.id, { card: c, n: (m.get(c.id) || { n: 0 }).n + 1 }));
+  return [...m.values()].map((x) => [x.card, x.n]);
+}
+
+function miniCard(card, n) {
+  const node = el("div", { class: "mini-card", "data-tier": String(card.rarity.tier), title: card.titre },
+    cardArt(card), n > 1 ? el("span", { class: "mini-n" }, `×${n}`) : null);
+  node.style.setProperty("--rc", card.rarity.color);
+  return node;
+}
+
+// Un camp d'un échange : mini-grille de cartes + badge doré "+X Abri$" si de l'argent est de ce côté
+// cards : [{id, rarete}] (ou [{id, card}])
+function lotView(cards, abris, label) {
+  const groups = groupCards(cards.map((c) => cardFromServer(c.id, c.rarete)));
+  const cols = Math.min(3, Math.max(1, groups.length));
+  const grid = el("div", { class: `lot-cards cols-${cols}` }, groups.map(([c, n]) => miniCard(c, n)));
+  return el("div", { class: "side lot" },
+    el("span", { class: "side-label" }, `${label} · ${cards.length}`),
+    groups.length ? grid : null,
+    abris > 0 ? el("span", { class: "abris-badge" }, icon("coin", 13), `+${fmtNum(abris)} ${CURRENCY}`) : null);
+}
+
+// "ADN ×2, César + 30 Abri$"
+function lotText(cards, abris) {
+  const parts = groupCards(cards.map((c) => cardFromServer(c.id, c.rarete))).map(([c, n]) => n > 1 ? `${c.titre} ×${n}` : c.titre);
+  if (abris > 0) parts.push(`${fmtNum(abris)} ${CURRENCY}`);
+  return parts.join(" + ") || "rien";
+}
+
 /* --- Proposer un échange --- */
 
 function showTradeModal(pseudo, requestedId = null) {
@@ -1508,8 +1629,9 @@ function showTradeModal(pseudo, requestedId = null) {
   ui.tq = { mine: "", theirs: "" };
   ui.trade = {
     to: pseudo, mine, theirs,
-    offered: mine.length ? mine[0].id : null,
-    requested: requestedId && theirs.some((c) => c.id === requestedId) ? requestedId : (theirs.length ? theirs[0].id : null),
+    offered: [],                                   // ids, un id par exemplaire (doublons possibles)
+    requested: requestedId && theirs.some((c) => c.id === requestedId) ? [requestedId] : [],
+    give: 0, ask: 0,                               // Abri$ : un seul des deux peut être > 0
   };
   renderTradeModal();
 }
@@ -1518,53 +1640,122 @@ function renderTradeModal() {
   const t = ui.trade;
   if (!t) return;
   const norm = (s) => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  const theirOwned = ui.visit.data.owned;
+  const theirAbris = ui.visit.data.abris || 0;
+  const countOf = (arr, id) => arr.reduce((n, x) => n + (x === id ? 1 : 0), 0);
+  const toLot = (ids) => ids.map((id) => ({ id, rarete: byId.has(id) ? byId.get(id).rarity.key : null }));
 
-  const side = (id, label) => {
-    const card = byId.get(id);
-    return el("div", { class: "side" }, el("span", { class: "side-label" }, label), card ? cardFace(card) : el("div", { class: "gcard" }, "?"));
-  };
-  const makeDuel = () => el("div", { class: "swap duel" },
-    side(t.offered, "Tu donnes"), el("span", { class: "arrow" }, icon("swap", 26)), side(t.requested, "Tu reçois"));
+  /* résumé en direct */
+  const makeDuel = () => el("div", { class: "swap duel lots" },
+    lotView(toLot(t.offered), t.give, "Tu donnes"),
+    el("span", { class: "arrow" }, icon("swap", 24)),
+    lotView(toLot(t.requested), t.ask, "Tu reçois"));
   let duel = makeDuel();
-  const refreshDuel = () => { const d = makeDuel(); duel.replaceWith(d); duel = d; };
 
-  // Sélecteur visuel + filtre rapide (nom ou rareté) : plus de longue liste <select>
+  const sendBtn = el("button", { class: "primary", type: "button", onclick: sendTrade }, "Envoyer la proposition");
+  const refresh = () => {
+    const d = makeDuel(); duel.replaceWith(d); duel = d;
+    pickers.forEach((p) => p.update());
+    sendBtn.disabled = !(t.offered.length >= 1 && t.requested.length >= 1);
+  };
+
+  /* sélecteur : toucher une carte = +1 exemplaire ; boutons − / + ; 5 cartes max par camp */
+  const pickers = [];
   const picker = (qKey, label, cards, owned, field) => {
     const q = el("input", {
       class: "pick-q", type: "search", autocomplete: "off", spellcheck: "false",
       placeholder: "Filtrer par nom ou rareté…", "aria-label": `Filtrer : ${label}`, value: ui.tq[qKey],
     });
     const gridBox = el("div", { class: "pick-grid" });
+    const counter = el("span", { class: "pick-counter" });
+    let rendered = [];
+
+    const add = (c, d) => {
+      const n = countOf(t[field], c.id);
+      if (d > 0) {
+        if (t[field].length >= MAX_TRADE_CARDS) return toast(`Maximum ${MAX_TRADE_CARDS} cartes par camp.`);
+        if (n >= (owned[c.id] || 0)) return toast(`${field === "offered" ? "Tu n'en as" : t.to + " n'en a"} que ×${owned[c.id]} : « ${c.titre} ».`);
+        t[field].push(c.id);
+      } else if (n > 0) {
+        t[field].splice(t[field].lastIndexOf(c.id), 1);
+      }
+      refresh();
+    };
+
+    const update = () => {
+      counter.textContent = `${t[field].length}/${MAX_TRADE_CARDS}`;
+      counter.classList.toggle("full", t[field].length >= MAX_TRADE_CARDS);
+      rendered.forEach(({ c, node, num, minus, plus }) => {
+        const n = countOf(t[field], c.id);
+        node.classList.toggle("sel", n > 0);
+        num.textContent = String(n);
+        minus.disabled = n === 0;
+        plus.disabled = n >= (owned[c.id] || 0) || t[field].length >= MAX_TRADE_CARDS;
+      });
+    };
+
     const paint = () => {
       const needle = norm(ui.tq[qKey]);
       const list = cards.filter((c) => !needle || norm(`${c.titre} ${c.rarity.label}`).includes(needle));
-      gridBox.replaceChildren(...(list.length
-        ? list.map((c) => {
-            const b = el("button", { class: "pick-card" + (t[field] === c.id ? " sel" : ""), type: "button", "data-id": c.id, "aria-pressed": t[field] === c.id ? "true" : "false" },
-              cardFace(c),
-              owned[c.id] > 1 ? el("span", { class: "count" }, `×${owned[c.id]}`) : null);
-            b.addEventListener("click", () => {
-              t[field] = c.id;
-              gridBox.querySelectorAll(".pick-card").forEach((n) => {
-                const on = n.dataset.id === c.id;
-                n.classList.toggle("sel", on);
-                n.setAttribute("aria-pressed", on ? "true" : "false");
-              });
-              refreshDuel();
-            });
-            return b;
-          })
+      rendered = list.map((c) => {
+        const hit = el("button", { class: "pick-hit", type: "button", "aria-label": `Ajouter ${c.titre}` },
+          cardFace(c), owned[c.id] > 1 ? el("span", { class: "count" }, `×${owned[c.id]}`) : null);
+        const minus = el("button", { class: "qty-btn", type: "button", "aria-label": `Retirer un exemplaire de ${c.titre}` }, icon("minus", 14));
+        const plus = el("button", { class: "qty-btn", type: "button", "aria-label": `Ajouter un exemplaire de ${c.titre}` }, icon("plus", 14));
+        const num = el("b", { class: "qty-n" }, "0");
+        const node = el("div", { class: "pick-card", "data-id": c.id }, hit, el("div", { class: "pick-qty" }, minus, num, plus));
+        hit.addEventListener("click", () => add(c, 1));
+        plus.addEventListener("click", () => add(c, 1));
+        minus.addEventListener("click", () => add(c, -1));
+        return { c, node, num, minus, plus };
+      });
+      gridBox.replaceChildren(...(rendered.length ? rendered.map((r) => r.node)
         : [el("p", { class: "muted small empty-grid" }, "Aucune carte ne correspond.")]));
+      update();
     };
     q.addEventListener("input", () => { ui.tq[qKey] = q.value; paint(); });
     paint();
+    pickers.push({ update });
     return el("div", { class: "pick" },
-      el("div", { class: "pick-head" }, el("strong", {}, label), el("span", { class: "muted small" }, `${cards.length} carte${cards.length > 1 ? "s" : ""}`)),
+      el("div", { class: "pick-head" }, el("strong", {}, label), counter),
       el("label", { class: "pick-search" }, icon("search", 16), q),
-      gridBox);
+      gridBox,
+      el("p", { class: "muted small pick-help" }, "Touche une carte pour l'ajouter ; + / − pour les doubles."));
   };
 
-  const ready = t.mine.length > 0 && t.theirs.length > 0;
+  /* Abri$ : un seul côté à la fois (saisir un montant d'un côté remet l'autre à 0) */
+  const myMax = me.abris, hisMax = theirAbris;
+  const inputs = {};
+  const abrisRow = (key, label, max, owner) => {
+    const inp = el("input", {
+      class: "abris-in", type: "number", inputmode: "numeric", min: "0", max: String(max), step: "1",
+      placeholder: "0", "aria-label": label,
+    });
+    inputs[key] = inp;
+    const row = el("label", { class: "abris-row" },
+      el("span", { class: "abris-label" }, label, el("small", { class: "muted" }, ` · solde de ${owner} : ${money(max)}`)),
+      el("span", { class: "abris-field" }, icon("coin", 16), inp));
+    inp.addEventListener("input", () => {
+      let v = parseInt(inp.value, 10);
+      if (!Number.isFinite(v) || v < 0) v = 0;
+      if (v > max) { v = max; inp.value = String(max); }
+      t[key] = v;
+      if (v > 0) {
+        const other = key === "give" ? "ask" : "give";
+        t[other] = 0;
+        inputs[other].value = "";
+      }
+      row.classList.toggle("on", v > 0);
+      Object.entries(inputs).forEach(([k, i]) => i.closest(".abris-row").classList.toggle("on", t[k] > 0));
+      refresh();
+    });
+    return row;
+  };
+  const abrisBox = el("div", { class: "abris-box" },
+    el("div", { class: "pick-head" }, el("strong", {}, "Abri$ en plus"), el("span", { class: "muted small" }, "un seul côté à la fois")),
+    abrisRow("give", "Ajouter des Abri$ à mon offre", myMax, "toi"),
+    abrisRow("ask", "Demander des Abri$ en plus", hisMax, t.to));
+
   const body = !t.mine.length
     ? emptyState("booster", "Rien à proposer", "Tu n'as encore aucune carte. Ouvre un booster !")
     : !t.theirs.length
@@ -1572,28 +1763,34 @@ function renderTradeModal() {
       : [
           duel,
           picker("mine", "Je donne", t.mine, me.owned, "offered"),
-          picker("theirs", `Je veux (de ${t.to})`, t.theirs, ui.visit.data.owned, "requested"),
-          el("p", { class: "muted small center" }, "L'échange ne se fait que si " + t.to + " accepte. Les cartes ne bougent qu'à ce moment-là."),
+          picker("theirs", `Je veux (de ${t.to})`, t.theirs, theirOwned, "requested"),
+          abrisBox,
+          el("p", { class: "muted small center" }, "L'échange ne se fait que si " + t.to + " accepte. Les cartes et les Abri$ ne bougent qu'à ce moment-là."),
         ];
 
-  const box = el("div", { class: "modal-box", role: "dialog", "aria-label": "Proposer un échange" },
+  const ready = t.mine.length > 0 && t.theirs.length > 0;
+  const box = el("div", { class: "modal-box trade-modal", role: "dialog", "aria-label": "Proposer un échange" },
     el("button", { class: "modal-x", type: "button", "aria-label": "Fermer", onclick: closeModal }, icon("close", 20)),
     el("h2", { class: "section-title center" }, `Échange avec ${t.to}`),
     body,
-    ready ? el("button", { class: "primary", onclick: sendTrade }, "Envoyer la proposition") : null,
+    ready ? sendBtn : null,
     el("button", { class: "secondary", onclick: closeModal }, "Annuler")
   );
   $modal.replaceChildren(
     el("div", { class: "modal-backdrop", onclick: (e) => { if (e.target === e.currentTarget) closeModal(); } }, box)
   );
+  if (ready) refresh();
 }
 
 async function sendTrade() {
   const t = ui.trade;
-  if (ui.busy || !t || !t.offered || !t.requested) return;
+  if (ui.busy || !t || !t.offered.length || !t.requested.length) return;
   ui.busy = true;
   try {
-    await rpc("propose_trade", { p_to_pseudo: t.to, p_offered: t.offered, p_requested: t.requested });
+    await rpc("propose_trade", {
+      p_to_pseudo: t.to, p_offered_cards: t.offered, p_requested_cards: t.requested,
+      p_offered_abris: t.give, p_requested_abris: t.ask,
+    });
     toast(`Proposition envoyée à ${t.to}.`);
     closeModal();
     ui.visit = null;
@@ -1607,11 +1804,11 @@ async function sendTrade() {
 
 /* --- Espace Échanges : reçus, envoyés, historique --- */
 
-function swapRow(giveId, giveRarete, getId, getRarete, giveLabel, getLabel) {
-  const side = (id, rarete, label) =>
-    el("div", { class: "side" }, el("span", { class: "side-label" }, label), cardFace(cardFromServer(id, rarete)));
-  return el("div", { class: "swap duel" }, side(giveId, giveRarete, giveLabel),
-    el("span", { class: "arrow" }, icon("swap", 26)), side(getId, getRarete, getLabel));
+function swapRow(giveCards, giveAbris, getCards, getAbris) {
+  return el("div", { class: "swap duel lots" },
+    lotView(giveCards, giveAbris, "Tu donnes"),
+    el("span", { class: "arrow" }, icon("swap", 24)),
+    lotView(getCards, getAbris, "Tu reçois"));
 }
 
 function viewTrades() {
@@ -1620,9 +1817,9 @@ function viewTrades() {
       el("div", { class: "trade-top" }, avatar(t.from),
         el("p", { class: "trade-head" }, el("strong", {}, t.from), " te propose un échange"),
         el("span", { class: "badge reply" }, "À toi de répondre")),
-      // t.offered = ce que l'ami donne (tu le reçois) ; t.requested = ce qu'il veut (tu le donnes)
-      swapRow(t.requested, t.requested_rarete, t.offered, t.offered_rarete, "Tu donnes", "Tu reçois"),
-      t.can_accept ? null : el("p", { class: "warning" }, "Échange impossible pour le moment : l'une des deux cartes n'est plus disponible."),
+      // offered = ce que l'ami donne (tu le reçois) ; requested = ce qu'il veut (tu le donnes)
+      swapRow(t.requested_cards, t.requested_abris, t.offered_cards, t.offered_abris),
+      t.can_accept ? null : el("p", { class: "warning" }, icon("alert", 15), "Échange impossible pour le moment : des cartes ou des Abri$ ne sont plus disponibles."),
       el("div", { class: "trade-actions" },
         el("button", { class: "btn-sm", disabled: t.can_accept ? null : "", onclick: () => acceptTrade(t.id) }, "Accepter"),
         el("button", { class: "btn-sm ghost", onclick: () => declineTrade(t.id) }, "Refuser"))));
@@ -1632,17 +1829,22 @@ function viewTrades() {
       el("div", { class: "trade-top" }, avatar(t.to),
         el("p", { class: "trade-head" }, "Proposition à ", el("strong", {}, t.to)),
         el("span", { class: "badge wait" }, "En attente")),
-      swapRow(t.offered, t.offered_rarete, t.requested, t.requested_rarete, "Tu donnes", "Tu reçois"),
+      swapRow(t.offered_cards, t.offered_abris, t.requested_cards, t.requested_abris),
       el("div", { class: "trade-actions" },
         el("button", { class: "btn-sm ghost", onclick: () => cancelTrade(t.id) }, "Annuler la proposition"))));
 
+  // historique : détail complet des deux lots (cartes, quantités, Abri$)
   const history = social.history.map((h) => {
     const other = h.i_am_sender ? h.to : h.from;
-    const give = h.i_am_sender ? h.offered : h.requested;
-    const get = h.i_am_sender ? h.requested : h.offered;
+    const give = h.i_am_sender ? [h.offered_cards, h.offered_abris] : [h.requested_cards, h.requested_abris];
+    const get = h.i_am_sender ? [h.requested_cards, h.requested_abris] : [h.offered_cards, h.offered_abris];
     const ok = h.status === "accepted";
-    return el("p", { class: "hist " + (ok ? "ok" : "ko") },
-      icon(ok ? "check" : "close", 15), ` ${other} · tu donnes ${cardName(give)} contre ${cardName(get)}`);
+    return el("div", { class: "hist " + (ok ? "ok" : "ko") },
+      icon(ok ? "check" : "close", 15),
+      el("div", { class: "hist-body" },
+        el("strong", {}, other), el("span", { class: "muted" }, ok ? " · accepté" : " · refusé"),
+        el("div", { class: "hist-line" }, el("span", { class: "muted" }, "Tu donnes : "), lotText(...give)),
+        el("div", { class: "hist-line" }, el("span", { class: "muted" }, "Tu reçois : "), lotText(...get))));
   });
 
   return el("div", {},
