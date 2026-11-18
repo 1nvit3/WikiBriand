@@ -465,6 +465,141 @@
       "statistiques": "Responsabliter : ∞  | projet : nothing is imposible ",
       "image": "images/vie_scolaire/louan.png",
       "description": "Louan le seul et l'unique ! el dictador del lycée ! 'Miam' - Louan 2026"
+    },
+    {
+      "id": "irreductibles",
+      "titre": "Les Irréductibles",
+      "categorie": "Clubs",
+      "rarete": "legendaire",
+      "statistiques": "JSP a mettre",
+      "image": "images/clubs/irreductible.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "cahier",
+      "titre": "Cahier",
+      "categorie": "Materiel",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/cantine/cantine.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "sport_assos",
+      "titre": "Association Sportive",
+      "categorie": "Club",
+      "rarete": "rare",
+      "statistiques": "JSP a mettre",
+      "image": "images/sport/sport_assos.png",
+      "description": "jsp"
+    },
+    {
+      "id": "theatre",
+      "titre": "Club Théatre",
+      "categorie": "Club",
+      "rarete": "rare",
+      "statistiques": "JSP a mettre",
+      "image": "images/clubs/theatre.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "appro_maths",
+      "titre": "Approfondissement Maths",
+      "categorie": "Club",
+      "rarete": "epique",
+      "statistiques": "JSP a mettre",
+      "image": "images/clubs/appro_maths.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "midi_maths",
+      "titre": "Midi des Maths",
+      "categorie": "Club",
+      "rarete": "rare",
+      "statistiques": "JSP a mettre",
+      "image": "images/clubs/midi_maths.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "la_cantine",
+      "titre": "La Cantine",
+      "categorie": "Cantine",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/materiel/cahier.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "carte_cantine",
+      "titre": "Carte de Cantine",
+      "categorie": "Cantine",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/cantine/carte_cantine.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "grand_self",
+      "titre": "Grand Self",
+      "categorie": "Cantine",
+      "rarete": "commun",
+      "statistiques": "JSP",
+      "image": "images/cantine/grand_self.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "petit_self",
+      "titre": "Petit Self",
+      "categorie": "Cantine",
+      "rarete": "commun",
+      "statistiques": "JSP",
+      "image": "images/cantine/petit_self.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "fil_cantine",
+      "titre": "Fil de la Cantine",
+      "categorie": "Cantine",
+      "rarete": "commun",
+      "statistiques": "JSP",
+      "image": "images/cantine/fil_cantine.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "pain_cantine",
+      "titre": "Le Pain de la Cantine",
+      "categorie": "Cantine",
+      "rarete": "commun",
+      "statistiques": "JSP",
+      "image": "images/cantine/pain_cantine.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "pommes_cantine",
+      "titre": "Les pommes de la Cantine",
+      "categorie": "Cantine",
+      "rarete": "commun",
+      "statistiques": "JSP",
+      "image": "images/cantine/pommes_cantine.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "clementines_cantine",
+      "titre": "Les clémentines de la cantine",
+      "categorie": "Cantine",
+      "rarete": "commun",
+      "statistiques": "JSP",
+      "image": "images/cantine/clementines_cantine.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "oublie_carte_cantine",
+      "titre": "Oublie de Carte de Cantine",
+      "categorie": "Cantine",
+      "rarete": "commun",
+      "statistiques": "JSP",
+      "image":"images/cantine/oublie_carte_cantine.jpg",
+      "description": "jsp"
     }
   ]
 }
