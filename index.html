@@ -7,20 +7,22 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="Collecto">
-  <meta name="description" content="Collectionne des cartes, ouvre des boosters et échange avec tes amis.">
+  <meta name="apple-mobile-web-app-title" content="WikiBrand">
+  <meta name="description" content="Ouvre des boosters, collectionne des cartes, échange avec tes amis et progresse de rareté en rareté.">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="stylesheet" href="style.css">
-  <title>Collecto</title>
+  <title>WikiBrand</title>
 </head>
 <body>
-<main id="app"></main>
+  <main id="app"></main>
   <div id="modal"></div>
   <div id="toasts" aria-live="polite"></div>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Dans cet ordre : la config et la bibliothèque Supabase doivent exister avant app.js -->
   <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module" src="app.js"></script>
 </body>
 </html>

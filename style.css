@@ -15,8 +15,12 @@
 * { box-sizing: border-box; }
 
 /* Fond atmosphérique : halo bleu en haut d'écran + touche violette, fixé derrière le contenu */
-html { min-height: 100%; background: var(--bg); }
-body { background: transparent; overflow-x: clip; }
+html {
+  min-height: 100%; background: var(--bg);
+  scroll-padding-top: 72px; scroll-padding-bottom: calc(var(--nav-h, 84px) + 28px);
+  overscroll-behavior-y: none;                 /* pas de rebond en bas ni en haut de page */
+}
+body { background: transparent; overflow-x: clip; overscroll-behavior-y: none; }
 /* Fond atmosphérique fixe : un calque à part (pas de background-attachment: fixed, source de saccades sur mobile) */
 body::after {
   content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
@@ -36,19 +40,12 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Bande sous la barre système du téléphone */
-body::before {
-  content: "";
-  position: fixed; inset: 0 0 auto;
-  height: env(safe-area-inset-top, 0px);
-  background: rgba(18, 20, 28, .86);
-  z-index: 20;
-}
 
 #app {
   max-width: 600px;
   margin: 0 auto;
-  padding-block: 0 calc(76px + env(safe-area-inset-bottom, 0px));
+  /* --nav-h = hauteur réelle de la barre du bas (mesurée par app.js, safe-area comprise) : le bas de page reste lisible au-dessus */
+  padding-block: 0 calc(var(--nav-h, 84px) + 28px);
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
@@ -69,12 +66,13 @@ h1 { text-align: center; margin: 0; font-size: 2rem; letter-spacing: -.02em; }
 
 /* ---------- Barre du haut / navigation ---------- */
 .topbar {
-  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10;
+  position: sticky; top: 0; z-index: 10;
   display: flex; justify-content: space-between; align-items: center; gap: 8px;
   /* verre dépoli pleine largeur (on annule le padding latéral de #app) */
   margin-left: calc(-1 * max(16px, env(safe-area-inset-left, 0px)));
   margin-right: calc(-1 * max(16px, env(safe-area-inset-right, 0px)));
-  padding: 10px max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px));
+  /* la barre colle tout en haut de l'écran et porte elle-même la zone sûre (plus de bande où le contenu passe au-dessus) */
+  padding: calc(10px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px));
   background: rgba(18, 20, 28, .95); /* opaque : pas de backdrop-filter (sauts de frame mobile) */
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
@@ -154,7 +152,8 @@ h1 { text-align: center; margin: 0; font-size: 2rem; letter-spacing: -.02em; }
 .auth .chips { justify-content: center; margin-top: 14px; }
 .auth .hint { margin: 6px 0 0; }
 .auth p { overflow-wrap: anywhere; }
-.loading { padding-top: 30vh; }
+.loading { padding-top: 30vh; animation: loading-in .25s .5s backwards; }   /* n'apparaît que si le chargement dure vraiment */
+@keyframes loading-in { from { opacity: 0; } to { opacity: 1; } }
 
 /* ---------- Boosters ---------- */
 .pack { display: grid; place-items: center; line-height: 1.2; text-align: center; margin: 8px 0 4px; animation: float 3s ease-in-out infinite; }
@@ -1110,3 +1109,55 @@ svg.ico { flex: none; display: block; }
 
 /* --- Réduction des animations (préférence locale) : même effet que prefers-reduced-motion --- */
 html.calm *, html.calm *::before, html.calm *::after { animation: none !important; transition: none !important; }
+
+
+/* =====================================================================
+   v1.6 : page Succès à paliers
+   ===================================================================== */
+.ach-entry {
+  position: relative; display: flex; align-items: center; gap: 12px; width: 100%; margin-top: 18px; padding: 14px;
+  text-align: left; border-radius: 16px; color: var(--text);
+  background: linear-gradient(160deg, rgba(255, 217, 102, .14), var(--panel) 65%);
+  border: 1px solid rgba(255, 217, 102, .35);
+}
+.ach-entry.has-ready { box-shadow: 0 0 16px rgba(255, 217, 102, .3); }
+.ach-entry-ico { flex: none; width: 46px; height: 46px; display: grid; place-items: center; border-radius: 14px; color: var(--gold); background: rgba(255, 217, 102, .14); }
+.ach-entry-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ach-entry-body strong { font-size: 1.05rem; }
+.ach-entry-body small { font-size: .78rem; }
+.ach-entry > svg { flex: none; color: var(--muted); }
+.ach-entry-badge {
+  position: absolute; top: -7px; right: -5px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px;
+  display: grid; place-items: center; font-size: .72rem; font-weight: 900; color: #fff; background: var(--danger);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .45);
+}
+.ach-page .section-title { margin-top: 4px; }
+.ach-summary { padding: 14px; border-radius: 14px; background: var(--panel); border: 1px solid rgba(255, 255, 255, .07); margin-bottom: 12px; }
+.ach-sum-top { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 8px; }
+.ach-sum-top strong { font-size: 1.3rem; font-variant-numeric: tabular-nums; }
+.ach-ready-pill { margin-left: auto; padding: 3px 10px; border-radius: 999px; font-size: .75rem; font-weight: 800; color: #2a1d00; background: linear-gradient(180deg, #ffe58a, #f5b82e); }
+.ach-bar.big { height: 8px; margin-top: 10px; }
+.ach-groups { display: grid; gap: 10px; }
+.ach-grp { padding: 12px; border-radius: 14px; background: var(--panel); border: 1px solid rgba(255, 255, 255, .07); min-width: 0; contain: layout style paint; }
+.ach-grp.ready { border-color: rgba(255, 217, 102, .55); box-shadow: 0 0 14px rgba(255, 217, 102, .2); }
+.ach-grp.done { border-color: rgba(62, 207, 142, .35); }
+.ach-grp-head { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.ach-grp-title { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.ach-grp-title small { font-size: .74rem; }
+.ach-grp.ready .ach-ico { color: var(--gold); background: rgba(255, 217, 102, .16); }
+.ach-grp.done .ach-ico { color: var(--ok); background: rgba(62, 207, 142, .14); }
+.tier-chips { display: flex; gap: 4px; flex: none; }
+.tier-chip {
+  min-width: 22px; height: 22px; padding: 0 5px; display: inline-grid; place-items: center; border-radius: 7px;
+  font-size: .66rem; font-weight: 900; color: var(--muted); background: var(--panel-2); border: 1px solid rgba(255, 255, 255, .1);
+}
+.tier-chip.claimed { color: var(--ok); border-color: rgba(62, 207, 142, .5); background: rgba(62, 207, 142, .12); }
+.tier-chip.current { color: var(--text); border-color: var(--accent); }
+.tier-chip.ready { color: #2a1d00; background: var(--gold); border-color: var(--gold); }
+.ach-desc { margin: 10px 0 2px; font-size: .88rem; overflow-wrap: anywhere; }
+.ach-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 4px; }
+.ach-grp .ach-reward { display: inline-flex; align-items: center; gap: 4px; }
+.ach-grp .ach-claim { animation: none; }
+.ach-grp .ach-claim::after { display: none; }
+.ach-grp.ready .ach-bar i, .ach-grp.done .ach-bar i { background: var(--ok); }
+@media (max-width: 380px) { .tier-chips { display: none; } }

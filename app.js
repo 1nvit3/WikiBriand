@@ -1,7 +1,7 @@
 "use strict";
 
 /* =====================================================
-   Collecto : jeu de cartes à collectionner
+   WikiBrand : jeu de cartes à collectionner
    - cartes dans cards.json (images en chemins locaux)
    - comptes et données de jeu dans Supabase (config.js)
    - le serveur décide de tout ce qui compte : tirage des cartes, recharge
@@ -31,17 +31,28 @@ const RARITY_BY_KEY = new Map(RARITIES.map((r) => [r.key, r]));
 
 /* ---------- Configuration Supabase ---------- */
 
-const CFG = window.COLLECTO_CONFIG || {};
+// config.js peut définir WIKIBRAND_CONFIG (nouveau nom) ou COLLECTO_CONFIG (ancien nom, toujours accepté)
+const CFG = window.WIKIBRAND_CONFIG || window.COLLECTO_CONFIG || {};
+// ATTENTION : ces deux valeurs par défaut ne se renomment PAS. Elles servent à reconstruire l'e-mail et le mot de passe
+// des comptes déjà créés ; les changer empêcherait tous les joueurs existants de se connecter.
 const EMAIL_DOMAIN = CFG.EMAIL_DOMAIN || "collecto.game";
 const PIN_PEPPER = CFG.PIN_PEPPER || "-collecto";
 
 const isPlaceholder = (v) => !v || /VOTRE/i.test(v);
 const configMissing = isPlaceholder(CFG.SUPABASE_URL) || isPlaceholder(CFG.SUPABASE_ANON_KEY);
 
+// Migration de marque : on recopie l'ancienne session / les anciennes préférences (une seule fois), personne n'est déconnecté
+try {
+  [["collecto-auth", "wikibrand-auth"], ["collecto-prefs", "wikibrand-prefs"]].forEach(([from, to]) => {
+    const v = localStorage.getItem(from);
+    if (v !== null && localStorage.getItem(to) === null) localStorage.setItem(to, v);
+  });
+} catch {}
+
 let sb = null;
 if (!configMissing && window.supabase) {
   sb = window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY, {
-    auth: { persistSession: true, autoRefreshToken: true, storageKey: "collecto-auth" },
+    auth: { persistSession: true, autoRefreshToken: true, storageKey: "wikibrand-auth" },
   });
 }
 
@@ -94,14 +105,15 @@ const ui = {
   search: { q: "", results: null },
   trade: null,                // brouillon de proposition d'échange
   settings: false,            // page Paramètres ouverte
+  achPage: false,             // page Succès ouverte (depuis le Profil)
   boosterTab: "mine",         // mine | shop (sous-onglets de l'onglet Boosters)
   openTier: null,             // palier du booster en cours d'ouverture (visuel du paquet)
 };
 
 /* ---------- Préférences locales (enregistrées dans le navigateur) ---------- */
 
-const APP_VERSION = "1.5.0";
-const PREFS_KEY = "collecto-prefs";
+const APP_VERSION = "1.6.0";
+const PREFS_KEY = "wikibrand-prefs";
 const prefs = { vibrate: true, calm: false };       // calm : réduit les animations
 try { Object.assign(prefs, JSON.parse(localStorage.getItem(PREFS_KEY) || "{}")); } catch {}
 function savePrefs() { try { localStorage.setItem(PREFS_KEY, JSON.stringify(prefs)); } catch {} }
@@ -123,7 +135,7 @@ window.addEventListener("beforeinstallprompt", (e) => {
 });
 window.addEventListener("appinstalled", () => {
   deferredPrompt = null;
-  toast("Collecto est installé sur ton appareil.");
+  toast("WikiBrand est installé sur ton appareil.");
   if (ui.settings && me) render();
 });
 async function installApp() {
@@ -540,6 +552,7 @@ async function logout() {
   ui.cat = ui.sub = null;
   ui.confirmReset = false;
   ui.settings = false;
+  ui.achPage = false;
   ui.boosterTab = "mine";
   ui.authMode = null;
   ui.visit = null;
@@ -580,7 +593,7 @@ function avatar(pseudo, big = false) {
 function makePack({ empty = false, test = false, big = false, tear = false, tier = null } = {}) {
   return el("div", {
     class: "booster-pack" + (empty ? " empty" : "") + (test ? " test" : "") + (big ? " big" : "") + (tier ? ` tier-${tier}` : ""),
-    role: "img", "aria-label": empty ? "Booster verrouillé : aucun booster en stock" : "Booster Collecto",
+    role: "img", "aria-label": empty ? "Booster verrouillé : aucun booster en stock" : "Booster WikiBrand",
   },
     tear
       // languette supérieure en deux morceaux : la partie encore collée (att) et la partie déjà déchirée (flap)
@@ -592,7 +605,7 @@ function makePack({ empty = false, test = false, big = false, tear = false, tier
     tear ? el("i", { class: "bp-seal bp-lip" }) : null,
     el("div", { class: "bp-body" },
       el("div", { class: "bp-emblem" }, icon("card", 30)),
-      el("div", { class: "bp-title" }, "COLLECTO"),
+      el("div", { class: "bp-title" }, "WIKIBRAND"),
       el("div", { class: "bp-sub" }, `${BOOSTER_SIZE} CARTES`)),
     el("div", { class: "bp-seal bottom" }),
     el("i", { class: "bp-shine" }),
@@ -736,7 +749,7 @@ function viewMessage(title, ...lines) {
 }
 
 function viewSetup() {
-  return viewMessage("Collecto",
+  return viewMessage("WikiBrand",
     window.supabase
       ? "Supabase n'est pas configuré. Ouvre config.js et renseigne SUPABASE_URL et SUPABASE_ANON_KEY (Supabase > Project Settings > API)."
       : "La bibliothèque Supabase n'a pas pu être chargée. Vérifie ta connexion internet et recharge la page."
@@ -826,7 +839,7 @@ function viewAuth() {
 
   return el("section", { class: "auth" },
     el("div", { class: "pack" }, icon("card", 72)),
-    el("h1", {}, "Collecto"),
+    el("h1", {}, "WikiBrand"),
     el("p", { class: "muted center" }, isCreate ? "Crée ton profil pour commencer ta collection." : "Connecte-toi pour retrouver ta collection."),
     form,
     switcher
@@ -837,13 +850,13 @@ function viewAuth() {
 
 function header() {
   return el("header", { class: "topbar" },
-    el("strong", { class: "brand" }, icon("card", 20), el("span", { class: "brand-name" }, "Collecto")),
+    el("strong", { class: "brand" }, icon("card", 20), el("span", { class: "brand-name" }, "WikiBrand")),
     el("div", { class: "pills" },
       el("span", { class: "pill", title: "Boosters en stock" }, icon("booster", 16), el("span", { "data-stock": "" }, `${me.boosters}/${MAX_BOOSTERS}`)),
       el("span", { class: "pill gold", title: "Ton solde" }, icon("coin", 16), money(me.abris)),
       el("button", {
         class: "gear-btn" + (ui.settings ? " active" : ""), type: "button", "aria-label": "Paramètres",
-        onclick: () => { ui.settings = true; ui.visit = null; render(); window.scrollTo(0, 0); },
+        onclick: () => { ui.settings = true; ui.achPage = false; ui.visit = null; render(); },
       }, icon("settings", 18))
     )
   );
@@ -856,6 +869,7 @@ function nav() {
       onclick: () => {
         ui.tab = id;
         ui.settings = false;
+        ui.achPage = false;
         ui.visit = null;
         ui.confirmReset = false;
         render();
@@ -876,18 +890,36 @@ function nav() {
   );
 }
 
+// Identifie « l'écran » affiché : tant qu'il ne change pas, un nouveau rendu garde la position de défilement
+let lastViewKey = "";
+const viewKey = () => [ui.settings, ui.achPage, ui.tab, ui.boosterTab, ui.friendsTab, !!ui.visit, ui.opening ? "o" + ui.openStage : ""].join("|");
+
 function render() {
   if (configMissing || !sb) return $app.replaceChildren(viewSetup());
   if (ui.fatal) return $app.replaceChildren(viewFatal());
   if (ui.loading) return $app.replaceChildren(el("p", { class: "muted center loading" }, "Chargement…"));
-  if (!me) return $app.replaceChildren(viewAuth());
+  if (!me) { lastViewKey = ""; return $app.replaceChildren(viewAuth()); }
+  const y = window.scrollY;
+  const key = viewKey();
   const view = ui.settings ? viewSettings()
+    : ui.achPage ? viewAchievements()
     : ui.tab === "boosters" ? viewBoosters()
     : ui.tab === "collection" ? viewCollection()
     : ui.tab === "friends" ? viewFriends()
     : viewProfile();
   $app.replaceChildren(header(), view, nav());
+  // Remplacer le contenu fait perdre la position de défilement : on la restaure (même écran) ou on remonte (autre écran)
+  window.scrollTo(0, key === lastViewKey ? y : 0);
+  lastViewKey = key;
+  measureNav();
 }
+
+// Hauteur réelle de la barre du bas (safe-area comprise) -> marge basse exacte du contenu (voir #app dans style.css)
+function measureNav() {
+  const n = document.querySelector(".nav");
+  if (n) document.documentElement.style.setProperty("--nav-h", `${n.offsetHeight}px`);
+}
+window.addEventListener("resize", measureNav);
 
 /* ---------- Interface : boosters ---------- */
 
@@ -982,11 +1014,11 @@ function viewSettings() {
     installBody = el("p", { class: "set-ok" }, icon("check", 16), "Application déjà installée");
   } else if (deferredPrompt) {
     installBody = el("button", { class: "primary with-ico", type: "button", onclick: installApp },
-      icon("download", 18), "Installer Collecto sur l'appareil");
+      icon("download", 18), "Installer WikiBrand sur l'appareil");
   } else if (isIOS()) {
     installBody = el("div", {},
       el("p", { class: "set-steps" }, icon("share", 18), el("span", {}, "Touche ", el("strong", {}, "Partager"), " puis ", el("strong", {}, "Sur l'écran d'accueil"), ".")),
-      el("p", { class: "muted small" }, "Depuis Safari uniquement. Collecto s'ouvrira ensuite comme une vraie application, en plein écran."));
+      el("p", { class: "muted small" }, "Depuis Safari uniquement. WikiBrand s'ouvrira ensuite comme une vraie application, en plein écran."));
   } else {
     installBody = el("p", { class: "muted small" },
       "Ton navigateur ne propose pas l'installation automatique pour l'instant. Ouvre son menu (⋮ ou Partager) et choisis « Installer l'application » ou « Ajouter à l'écran d'accueil ».");
@@ -1030,7 +1062,7 @@ function viewSettings() {
       reset),
 
     isAdmin() ? adminPanel() : null,
-    el("p", { class: "muted small center set-version" }, `Collecto · version ${APP_VERSION}`)
+    el("p", { class: "muted small center set-version" }, `WikiBrand · version ${APP_VERSION}`)
   );
 }
 
@@ -1379,7 +1411,7 @@ function viewProfile() {
     el("div", { class: "pp-top" },
       avatar(me.pseudo, true),
       el("div", { class: "pp-id" },
-        el("span", { class: "pp-tag" }, "Passeport Collecto"),
+        el("span", { class: "pp-tag" }, "Passeport WikiBrand"),
         el("h2", { class: "pp-name" }, me.pseudo),
         el("span", { class: "pp-gold" }, icon("coin", 16), money(me.abris)))),
     el("div", { class: "pp-stats" },
@@ -1403,35 +1435,109 @@ function viewProfile() {
     passport,
     el("h2", { class: "section-title" }, "Progression par rareté"),
     el("div", { class: "rbars" }, rows),
-    achievementsSection()
+    achievementsEntry()
   );
 }
 
-function achievementsSection() {
-  if (!achievements) return el("p", { class: "muted small" }, "Chargement des succès…");
-  const done = achievements.filter((x) => x.claimed).length;
-  const items = achievements.map((x) => {
-    const ui_ = ACH_UI[x.id] || { icon: "star", title: x.id, desc: "" };
-    const unlocked = x.progress >= x.target;
-    const state = x.claimed ? "claimed" : unlocked ? "ready" : "locked";
-    const pct = Math.min(100, Math.round((x.progress / x.target) * 100));
-    const bar = el("div", { class: "ach-bar" }, el("i", {}));
-    bar.firstChild.style.width = `${pct}%`;
-    return el("div", { class: `ach ${state}` },
-      el("div", { class: "ach-ico" }, icon(state === "locked" ? "lock" : ui_.icon, 22)),
-      el("div", { class: "ach-body" },
-        el("strong", {}, ui_.title),
-        el("small", {}, ui_.desc),
-        bar,
-        el("small", { class: "ach-prog" }, `${fmtNum(x.progress)} / ${fmtNum(x.target)}`)),
-      state === "claimed" ? el("span", { class: "ach-done" }, icon("check", 15), "Réclamé")
-        : state === "ready"
-          ? el("button", { class: "ach-claim", disabled: ui.busy ? "" : null, onclick: () => claimAchievement(x.id) }, icon("coin", 15), `Réclamer +${fmtNum(x.reward)} Abri$`)
-          : el("span", { class: "ach-reward" }, `+${fmtNum(x.reward)} Abri$`));
+/* ---------- Succès : bouton du Profil + page dédiée à paliers ---------- */
+
+// Regroupe les paliers par famille. Ancien serveur (sans "grp") : chaque succès devient une famille à 1 palier.
+function achGroups() {
+  const by = new Map();
+  (achievements || []).forEach((x) => {
+    const g = x.grp || x.id;
+    if (!by.has(g)) by.set(g, []);
+    by.get(g).push({ ...x, tier: x.tier || 1 });
   });
-  return el("div", {},
-    el("h2", { class: "section-title" }, `Succès (${done}/${achievements.length})`),
-    el("div", { class: "ach-list" }, items));
+  const order = Object.keys(ACH_GROUPS);
+  return [...by.entries()]
+    .map(([grp, tiers]) => ({ grp, tiers: tiers.sort((p, q) => p.tier - q.tier) }))
+    .sort((p, q) => (order.indexOf(p.grp) + 1 || 99) - (order.indexOf(q.grp) + 1 || 99));
+}
+
+function achSummary() {
+  const all = achievements || [];
+  const ready = all.filter((x) => !x.claimed && x.progress >= x.target).length;
+  return { total: all.length, claimed: all.filter((x) => x.claimed).length, ready };
+}
+
+const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII"];
+
+function achievementsEntry() {
+  const sm = achSummary();
+  const pct = sm.total ? Math.round((sm.claimed / sm.total) * 100) : 0;
+  const bar = el("div", { class: "ach-bar" }, el("i", {}));
+  bar.firstChild.style.width = `${pct}%`;
+  return el("button", {
+    class: "ach-entry" + (sm.ready ? " has-ready" : ""), type: "button",
+    onclick: () => { ui.achPage = true; render(); loadAchievements(); },
+  },
+    el("span", { class: "ach-entry-ico" }, icon("trophy", 24)),
+    el("span", { class: "ach-entry-body" },
+      el("strong", {}, "Succès"),
+      el("small", { class: "muted" }, achievements
+        ? `${sm.claimed} / ${sm.total} paliers réclamés${sm.ready ? ` · ${sm.ready} à réclamer` : ""}`
+        : "Chargement…"),
+      achievements ? bar : null),
+    sm.ready ? el("span", { class: "ach-entry-badge" }, String(sm.ready)) : null,
+    icon("chevron", 18));
+}
+
+function viewAchievements() {
+  const back = el("button", { class: "linklike left with-ico", type: "button", onclick: () => { ui.achPage = false; render(); } },
+    icon("back", 16), "Retour au profil");
+  if (!achievements) return el("section", { class: "view" }, back, el("p", { class: "muted center" }, "Chargement des succès…"));
+
+  const sm = achSummary();
+  const pct = sm.total ? Math.round((sm.claimed / sm.total) * 100) : 0;
+  const bar = el("div", { class: "ach-bar big" }, el("i", {}));
+  bar.firstChild.style.width = `${pct}%`;
+
+  const cards = achGroups().map(({ grp, tiers }) => {
+    const g = ACH_GROUPS[grp] || ACH_UI[grp] || { icon: "star", title: grp };
+    const cur = tiers.find((t) => !t.claimed);                // palier en cours
+    const allDone = !cur;
+    const shown = cur || tiers[tiers.length - 1];
+    const unlocked = shown.progress >= shown.target;
+    const state = allDone ? "done" : unlocked ? "ready" : "locked";
+    const pctT = Math.min(100, Math.round((shown.progress / shown.target) * 100));
+    const barT = el("div", { class: "ach-bar" }, el("i", {}));
+    barT.firstChild.style.width = `${pctT}%`;
+    const desc = typeof g.desc === "function" ? g.desc(shown.target) : g.desc || "";
+    const chips = tiers.length > 1 ? el("div", { class: "tier-chips", role: "list" }, tiers.map((t) => {
+      const st = t.claimed ? "claimed" : t === cur ? (t.progress >= t.target ? "ready" : "current") : "locked";
+      return el("span", { class: `tier-chip ${st}`, role: "listitem", title: `Palier ${ROMAN[t.tier] || t.tier}` },
+        t.claimed ? icon("check", 12) : ROMAN[t.tier] || String(t.tier));
+    })) : null;
+
+    return el("article", { class: `ach-grp ${state}` },
+      el("div", { class: "ach-grp-head" },
+        el("span", { class: "ach-ico" }, icon(state === "locked" ? "lock" : g.icon, 22)),
+        el("div", { class: "ach-grp-title" },
+          el("strong", {}, g.title),
+          el("small", { class: "muted" }, allDone ? "Tous les paliers réclamés"
+            : tiers.length > 1 ? `Palier ${ROMAN[shown.tier] || shown.tier} sur ${ROMAN[tiers.length] || tiers.length}` : "Succès unique")),
+        chips),
+      el("p", { class: "ach-desc" }, desc),
+      barT,
+      el("div", { class: "ach-foot" },
+        el("small", { class: "ach-prog" }, `${fmtNum(shown.progress)} / ${fmtNum(shown.target)}`),
+        allDone ? el("span", { class: "ach-done" }, icon("check", 15), "Terminé")
+          : unlocked
+            ? el("button", { class: "ach-claim", disabled: ui.busy ? "" : null, onclick: () => claimAchievement(shown.id) },
+                icon("coin", 15), `Réclamer +${fmtNum(shown.reward)}`)
+            : el("span", { class: "ach-reward" }, icon("lock", 13), `+${fmtNum(shown.reward)} ${CURRENCY}`)));
+  });
+
+  return el("section", { class: "view ach-page" },
+    back,
+    el("h2", { class: "section-title" }, "Succès"),
+    el("div", { class: "ach-summary" },
+      el("div", { class: "ach-sum-top" },
+        el("strong", {}, `${sm.claimed} / ${sm.total}`), el("span", { class: "muted small" }, "paliers réclamés"),
+        sm.ready ? el("span", { class: "ach-ready-pill" }, `${sm.ready} à réclamer`) : null),
+      bar),
+    el("div", { class: "ach-groups" }, cards));
 }
 
 async function adminRefill() {
@@ -1490,14 +1596,27 @@ const ACH_UI = {
   friend_1:        { icon: "userplus", title: "Premier ami",        desc: "Ajoute un ami" },
   friend_3:        { icon: "friends", title: "Bande de potes",     desc: "Aie 3 amis" },
 };
-let achievements = null;   // [{id, target, reward, progress, claimed}]
+const pl = (n, w) => `${fmtNum(n)} ${w}${n > 1 ? "s" : ""}`;
+// Familles de succès (textes et icônes). Objectifs, récompenses et progression viennent de list_achievements().
+const ACH_GROUPS = {
+  collection: { icon: "collection", title: "Collectionneur",     desc: (t) => `Possède ${pl(t, "carte")} différente${t > 1 ? "s" : ""}` },
+  copies:     { icon: "card",       title: "Grand stock",        desc: (t) => `Cumule ${pl(t, "carte")} en tout (doubles compris)` },
+  epic:       { icon: "sparkle",    title: "Chasseur d'épiques", desc: (t) => `Possède ${pl(t, "carte")} Épique différente${t > 1 ? "s" : ""}` },
+  legend:     { icon: "star",       title: "Légende vivante",    desc: (t) => `Possède ${pl(t, "carte")} Légendaire différente${t > 1 ? "s" : ""}` },
+  divin:      { icon: "crown",      title: "Hors-barème",        desc: (t) => `Possède ${pl(t, "carte")} Divin différente${t > 1 ? "s" : ""}` },
+  rich:       { icon: "coin",       title: "Fortune",            desc: (t) => `Atteins ${fmtNum(t)} ${CURRENCY} en réserve` },
+  friends:    { icon: "friends",    title: "Sociable",           desc: (t) => `Aie ${pl(t, "ami")}` },
+  trades:     { icon: "swap",       title: "Négociant",          desc: (t) => `Réussis ${pl(t, "échange")}` },
+  shop:       { icon: "shop",       title: "Acheteur",           desc: (t) => `Achète ${pl(t, "booster")} en boutique` },
+};
+let achievements = null;   // [{id, grp, tier, target, reward, progress, claimed}]
 let board = null;          // {top, me, total_cards, players}
 
 async function loadAchievements() {
   if (!me) return;
   try {
     achievements = await rpc("list_achievements");
-    if (ui.tab === "profile" && !ui.opening) render();
+    if ((ui.tab === "profile" || ui.achPage) && !ui.settings && !ui.opening) render();
   } catch (err) { console.warn("[achievements]", err); }
 }
 
@@ -1508,6 +1627,7 @@ async function claimAchievement(id) {
   render();
   try {
     await profileCall("claim_achievement", { p_id: id });
+    vibe(30);
     toast(`Succès réclamé : +${money(a ? a.reward : 0)}`);
   } catch (err) {
     toast(friendlyError(err));
@@ -2112,15 +2232,18 @@ async function start() {
     // Pas de rechargement à la toute première installation (aucun contrôleur avant).
     const hadController = !!navigator.serviceWorker.controller;
     let reloading = false;
+    // Le rechargement se fait quand l'app est en arrière-plan : jamais d'écran « Chargement… » en pleine utilisation
+    let pendingReload = false;
+    const reloadNow = () => { if (reloading) return; reloading = true; window.location.reload(); };
+    document.addEventListener("visibilitychange", () => { if (document.hidden && pendingReload) reloadNow(); });
     navigator.serviceWorker.addEventListener("controllerchange", () => {
       if (!hadController || reloading) return;
-      reloading = true;
-      window.location.reload();
+      if (document.hidden) reloadNow(); else pendingReload = true;
     });
     navigator.serviceWorker.register("sw.js", { updateViaCache: "none" })
       .then((reg) => {
         // Cherche une nouvelle version au retour sur l'app et toutes les 30 min
-        const check = () => reg.update().catch(() => {});
+        const check = () => { if (reg) reg.update().catch(() => {}); };
         document.addEventListener("visibilitychange", () => { if (!document.hidden) check(); });
         setInterval(check, 30 * 60 * 1000);
       })

@@ -1,5 +1,5 @@
 -- =====================================================================
--- Collecto : boutique de boosters (achat en Abri$, meilleures probabilités)
+-- WikiBrand : boutique de boosters (achat en Abri$, meilleures probabilités)
 -- À exécuter APRÈS schema.sql, social.sql, admin.sql, achievements.sql, obtained_at.sql
 -- (et trades_v2.sql). Script relançable. Les réglages de l'application (vibrations,
 -- animations) sont enregistrés dans le navigateur : rien à créer ici pour eux.
@@ -10,6 +10,9 @@
 --   ultra    1000 Abri$ : rare x3,   épique x6, légendaire x8, divin x5
 -- Les prix affichés dans app.js (SHOP) doivent correspondre à ceux-ci.
 -- =====================================================================
+
+-- Compteur d'achats en boutique (sert aux succès « Acheteur »)
+alter table public.profiles add column if not exists shop_bought integer not null default 0;
 
 create or replace function private.shop_tier(p_tier text, out price integer, out mult jsonb)
 language plpgsql
@@ -89,7 +92,7 @@ begin
   end loop;
 
   update public.profiles
-     set abris = p.abris, owned = p.owned, obtained_at = p.obtained_at
+     set abris = p.abris, owned = p.owned, obtained_at = p.obtained_at, shop_bought = shop_bought + 1
    where id = uid;
 
   return jsonb_build_object('profile', private.profile_json(p), 'cards', v_cards);
