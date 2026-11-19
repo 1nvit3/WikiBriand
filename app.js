@@ -107,12 +107,15 @@ const ui = {
   settings: false,            // page Paramètres ouverte
   achPage: false,             // page Succès ouverte (depuis le Profil)
   boosterTab: "mine",         // mine | shop (sous-onglets de l'onglet Boosters)
+  shopTab: "packs",           // packs | cards (Boutique : boosters ou cartes à l'unité)
+  market: null,               // { total_players, cards: [{ id, rarete, owners_count, price }] } (get_card_market)
+  marketAt: 0, marketErr: false, marketQ: "", marketSort: { key: "price", dir: "asc" }, marketOnlyNew: false,
   openTier: null,             // palier du booster en cours d'ouverture (visuel du paquet)
 };
 
 /* ---------- Préférences locales (enregistrées dans le navigateur) ---------- */
 
-const APP_VERSION = "1.6.0";
+const APP_VERSION = "1.7.0";
 const PREFS_KEY = "wikibrand-prefs";
 const prefs = { vibrate: true, calm: false };       // calm : réduit les animations
 try { Object.assign(prefs, JSON.parse(localStorage.getItem(PREFS_KEY) || "{}")); } catch {}
@@ -256,6 +259,9 @@ function friendlyError(err) {
   if (/unknown_achievement/.test(msg)) return "Succès inconnu.";
   if (/unauthorized/.test(msg)) return "Action réservée au compte testeur.";
   if (/invalid_rarity/.test(msg)) return "Aucune carte de cette rareté sur le serveur.";
+  if (/unknown_card/.test(msg)) return "Cette carte n'existe pas sur le serveur.";
+  if (/unknown_tier/.test(msg)) return "Ce booster n'existe pas (SQL shop_v2.sql à exécuter ?).";
+  if (/not_enough_abris/.test(msg)) return "Pas assez d'Abri$.";
   if (/no_booster/.test(msg)) return "Plus aucun booster disponible.";
   if (/not_enough_cards/.test(msg)) return "Tu ne possèdes pas assez d'exemplaires de cette carte.";
   if (/no_cards/.test(msg)) return "Aucune carte n'est enregistrée sur le serveur (exécute seed_cards.sql).";
@@ -452,6 +458,17 @@ function sortCards(cards) {
 
 /* ---------- Actions (toutes passent par le serveur) ---------- */
 
+// Ouverture : de la moins rare à la plus rare (la tension monte). On mélange d'abord, puis on trie
+// (Array.sort est stable) : l'ordre reste aléatoire entre cartes de même rareté, et isNew suit sa carte.
+function makeOpening(cards) {
+  const items = cards.map((c) => ({ card: cardFromServer(c.id, c.rarete), isNew: !!c.is_new, revealed: false }));
+  for (let i = items.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [items[i], items[j]] = [items[j], items[i]];
+  }
+  return items.sort((a, b) => a.card.rarity.tier - b.card.rarity.tier);
+}
+
 async function doOpenBooster() {
   const test = isAdmin() && ui.admin.test;
   if (ui.busy || !me || (me.boosters <= 0 && !test)) return;
@@ -463,7 +480,7 @@ async function doOpenBooster() {
           ? { p_force_rarity: ui.admin.rarity, p_luck: 1 }
           : { p_force_rarity: null, p_luck: ui.admin.luck })
       : await profileCall("open_booster");
-    ui.opening = j.cards.map((c) => ({ card: cardFromServer(c.id, c.rarete), isNew: c.is_new, revealed: false }));
+    ui.opening = makeOpening(j.cards);
     ui.openTier = null;
     ui.openStage = "tear";
     ui.openIdx = 0;
@@ -477,12 +494,18 @@ async function doOpenBooster() {
 
 /* ---------- Boutique : achat de boosters en Abri$ ---------- */
 
-// Doit correspondre à private.shop_tier (shop_and_settings.sql). Le serveur recalcule tout : prix et tirage.
+// Doit correspondre à private.shop_tier (shop_and_settings.sql + shop_v2.sql). Le serveur recalcule tout : prix et tirage.
+// count = cartes du paquet ; guarantee = rareté minimale garantie sur au moins 1 carte.
+const ULTRA_MULT = { rare: 3, epique: 6, legendaire: 8, divin: 5 };
 const SHOP = [
-  { id: "standard", name: "Standard", price: 150,  mult: {},                                                  tag: "Chances classiques" },
-  { id: "super",    name: "Super",    price: 400,  mult: { rare: 2.5, epique: 3, legendaire: 3, divin: 2 },   tag: "Meilleures chances" },
-  { id: "ultra",    name: "Ultra",    price: 1000, mult: { rare: 3, epique: 6, legendaire: 8, divin: 5 },     tag: "Chances très élevées" },
+  { id: "standard", name: "Standard", price: 150,  count: 5, mult: {},                                                tag: "Chances classiques" },
+  { id: "super",    name: "Super",    price: 400,  count: 5, mult: { rare: 2.5, epique: 3, legendaire: 3, divin: 2 }, tag: "Meilleures chances" },
+  { id: "ultra",    name: "Ultra",    price: 1000, count: 5, mult: ULTRA_MULT,                                        tag: "Chances très élevées" },
+  { id: "garanti_epique",     name: "Épique garanti",     price: 2000, count: 3, guarantee: "epique",     mult: ULTRA_MULT, tag: "Chances très élevées" },
+  { id: "garanti_legendaire", name: "Légendaire garanti", price: 5000, count: 3, guarantee: "legendaire", mult: ULTRA_MULT, tag: "Chances très élevées" },
 ];
+const packCount = (tierId) => (SHOP.find((t) => t.id === tierId) || {}).count || BOOSTER_SIZE;
+const shopBadge = (t) => t.guarantee ? `${t.count} cartes · ${RARITY_BY_KEY.get(t.guarantee).label} garantie` : `${t.count} cartes`;
 
 // Probabilités effectives d'un palier (poids x multiplicateur, ramenés à 100 %)
 function shopOdds(tier) {
@@ -503,7 +526,7 @@ async function buyBooster(id) {
     const seq = ++seqIssued;
     const j = await rpc("buy_booster", { p_tier: id });
     if (seq > seqApplied) { seqApplied = seq; applyProfile(j.profile); }
-    ui.opening = j.cards.map((c) => ({ card: cardFromServer(c.id, c.rarete), isNew: c.is_new, revealed: false }));
+    ui.opening = makeOpening(j.cards);
     ui.openTier = id;
     ui.openStage = "tear";
     ui.openIdx = 0;
@@ -606,7 +629,7 @@ function makePack({ empty = false, test = false, big = false, tear = false, tier
     el("div", { class: "bp-body" },
       el("div", { class: "bp-emblem" }, icon("card", 30)),
       el("div", { class: "bp-title" }, "WIKIBRAND"),
-      el("div", { class: "bp-sub" }, `${BOOSTER_SIZE} CARTES`)),
+      el("div", { class: "bp-sub" }, `${packCount(tier)} CARTES`)),
     el("div", { class: "bp-seal bottom" }),
     el("i", { class: "bp-shine" }),
     empty ? el("span", { class: "bp-lock" }, icon("lock", 26)) : null
@@ -680,8 +703,35 @@ function cardFace(card, { big = false, stats = false } = {}) {
 /* ---------- Interface : fiche d'une carte (modale) ---------- */
 
 function showCard(card) {
-  ui.modal = { id: card.id, confirm: false };
+  const owned = (me && me.owned[card.id]) > 0;
+  ui.modal = { id: card.id, confirm: false, buy: !owned };       // carte non possédée : fiche verrouillée + achat direct
   renderModal();
+  if (!owned) loadMarket();
+}
+
+// Fiche d'une carte non possédée : silhouette, nom, rareté, prix (l'illustration reste cachée)
+function renderBuyModal(card) {
+  const r = card.rarity;
+  const x = marketEntry(card.id);
+  const afford = x && me.abris >= x.price;
+  const label = !x ? (ui.marketErr ? "Prix indisponible" : "Calcul du prix…")
+    : ui.busy === "card" ? "Achat…"
+    : afford ? `Acheter cette carte · ${money(x.price)}` : `Il te manque ${money(x.price - me.abris)}`;
+  const box = el("div", { class: "modal-box", role: "dialog", "aria-label": card.titre },
+    el("button", { class: "modal-x", type: "button", "aria-label": "Fermer", onclick: closeModal }, icon("close", 20)),
+    el("div", { class: "tile card-locked locked-big" }, cardFace(card), el("span", { class: "lock-badge" }, icon("lock", 22))),
+    el("h3", { class: "center buy-name" }, card.titre),
+    el("p", { class: "tagline" }, `${r.label} · ${r.tagline}`),
+    el("p", { class: "muted small center" }, `${card.categorie}${card.sous ? " › " + card.sous : ""}`),
+    x ? el("p", { class: "muted small center" }, ownersText(x)) : null,
+    el("button", { class: "primary", type: "button", disabled: x && afford && !ui.busy ? null : "", onclick: () => buyCard(card) }, label),
+    el("p", { class: "muted small center" }, "Prix dynamique, recalculé par le serveur au moment de l'achat."),
+    el("button", { class: "secondary", onclick: closeModal }, "Fermer")
+  );
+  box.style.setProperty("--rc", r.color);
+  $modal.replaceChildren(
+    el("div", { class: "modal-backdrop", onclick: (e) => { if (e.target === e.currentTarget) closeModal(); } }, box)
+  );
 }
 
 function closeModal() {
@@ -696,7 +746,8 @@ function renderModal() {
   if (!ui.modal || !me) return closeModal();
   const card = byId.get(ui.modal.id);
   const count = card ? me.owned[card.id] || 0 : 0;
-  if (!card || !count) return closeModal();
+  if (!card) return closeModal();
+  if (!count) return ui.modal.buy ? renderBuyModal(card) : closeModal();
 
   const r = card.rarity;
   const sellButtons = [];
@@ -892,7 +943,7 @@ function nav() {
 
 // Identifie « l'écran » affiché : tant qu'il ne change pas, un nouveau rendu garde la position de défilement
 let lastViewKey = "";
-const viewKey = () => [ui.settings, ui.achPage, ui.tab, ui.boosterTab, ui.friendsTab, !!ui.visit, ui.opening ? "o" + ui.openStage : ""].join("|");
+const viewKey = () => [ui.settings, ui.achPage, ui.tab, ui.boosterTab, ui.shopTab, ui.friendsTab, !!ui.visit, ui.opening ? "o" + ui.openStage : ""].join("|");
 
 function render() {
   if (configMissing || !sb) return $app.replaceChildren(viewSetup());
@@ -972,6 +1023,15 @@ function viewBoosters() {
 /* ---------- Interface : boutique ---------- */
 
 function viewShop() {
+  const sub = (id, label, ico) => el("button", {
+    class: ui.shopTab === id ? "active" : "", type: "button",
+    onclick: () => { ui.shopTab = id; render(); if (id === "cards") loadMarket(); },
+  }, icon(ico, 15), label);
+  const subTabs = el("div", { class: "seg sub" }, sub("packs", "Boosters", "booster"), sub("cards", "Cartes à l'unité", "card"));
+  return el("div", {}, subTabs, ui.shopTab === "cards" ? viewMarket() : viewPacks());
+}
+
+function viewPacks() {
   const cards = SHOP.map((t) => {
     const odds = shopOdds(t).filter((o) => o.r.tier >= 2);          // rare et au-dessus : c'est là que ça change
     const can = me.abris >= t.price;
@@ -984,13 +1044,17 @@ function viewShop() {
       row.style.setProperty("--rc", r.color);
       return row;
     });
+    const g = t.guarantee ? RARITY_BY_KEY.get(t.guarantee) : null;
     return el("article", { class: `shop-card tier-${t.id}` },
       el("div", { class: "shop-pack" }, makePack({ tier: t.id })),
       el("div", { class: "shop-info" },
         el("div", { class: "shop-head" },
           el("h3", {}, `Booster ${t.name}`),
           el("span", { class: "shop-price" }, icon("coin", 14), money(t.price))),
-        el("p", { class: "muted small shop-tag" }, `${t.tag} · ${BOOSTER_SIZE} cartes`),
+        g
+          ? el("p", { class: "shop-guar" }, icon("star", 13), shopBadge(t))
+          : el("p", { class: "muted small shop-tag" }, `${t.tag} · ${shopBadge(t)}`),
+        g ? el("p", { class: "muted small shop-tag" }, `1 carte ${g.label} ou mieux assurée, les ${t.count - 1} autres aux chances Ultra`) : null,
         el("div", { class: "shop-odds" }, rows),
         el("button", {
           class: "primary shop-buy", type: "button", disabled: can && !ui.busy ? null : "",
@@ -1000,6 +1064,117 @@ function viewShop() {
   return el("div", {},
     el("p", { class: "muted small" }, "Les boosters de la boutique ne consomment pas ton stock : ils s'ouvrent tout de suite."),
     el("div", { class: "shop-list" }, cards));
+}
+
+/* ---------- Boutique : cartes à l'unité (prix dynamique selon la rareté chez les joueurs) ---------- */
+
+let marketBusy = false;
+async function loadMarket(force = false) {
+  if (marketBusy || !me) return;
+  if (!force && ui.market && Date.now() - ui.marketAt < 30000) return;
+  marketBusy = true;
+  try {
+    ui.market = await rpc("get_card_market");
+    ui.marketAt = Date.now(); ui.marketErr = false;
+  } catch (e) {
+    console.warn("get_card_market:", e); ui.marketErr = true;
+  }
+  marketBusy = false;
+  const host = document.querySelector(".mk-list");
+  if (host) fillMarketList(host);                      // pas de render() : on garde le champ de recherche et le scroll
+  if (ui.modal && ui.modal.buy) renderModal();
+}
+
+const marketEntry = (id) => (ui.market && ui.market.cards.find((x) => x.id === id)) || null;
+function ownersText(x, short = false) {
+  const total = (ui.market && ui.market.total_players) || 1;
+  if (!x.owners_count) return "Détenue par personne";
+  const pct = (x.owners_count / total) * 100;
+  return `Détenue par ${pct < 1 ? "< 1" : Math.round(pct).toLocaleString("fr-FR")} %${short ? "" : " des joueurs"}`;
+}
+const plain = (s) => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+
+function fillMarketList(host) {
+  if (!ui.market) {
+    host.replaceChildren(ui.marketErr
+      ? el("div", { class: "empty-grid center" }, el("p", { class: "muted small" }, "Impossible de charger les prix (SQL market_cards.sql exécuté ?)."),
+          el("button", { class: "secondary", type: "button", onclick: () => { ui.marketErr = false; fillMarketList(host); loadMarket(true); } }, "Réessayer"))
+      : el("p", { class: "muted small center loading-line" }, "Calcul des prix…"));
+    return;
+  }
+  const q = plain(ui.marketQ.trim());
+  const k = ui.marketSort.dir === "asc" ? 1 : -1;
+  const rows = ui.market.cards
+    .map((x) => ({ x, card: byId.get(x.id) }))
+    .filter((e) => e.card && (!q || plain(e.card.titre).includes(q)) && (!ui.marketOnlyNew || !(me.owned[e.x.id] > 0)))
+    .sort((a, b) => ui.marketSort.key === "price"
+      ? k * (a.x.price - b.x.price) || a.card.titre.localeCompare(b.card.titre, "fr")
+      : k * (a.card.rarity.tier - b.card.rarity.tier) || a.x.price - b.x.price);
+  if (!rows.length) { host.replaceChildren(el("p", { class: "muted small empty-grid center" }, "Aucune carte ne correspond.")); return; }
+  host.replaceChildren(...rows.map(({ x, card }) => {
+    const own = me.owned[x.id] || 0;
+    const row = el("button", { class: "mk-row", type: "button", onclick: () => showCard(card) },
+      el("i", { class: "dot" }),
+      el("span", { class: "mk-main" },
+        el("strong", {}, card.titre),
+        el("small", { class: "muted" }, `${card.rarity.label} · ${ownersText(x, true)}`)),
+      el("span", { class: "mk-side" },
+        el("em", { class: "mk-own" + (own ? " has" : "") }, own ? `Déjà possédée ×${own}` : "Nouvelle"),
+        el("b", { class: "mk-price" + (me.abris < x.price ? " no" : "") }, icon("coin", 12), money(x.price))));
+    row.style.setProperty("--rc", card.rarity.color);
+    return row;
+  }));
+}
+
+function viewMarket() {
+  const host = el("div", { class: "mk-list" });
+  const search = el("input", {
+    class: "mk-search", type: "search", placeholder: "Rechercher une carte", value: ui.marketQ,
+    autocomplete: "off", autocapitalize: "off", spellcheck: "false", "aria-label": "Rechercher une carte",
+  });
+  search.addEventListener("input", () => { ui.marketQ = search.value; fillMarketList(host); });
+  const pill = (key, label) => {
+    const active = ui.marketSort.key === key;
+    const dir = active ? ui.marketSort.dir : "asc";
+    return el("button", {
+      class: "sort-pill" + (active ? ` active ${dir}` : ""), type: "button", "aria-pressed": active ? "true" : "false",
+      onclick: () => { ui.marketSort = active ? { key, dir: dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" }; render(); },
+    }, label, active ? icon("arrowdown", 14) : null);
+  };
+  const only = el("button", {
+    class: "chip" + (ui.marketOnlyNew ? " active" : ""), type: "button", "aria-pressed": ui.marketOnlyNew ? "true" : "false",
+    onclick: () => { ui.marketOnlyNew = !ui.marketOnlyNew; render(); },
+  }, "Non possédées");
+  fillMarketList(host);
+  if (!ui.market) loadMarket(true);
+  return el("div", { class: "market" },
+    el("p", { class: "muted small" }, "Achète une carte précise, à prix élevé : moins elle est détenue par les joueurs, plus elle coûte cher."),
+    search,
+    el("div", { class: "mk-tools" }, el("div", { class: "sort-pills" }, pill("price", "Prix"), pill("rarity", "Rareté")), only),
+    host);
+}
+
+async function buyCard(card) {
+  const x = marketEntry(card.id);
+  if (!x || ui.busy || !me) return;
+  if (me.abris < x.price) return toast(`Il te manque ${money(x.price - me.abris)}.`);
+  ui.busy = "card";
+  renderModal();
+  try {
+    const seq = ++seqIssued;
+    const j = await rpc("buy_card", { p_card_id: card.id });
+    if (seq > seqApplied) { seqApplied = seq; applyProfile(j.profile); }
+    vibe(30);
+    toast(j.is_new ? `Nouvelle carte : ${card.titre} · −${money(j.price)}` : `${card.titre} ×${me.owned[card.id] || 1} · −${money(j.price)}`);
+    ui.modal = { id: card.id, confirm: false };
+  } catch (err) {
+    toast(friendlyError(err));
+    await refreshProfile({ force: true });
+  }
+  ui.busy = false;
+  ui.marketAt = 0; loadMarket(true);                    // les prix ont bougé : on les recharge
+  render();
+  if (ui.modal) renderModal();
 }
 
 /* ---------- Interface : paramètres ---------- */
@@ -1290,7 +1465,7 @@ function viewOpenStage() {
   return el("section", { class: "view stack-stage open-scene" }, head, title, stage, hint, allBtn);
 }
 
-// Fin : les 5 cartes d'un coup
+// Fin : toutes les cartes du booster d'un coup
 function viewRecap() {
   const items = ui.opening;
   return el("section", { class: "view" },
@@ -1371,7 +1546,7 @@ function viewCollection() {
       const count = me.owned[card.id] || 0;
       if (!count) {
         // Carte non possédée : silhouette sur verre dépoli + cadenas
-        return el("div", { class: "tile card-locked", role: "img", "aria-label": "Carte pas encore découverte" },
+        return el("button", { class: "tile card-locked", type: "button", "aria-label": `Carte pas encore découverte (${card.rarity.label}) : voir le prix`, onclick: () => showCard(card) },
           cardFace(card),
           el("span", { class: "lock-badge" }, icon("lock", 18)));
       }

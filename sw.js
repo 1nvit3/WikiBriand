@@ -2,7 +2,7 @@
 //  - Code, styles, cards.json, index.html : RÉSEAU D'ABORD (cache seulement si hors-ligne)
 //  - images/*                              : CACHE D'ABORD (elles changent rarement)
 // Change CACHE_VERSION pour purger le cache des images si tu remplaces une image sous le même nom.
-const CACHE_VERSION = "v8";
+const CACHE_VERSION = "v9";
 const CACHE_NAME = `wikibrand-${CACHE_VERSION}`;
 const CORE = ["./", "index.html", "style.css", "app.js", "config.js", "cards.json", "manifest.json", "icon.svg", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png"];
 

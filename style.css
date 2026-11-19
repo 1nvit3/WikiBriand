@@ -298,7 +298,7 @@ h1 { text-align: center; margin: 0; font-size: 2rem; letter-spacing: -.02em; }
 @keyframes bar-in { from { width: 0; } }
 
 /* Pokédex : carte non possédée = silhouette sur fond semi-opaque (pas de flou : trop lourd au scroll en grille) */
-.tile.card-locked { position: relative; pointer-events: none; }
+.tile.card-locked { position: relative; cursor: pointer; }
 .tile.card-locked > .gcard {
   --rc-soft: color-mix(in srgb, var(--rc) 32%, transparent);
   border-color: var(--rc-soft);
@@ -1161,3 +1161,68 @@ html.calm *, html.calm *::before, html.calm *::after { animation: none !importan
 .ach-grp .ach-claim::after { display: none; }
 .ach-grp.ready .ach-bar i, .ach-grp.done .ach-bar i { background: var(--ok); }
 @media (max-width: 380px) { .tier-chips { display: none; } }
+
+
+/* =====================================================================
+   v1.7 : boosters garantis, cartes à l'unité
+   ===================================================================== */
+.shop-card.tier-garanti_epique { --t1: #d16cff; --t2: #6a1fa8; }
+.shop-card.tier-garanti_legendaire { --t1: #ffd23f; --t2: #c27a00; }
+.shop-card.tier-garanti_epique .shop-buy { background: linear-gradient(180deg, #e3a0ff, #9a3fe0); }
+.shop-card.tier-garanti_legendaire .shop-buy { background: linear-gradient(180deg, #ffe27a, #e0a010); color: #2a1d00; }
+.shop-guar {
+  display: inline-flex; align-items: center; gap: 5px; margin: 4px 0 2px; padding: 3px 9px; border-radius: 999px;
+  font-size: .72rem; font-weight: 900; color: #1a0d00; max-width: 100%;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--t1) 85%, #fff), var(--t1));
+}
+.booster-pack.tier-garanti_epique {
+  --seal: #f0b6ff;
+  background: linear-gradient(135deg, #8f2fc4 0%, #2a0a44 38%, #d16cff 62%, #1a0630 100%);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .5), 0 0 24px rgba(209, 108, 255, .55);
+}
+.booster-pack.tier-garanti_legendaire {
+  --seal: #fff0b0;
+  background: linear-gradient(135deg, #f5c542 0%, #5a3c00 38%, #fff3b8 62%, #3a2400 100%);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .5), 0 0 26px rgba(255, 210, 63, .65);
+}
+.booster-pack.tier-garanti_epique .bp-emblem { box-shadow: 0 0 18px rgba(209, 108, 255, .85), inset 0 0 12px rgba(255, 255, 255, .25); }
+.booster-pack.tier-garanti_legendaire .bp-emblem { box-shadow: 0 0 18px rgba(255, 210, 63, .9), inset 0 0 12px rgba(255, 255, 255, .3); }
+.booster-pack.big.tier-garanti_epique, .booster-pack.big.tier-garanti_legendaire { background: none; box-shadow: none; }
+.booster-pack.big.tier-garanti_epique::before {
+  background: linear-gradient(135deg, #8f2fc4 0%, #2a0a44 38%, #d16cff 62%, #1a0630 100%);
+  box-shadow: 0 18px 36px rgba(0, 0, 0, .55), 0 0 32px rgba(209, 108, 255, .6);
+}
+.booster-pack.big.tier-garanti_legendaire::before {
+  background: linear-gradient(135deg, #f5c542 0%, #5a3c00 38%, #fff3b8 62%, #3a2400 100%);
+  box-shadow: 0 18px 36px rgba(0, 0, 0, .55), 0 0 34px rgba(255, 210, 63, .7);
+}
+
+.seg.sub { margin-top: -4px; }
+.seg.sub button { font-size: .85rem; padding: 8px 6px; }
+.market { min-width: 0; }
+.mk-search {
+  width: 100%; margin: 6px 0 8px; padding: 11px 12px; border-radius: 12px; font: inherit; color: var(--text);
+  background: var(--panel); border: 1px solid rgba(255, 255, 255, .1);
+}
+.mk-tools { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.mk-list { display: grid; gap: 7px; min-height: 120px; }
+.mk-row {
+  display: flex; align-items: center; gap: 10px; width: 100%; min-width: 0; padding: 10px 11px; text-align: left; color: var(--text);
+  border-radius: 13px; background: var(--panel); border: 1px solid color-mix(in srgb, var(--rc) 35%, transparent);
+  contain: layout style paint;
+}
+.mk-row .dot { flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--rc); box-shadow: 0 0 8px var(--rc); }
+.mk-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.mk-main strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .92rem; }
+.mk-main small { font-size: .72rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mk-side { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.mk-own { font-style: normal; font-size: .66rem; font-weight: 800; padding: 1px 7px; border-radius: 999px; color: #06281a; background: var(--ok); white-space: nowrap; }
+.mk-own.has { color: var(--text); background: var(--panel-2); border: 1px solid rgba(255, 255, 255, .12); }
+.mk-price {
+  display: inline-flex; align-items: center; gap: 3px; padding: 3px 9px; border-radius: 999px; font-size: .78rem; font-variant-numeric: tabular-nums;
+  white-space: nowrap; color: #2a1d00; background: linear-gradient(180deg, #ffe58a, #f5b82e);
+}
+.mk-price.no { opacity: .55; }
+.loading-line, .mk-list .empty-grid { padding: 24px 0; }
+.locked-big { width: min(52%, 190px); margin: 4px auto 10px; pointer-events: none; }
+.buy-name { margin: 2px 0 0; overflow-wrap: anywhere; }
