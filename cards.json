@@ -825,7 +825,7 @@
       "categorie": "Aleatoire",
       "rarete": "epique",
       "statistiques": "JSP a mettre",
-      "image": "images/aleatoire/autocollant_NPA.jpg",
+      "image": "images/aleatoire/autocollant_NPA.jpeg",
       "description": "jsp"
     },
     {
@@ -834,7 +834,7 @@
       "categorie": "Bâtiments",
       "rarete": "commun",
       "statistiques": "JSP a mettre",
-      "image": "images/batiments/parking_velo_arc_c.jpg",
+      "image": "images/batiments/parking_velo_arc_c.jpeg",
       "description": "jsp"
     },
     {
@@ -843,7 +843,7 @@
       "categorie": "Aleatoire",
       "rarete": "epique",
       "statistiques": "JSP a mettre",
-      "image": "images/aleatoire/velo_attache_poteau.jpg",
+      "image": "images/aleatoire/velo_attache_poteau.jpeg",
       "description": "jsp"
     },
     {
@@ -852,7 +852,7 @@
       "categorie": "Bâtiments",
       "rarete": "commun",
       "statistiques": "JSP a mettre",
-      "image": "images/batiments/parking_prof_c.jpg",
+      "image": "images/batiments/parking_prof_c.jpeg",
       "description": "jsp"
     },
     {
@@ -897,7 +897,7 @@
       "categorie": "Cantine",
       "rarete": "peu-commun",
       "statistiques": "JSP a mettre",
-      "image": "images/cantine/fil_vide_cantine.jpg",
+      "image": "images/cantine/fil_vide_cantine.jpeg",
       "description": "jsp"
     },
     {
@@ -906,7 +906,7 @@
       "categorie": "Aleatoire",
       "rarete": "commun",
       "statistiques": "JSP a mettre",
-      "image": "images/aleatoire/autocollant_boussole_jeunes.jpg",
+      "image": "images/aleatoire/autocollant_boussole_jeunes.jpeg",
       "description": "jsp"
     },
     {
@@ -915,7 +915,7 @@
       "categorie": "Cantine",
       "rarete": "commun",
       "statistiques": "JSP a mettre",
-      "image": "images/cantine/portes_cantine.jpg",
+      "image": "images/cantine/portes_cantine.jpeg",
       "description": "jsp"
     },
     {
@@ -933,7 +933,7 @@
       "categorie": "Vie Scolaire",
       "rarete": "commun",
       "statistiques": "JSP a mettre",
-      "image": "images/vie_scolaire/panneau_affiche_c.jpg",
+      "image": "images/vie_scolaire/panneau_affiche_c.jpeg",
       "description": "jsp"
     },
     {
@@ -942,7 +942,7 @@
       "categorie": "Cour",
       "rarete": "commun",
       "statistiques": "JSP a mettre",
-      "image": "images/cour/poubelle_preau.jpg",
+      "image": "images/cour/poubelle_preau.jpeg",
       "description": "jsp"
     },
     {
@@ -951,7 +951,7 @@
       "categorie": "Bâtiments",
       "rarete": "commun",
       "statistiques": "JSP a mettre",
-      "image": "images/batiments/bat_b.jpg",
+      "image": "images/batiments/bat_b.jpeg",
       "description": "jsp"
     },
     {
@@ -960,7 +960,7 @@
       "categorie": "Cour",
       "rarete": "commun",
       "statistiques": "JSP a mettre",
-      "image": "images/cour/bancs_soleils.jpg",
+      "image": "images/cour/bancs_soleils.jpeg",
       "description": "jsp"
     },
     {
@@ -969,7 +969,7 @@
       "categorie": "Cour",
       "rarete": "commun",
       "statistiques": "JSP a mettre",
-      "image": "images/cour/mini_foret.jpg",
+      "image": "images/cour/mini_foret.jpeg",
       "description": "jsp"
     },
     {
@@ -978,7 +978,7 @@
       "categorie": "Bâtiments",
       "rarete": "commun",
       "statistiques": "JSP a mettre",
-      "image": "images/batiments/cage_escalier_b.jpg",
+      "image": "images/batiments/cage_escalier_b.jpeg",
       "description": "jsp"
     },
     {
@@ -987,7 +987,7 @@
       "categorie": "Alarme",
       "rarete": "peu-commun",
       "statistiques": "JSP a mettre",
-      "image": "images/alarmes/point_rassemblement_b_j.jpg",
+      "image": "images/alarmes/point_rassemblement_b_j.jpeg",
       "description": "jsp"
     },
     {
@@ -996,7 +996,7 @@
       "categorie": "Cour",
       "rarete": "legendaire",
       "statistiques": "JSP a mettre",
-      "image": "images/cour/gros_arbre_j.jpg",
+      "image": "images/cour/gros_arbre_j.jpeg",
       "description": "jsp"
     },
     {
@@ -1005,7 +1005,7 @@
       "categorie": "Vie Scolaire",
       "rarete": "commun",
       "statistiques": "JSP a mettre",
-      "image": "images/vie_scolaire/tab_affiche_J.jpg",
+      "image": "images/vie_scolaire/tab_affiche_J.jpeg",
       "description": "jsp"
     },
     {
@@ -1014,7 +1014,7 @@
       "categorie": "Cour",
       "rarete": "commun",
       "statistiques": "JSP a mettre",
-      "image": "images/cour/fresque_preau.jpg",
+      "image": "images/cour/fresque_preau.jpeg",
       "description": "jsp"
     },
     {
@@ -1023,7 +1023,7 @@
       "categorie": "Cour",
       "rarete": "commun",
       "statistiques": "JSP a mettre",
-      "image": "images/cour/bancs.jpg",
+      "image": "images/cour/bancs.jpeg",
       "description": "jsp"
     },
     {
@@ -1032,7 +1032,7 @@
       "categorie": "Cour",
       "rarete": "peu-commun",
       "statistiques": "JSP a mettre",
-      "image": "images/cour/jardinieres.jpg",
+      "image": "images/cour/jardinieres.jpeg",
       "description": "jsp"
     },
     {
@@ -1041,7 +1041,7 @@
       "categorie": "Cantine",
       "rarete": "epique",
       "statistiques": "JSP a mettre",
-      "image": "images/cantine/portail_glauque_cantine.jpg",
+      "image": "images/cantine/portail_glauque_cantine.jpeg",
       "description": "jsp"
     },
     {
@@ -1050,7 +1050,7 @@
       "categorie": "Cour",
       "rarete": "peu-commun",
       "statistiques": "JSP a mettre",
-      "image": "images/cour/gaz_cantine.jpg",
+      "image": "images/cour/gaz_cantine.jpeg",
       "description": "jsp"
     },
     {
@@ -1059,7 +1059,7 @@
       "categorie": "Cantine",
       "rarete": "epique",
       "statistiques": "JSP a mettre",
-      "image": "images/cantine/panneau_livraison_cuisine.jpg",
+      "image": "images/cantine/panneau_livraison_cuisine.jpeg",
       "description": "jsp"
     },
     {
@@ -1068,7 +1068,7 @@
       "categorie": "Bâtiments",
       "rarete": "commun",
       "statistiques": "JSP a mettre",
-      "image": "images/batiments/bat_h.jpg",
+      "image": "images/batiments/bat_h.jpeg",
       "description": "jsp"
     },
     {
@@ -1077,7 +1077,7 @@
       "categorie": "Cour",
       "rarete": "peu-commun",
       "statistiques": "JSP a mettre",
-      "image": "images/cour/plan_cite_cote_gauche.jpg",
+      "image": "images/cour/plan_cite_cote_gauche.jpeg",
       "description": "jsp"
     },
     {
@@ -1086,7 +1086,7 @@
       "categorie": "Bâtiments",
       "rarete": "commun",
       "statistiques": "JSP a mettre",
-      "image": "images/batiments/escaliers_cantine.jpg",
+      "image": "images/batiments/escaliers_cantine.jpeg",
       "description": "jsp"
     },
     {
@@ -1095,7 +1095,7 @@
       "categorie": "Cour",
       "rarete": "peu-commun",
       "statistiques": "JSP a mettre",
-      "image": "images/cour/table_pique_nique.jpg",
+      "image": "images/cour/table_pique_nique.jpeg",
       "description": "jsp"
     },
     {
@@ -1104,7 +1104,7 @@
       "categorie": "Cour",
       "rarete": "commun",
       "statistiques": "JSP a mettre",
-      "image": "images/cour/tourniquet_principal.jpg",
+      "image": "images/cour/tourniquet_principal.jpeg",
       "description": "jsp"
     },
     {
@@ -1113,7 +1113,7 @@
       "categorie": "Cour",
       "rarete": "commun",
       "statistiques": "JSP a mettre",
-      "image": "images/cour/poubelle_bat_b.jpg",
+      "image": "images/cour/poubelle_bat_b.jpeg",
       "description": "jsp"
     },
     {
