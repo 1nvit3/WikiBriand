@@ -408,7 +408,7 @@
       "titre": "Spécialité Maths",
       "categorie": "Matières",
       "rarete": "rare",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Démonstration : Par l'absurde | Santé mentale : Instable",
       "image": "images/matieres/spe_maths.jpeg",
       "description": "jsp"
     },
@@ -427,7 +427,7 @@
       "categorie": "Matières",
       "rarete": "rare",
       "statistiques": "JSP a mettre",
-      "image": "images/matieres/spe_physique_chimie.jpg",
+      "image": "images/matieres/spe_pc.jpg",
       "description": "jsp"
     },
     {
@@ -743,7 +743,7 @@
       "categorie": "Reglement",
       "rarete": "epique",
       "statistiques": "JSP a mettre",
-      "image": "images/reglement/interdiction_portable.jpg",
+      "image": "images/reglement/interdiction_portable.jpeg",
       "description": "jsp"
     },
     {
@@ -816,6 +816,331 @@
       "rarete": "divin",
       "statistiques": "JSP a mettre",
       "image": "images/vie_scolaire/incendie_batj.jpg",
+      "description": "jsp"
+    }
+    ,
+    {
+      "id": "autocollant_NPA",
+      "titre": "Autocollant NPA",
+      "categorie": "Aleatoire",
+      "rarete": "epique",
+      "statistiques": "JSP a mettre",
+      "image": "images/aleatoire/autocollant_NPA.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "parking_velo_arc_c",
+      "titre": "Parking Vélo Arc C",
+      "categorie": "Bâtiments",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/batiments/parking_velo_arc_c.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "velo_attache_poteau",
+      "titre": "Vélo attaché a un Poteau",
+      "categorie": "Aleatoire",
+      "rarete": "epique",
+      "statistiques": "JSP a mettre",
+      "image": "images/aleatoire/velo_attache_poteau.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "parking_prof_c",
+      "titre": "Parking des Profs Arc C",
+      "categorie": "Bâtiments",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/batiments/parking_prof_c.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "cheminee_bateau_c_coeur",
+      "titre": "Cheminée de Bateau Entre le C et le Coeur",
+      "categorie": "Cour",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/cour/cheminee_bateau_c_coeur.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "cheminee_bateau_c_portail",
+      "titre": "Cheminée de Bateau Entre le C et le Portail",
+      "categorie": "Cour",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/cour/cheminee_bateau_c_portail.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "plan_cite_cote_droit",
+      "titre": "Plan de la Cité Scolaire Coté Droit",
+      "categorie": "Cour",
+      "rarete": "peu-commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/cour/plan_cite_cote_droit.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "paves",
+      "titre": "Les Pavés",
+      "categorie": "Cour",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/cour/paves.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "fil_vide_cantine",
+      "titre": "Fil Vide de la Cantine",
+      "categorie": "Cantine",
+      "rarete": "peu-commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/cantine/fil_vide_cantine.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "autocollant_boussole_jeunes",
+      "titre": "Autocollant La Boussole des Jeunes",
+      "categorie": "Aleatoire",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/aleatoire/autocollant_boussole_jeunes.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "portes_cantine",
+      "titre": "Portes de la cantine",
+      "categorie": "Cantine",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/cantine/portes_cantine.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "vente_gateau_bijou",
+      "titre": "Vente de Gateaux Bijous",
+      "categorie": "Instance",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/instance/vente_gateau_bijou.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "panneau_affiche_c",
+      "titre": "Panneau d'affichage Hall C",
+      "categorie": "Vie Scolaire",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/vie_scolaire/panneau_affiche_c.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "poubelle_preau",
+      "titre": "Poubelle dans le Préau",
+      "categorie": "Cour",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/cour/poubelle_preau.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "bat_b",
+      "titre": "Bâtiment B",
+      "categorie": "Bâtiments",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/batiments/bat_b.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "bancs_soleils",
+      "titre": "Bancs Soleils",
+      "categorie": "Cour",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/cour/bancs_soleils.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "mini_foret",
+      "titre": "La forêt d'Aristide",
+      "categorie": "Cour",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/cour/mini_foret.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "cage_escalier_b",
+      "titre": "La cage d'escalier du bat. B",
+      "categorie": "Bâtiments",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/batiments/cage_escalier_b.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "point_rassemblement_b_j",
+      "titre": "Point de rassemblement entre le B et le J",
+      "categorie": "Alarme",
+      "rarete": "peu-commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/alarmes/point_rassemblement_b_j.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "gros_arbre_j",
+      "titre": "Le Gros Arbre devant le J",
+      "categorie": "Cour",
+      "rarete": "legendaire",
+      "statistiques": "JSP a mettre",
+      "image": "images/cour/gros_arbre_j.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "tab_affiche_J",
+      "titre": "Tableau d'affichage du J",
+      "categorie": "Vie Scolaire",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/vie_scolaire/tab_affiche_J.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "fresque_preau",
+      "titre": "Fresque du Préau",
+      "categorie": "Cour",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/cour/fresque_preau.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "bancs",
+      "titre": "Bancs",
+      "categorie": "Cour",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/cour/bancs.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "jardinieres",
+      "titre": "Jardinières",
+      "categorie": "Cour",
+      "rarete": "peu-commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/cour/jardinieres.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "portail_glauque_cantine",
+      "titre": "Portail Glauque de la Cantine",
+      "categorie": "Cantine",
+      "rarete": "epique",
+      "statistiques": "JSP a mettre",
+      "image": "images/cantine/portail_glauque_cantine.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "gaz_cantine",
+      "titre": "Local Gaz derrière la Cantine",
+      "categorie": "Cour",
+      "rarete": "peu-commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/cour/gaz_cantine.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "panneau_livraison_cuisine",
+      "titre": "Panneau LIVRAISON cuisine",
+      "categorie": "Cantine",
+      "rarete": "epique",
+      "statistiques": "JSP a mettre",
+      "image": "images/cantine/panneau_livraison_cuisine.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "bat_h",
+      "titre": "Bâtiment H",
+      "categorie": "Bâtiments",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/batiments/bat_h.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "plan_cite_cote_gauche",
+      "titre": "Plan de la Cité Scolaire Coté Gauche",
+      "categorie": "Cour",
+      "rarete": "peu-commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/cour/plan_cite_cote_gauche.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "escaliers_cantine",
+      "titre": "Escaliers de la Cantine",
+      "categorie": "Bâtiments",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/batiments/escaliers_cantine.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "table_pique_nique",
+      "titre": "Table de Pique-Nique",
+      "categorie": "Cour",
+      "rarete": "peu-commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/cour/table_pique_nique.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "tourniquet_principal",
+      "titre": "Tourniquet Entrée Principale",
+      "categorie": "Cour",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/cour/tourniquet_principal.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "poubelle_bat_b",
+      "titre": "Poubelle Bât. B",
+      "categorie": "Cour",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/cour/poubelle_bat_b.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "pigeon",
+      "titre": "Pigeon",
+      "categorie": "Aleatoire",
+      "rarete": "commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/aleatoire/pigeon.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "coeur_ferme",
+      "titre": "Coeur Fermé",
+      "categorie": "Vie Scolaire",
+      "rarete": "peu-commun",
+      "statistiques": "JSP a mettre",
+      "image": "images/vie_scolaire/coeur_ferme.jpg",
+      "description": "jsp"
+    },
+    {
+      "id": "plan_evacuation_c",
+      "titre": "Plan d'évacuation Bât. C",
+      "categorie": "Alarme",
+      "rarete": "rare",
+      "statistiques": "JSP a mettre",
+      "image": "images/alarmes/plan_evacuation_c.jpg",
       "description": "jsp"
     }
   ]
