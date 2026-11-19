@@ -989,3 +989,124 @@ svg.ico { flex: none; display: block; }
 .hist { display: flex; }
 .hist-body { min-width: 0; flex: 1; }
 .hist-line { font-size: .8rem; color: var(--text); margin-top: 2px; overflow-wrap: anywhere; }
+
+/* =====================================================================
+   Boutique, paramètres, installation
+   ===================================================================== */
+
+/* engrenage dans la barre du haut */
+.gear-btn {
+  flex: none; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .11), rgba(255, 255, 255, .03));
+  border: 1px solid rgba(255, 255, 255, .12); color: var(--text);
+}
+.gear-btn.active { color: var(--accent); border-color: rgba(108, 140, 255, .5); }
+.topbar .brand { min-width: 0; }
+@media (max-width: 430px) {
+  .brand-name { display: none; }                 /* place pour les pastilles et l'engrenage */
+  .pills { gap: 5px; }
+  .pill { padding: 5px 10px; }
+}
+.seg button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+
+/* --- Boutique --- */
+.shop-list { display: grid; gap: 14px; margin-top: 10px; }
+.shop-card {
+  --t1: #6c8cff; --t2: #2a3568;
+  display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 12px; padding: 12px; border-radius: 16px;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--t1) 20%, var(--panel)), var(--panel) 70%);
+  border: 1px solid color-mix(in srgb, var(--t1) 55%, transparent);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--t1) 25%, transparent);
+  contain: layout style paint;
+}
+.shop-card.tier-super { --t1: #b48cff; --t2: #5b4a8f; }
+.shop-card.tier-ultra { --t1: #ffb938; --t2: #b3261e; }
+.shop-pack { display: grid; place-items: start center; padding-top: 4px; }
+.shop-pack .booster-pack { width: 84px; animation: none; }
+.shop-pack .bp-shine { animation: none; opacity: 0; }
+.shop-pack .bp-emblem { width: 34px; height: 34px; font-size: 1rem; }
+.shop-pack .bp-title { font-size: .62rem; letter-spacing: .14em; }
+.shop-pack .bp-sub { display: none; }
+.shop-pack .bp-seal { height: 10px; }
+.shop-info { min-width: 0; }
+.shop-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.shop-head h3 { margin: 0; font-size: 1.02rem; }
+.shop-price {
+  display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 999px; font-weight: 900; font-size: .8rem;
+  font-variant-numeric: tabular-nums; white-space: nowrap; color: #2a1d00;
+  background: linear-gradient(180deg, #ffe58a, #f5b82e);
+}
+.shop-tag { margin: 2px 0 8px; }
+.shop-odds { display: grid; gap: 4px; }
+.shop-odd { display: flex; align-items: center; gap: 6px; font-size: .8rem; min-width: 0; }
+.shop-odd .dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--rc); }
+.shop-odd-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.shop-odd .boost { font-style: normal; font-weight: 900; font-size: .68rem; padding: 1px 6px; border-radius: 999px; color: #0b0d14; background: var(--rc); }
+.shop-odd b { font-variant-numeric: tabular-nums; min-width: 3.6em; text-align: right; }
+.shop-buy { margin-top: 12px; padding: 11px 10px; font-size: .9rem; }
+.shop-card.tier-super .shop-buy { background: linear-gradient(180deg, #c9a8ff, #7e5bd6); }
+.shop-card.tier-ultra .shop-buy { background: linear-gradient(180deg, #ffcb55, #e0452f); color: #2a0d00; }
+
+/* visuels des paquets par palier (standard = bleu par défaut) */
+.booster-pack.tier-standard { --seal: #9db2ff; }
+.booster-pack.tier-super {
+  --seal: #d8dcef;
+  background: linear-gradient(135deg, #5a4690 0%, #1d1536 38%, #7a68b8 62%, #150f28 100%);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .5), 0 0 22px rgba(180, 140, 255, .45);
+}
+.booster-pack.tier-ultra {
+  --seal: #ffd966;
+  background: linear-gradient(135deg, #b3261e 0%, #3a0f0c 38%, #e0a32b 62%, #2a0805 100%);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .5), 0 0 24px rgba(255, 185, 56, .55);
+}
+.booster-pack.tier-super .bp-emblem { box-shadow: 0 0 18px rgba(180, 140, 255, .8), inset 0 0 12px rgba(255, 255, 255, .25); }
+.booster-pack.tier-ultra .bp-emblem { box-shadow: 0 0 18px rgba(255, 185, 56, .9), inset 0 0 12px rgba(255, 255, 255, .25); }
+/* même habillage pour le paquet qu'on déchire (le fond est porté par ::before) */
+.booster-pack.big.tier-super, .booster-pack.big.tier-ultra, .booster-pack.big.tier-standard { background: none; box-shadow: none; }
+.booster-pack.big.tier-super::before {
+  background: linear-gradient(135deg, #5a4690 0%, #1d1536 38%, #7a68b8 62%, #150f28 100%);
+  box-shadow: 0 18px 36px rgba(0, 0, 0, .55), 0 0 30px rgba(180, 140, 255, .5);
+}
+.booster-pack.big.tier-ultra::before {
+  background: linear-gradient(135deg, #b3261e 0%, #3a0f0c 38%, #e0a32b 62%, #2a0805 100%);
+  box-shadow: 0 18px 36px rgba(0, 0, 0, .55), 0 0 32px rgba(255, 185, 56, .6);
+}
+
+/* --- Paramètres --- */
+.settings .section-title { margin-top: 4px; }
+.set-card { background: var(--panel); border-radius: 14px; padding: 14px; margin-bottom: 12px; border: 1px solid rgba(255, 255, 255, .07); }
+.set-card h3 { margin: 0 0 10px; font-size: .95rem; }
+.set-card .primary, .set-card .secondary { margin-top: 8px; }
+.set-ok { display: flex; align-items: center; gap: 8px; margin: 0; color: var(--ok); font-weight: 700; }
+.set-steps { display: flex; align-items: center; gap: 10px; margin: 0 0 6px; line-height: 1.35; }
+.set-steps svg { flex: none; color: var(--accent); }
+.set-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0; }
+.set-row + .set-row { border-top: 1px solid rgba(255, 255, 255, .07); }
+.set-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.set-text small { font-size: .78rem; }
+.switch {
+  flex: none; position: relative; width: 46px; height: 26px; margin: 0; border-radius: 999px; cursor: pointer;
+  -webkit-appearance: none; appearance: none; background: var(--panel-2); border: 1px solid rgba(255, 255, 255, .15);
+  transition: background .2s;
+}
+.switch::after {
+  content: ""; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: #fff;
+  transition: transform .2s;
+}
+.switch:checked { background: var(--accent); }
+.switch:checked::after { transform: translateX(20px); }
+.danger-zone { border-color: rgba(255, 90, 110, .3); }
+.danger-outline { display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--danger); border: 1px solid rgba(255, 90, 110, .45); background: transparent; }
+.set-card .reset-row { margin-top: 0; }
+.set-card .admin-panel { margin-top: 0; }
+.settings > .admin-panel { margin-bottom: 12px; }
+.set-version { margin: 16px 0 4px; }
+
+/* --- Échanges : lot sans carte (Abri$ seuls) --- */
+.lot.abris-only { justify-content: flex-start; }
+.lot.abris-only .abris-badge.big {
+  margin: 14px auto 0; padding: 8px 14px; font-size: .95rem; align-self: center;
+}
+
+/* --- Réduction des animations (préférence locale) : même effet que prefers-reduced-motion --- */
+html.calm *, html.calm *::before, html.calm *::after { animation: none !important; transition: none !important; }

@@ -93,7 +93,46 @@ const ui = {
   visit: null,                // { pseudo, data } : profil d'un ami en cours de visite
   search: { q: "", results: null },
   trade: null,                // brouillon de proposition d'échange
+  settings: false,            // page Paramètres ouverte
+  boosterTab: "mine",         // mine | shop (sous-onglets de l'onglet Boosters)
+  openTier: null,             // palier du booster en cours d'ouverture (visuel du paquet)
 };
+
+/* ---------- Préférences locales (enregistrées dans le navigateur) ---------- */
+
+const APP_VERSION = "1.5.0";
+const PREFS_KEY = "collecto-prefs";
+const prefs = { vibrate: true, calm: false };       // calm : réduit les animations
+try { Object.assign(prefs, JSON.parse(localStorage.getItem(PREFS_KEY) || "{}")); } catch {}
+function savePrefs() { try { localStorage.setItem(PREFS_KEY, JSON.stringify(prefs)); } catch {} }
+function applyPrefs() { document.documentElement.classList.toggle("calm", !!prefs.calm); }
+applyPrefs();
+const vibe = (pattern) => { if (prefs.vibrate && navigator.vibrate) { try { navigator.vibrate(pattern); } catch {} } };
+
+/* ---------- Installation (PWA) ---------- */
+
+let deferredPrompt = null;
+const isStandalone = () =>
+  (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || window.navigator.standalone === true;
+const isIOS = () =>
+  /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();                       // on garde l'événement pour le bouton des Paramètres
+  deferredPrompt = e;
+  if (ui.settings && me) render();
+});
+window.addEventListener("appinstalled", () => {
+  deferredPrompt = null;
+  toast("Collecto est installé sur ton appareil.");
+  if (ui.settings && me) render();
+});
+async function installApp() {
+  if (!deferredPrompt) return;
+  const ev = deferredPrompt;
+  deferredPrompt = null;
+  try { ev.prompt(); await ev.userChoice; } catch (err) { console.warn("[install]", err); }
+  render();
+}
 
 /* ---------- Utilitaires ---------- */
 
@@ -144,6 +183,10 @@ const ICONS = {
   reset:     '<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>',
   alert:     '<path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>',
   search:    '<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
+  settings:  '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+  download:  '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/>',
+  share:     '<path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="m16 6-4-4-4 4"/><path d="M12 2v13"/>',
+  shop:      '<path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>',
   sparkle:   '<path d="M12 3v4"/><path d="M12 17v4"/><path d="M3 12h4"/><path d="M17 12h4"/><path d="m6 6 2 2"/><path d="m16 16 2 2"/><path d="m18 6-2 2"/><path d="m8 16-2 2"/>',
 };
 
@@ -409,10 +452,52 @@ async function doOpenBooster() {
           : { p_force_rarity: null, p_luck: ui.admin.luck })
       : await profileCall("open_booster");
     ui.opening = j.cards.map((c) => ({ card: cardFromServer(c.id, c.rarete), isNew: c.is_new, revealed: false }));
+    ui.openTier = null;
     ui.openStage = "tear";
     ui.openIdx = 0;
   } catch (err) {
     toast(friendlyError(err));
+    await refreshProfile({ force: true });
+  }
+  ui.busy = false;
+  render();
+}
+
+/* ---------- Boutique : achat de boosters en Abri$ ---------- */
+
+// Doit correspondre à private.shop_tier (shop_and_settings.sql). Le serveur recalcule tout : prix et tirage.
+const SHOP = [
+  { id: "standard", name: "Standard", price: 150,  mult: {},                                                  tag: "Chances classiques" },
+  { id: "super",    name: "Super",    price: 400,  mult: { rare: 2.5, epique: 3, legendaire: 3, divin: 2 },   tag: "Meilleures chances" },
+  { id: "ultra",    name: "Ultra",    price: 1000, mult: { rare: 3, epique: 6, legendaire: 8, divin: 5 },     tag: "Chances très élevées" },
+];
+
+// Probabilités effectives d'un palier (poids x multiplicateur, ramenés à 100 %)
+function shopOdds(tier) {
+  const active = RARITIES.filter((r) => (byRarity.get(r.key) || []).length);
+  const w = (r) => r.weight * (tier.mult[r.key] || 1);
+  const total = active.reduce((a, r) => a + w(r), 0) || 1;
+  return active.map((r) => ({ r, pct: (w(r) / total) * 100, boost: tier.mult[r.key] || 1 }));
+}
+const fmtPct = (x) => `${x.toLocaleString("fr-FR", { maximumFractionDigits: x < 1 ? 2 : 1 })} %`;
+
+async function buyBooster(id) {
+  const tier = SHOP.find((t) => t.id === id);
+  if (!tier || ui.busy || !me) return;
+  if (me.abris < tier.price) return toast(`Il te manque ${money(tier.price - me.abris)}.`);
+  ui.busy = "buy";
+  render();
+  try {
+    const seq = ++seqIssued;
+    const j = await rpc("buy_booster", { p_tier: id });
+    if (seq > seqApplied) { seqApplied = seq; applyProfile(j.profile); }
+    ui.opening = j.cards.map((c) => ({ card: cardFromServer(c.id, c.rarete), isNew: c.is_new, revealed: false }));
+    ui.openTier = id;
+    ui.openStage = "tear";
+    ui.openIdx = 0;
+    ui.boosterTab = "mine";
+  } catch (err) {
+    toast(/not_enough_abris/.test(String(err && err.message)) ? "Pas assez d'Abri$ pour ce booster." : friendlyError(err));
     await refreshProfile({ force: true });
   }
   ui.busy = false;
@@ -454,6 +539,8 @@ async function logout() {
   ui.opening = null;
   ui.cat = ui.sub = null;
   ui.confirmReset = false;
+  ui.settings = false;
+  ui.boosterTab = "mine";
   ui.authMode = null;
   ui.visit = null;
   ui.friendsTab = "friends";
@@ -490,9 +577,9 @@ function avatar(pseudo, big = false) {
   return node;
 }
 
-function makePack({ empty = false, test = false, big = false, tear = false } = {}) {
+function makePack({ empty = false, test = false, big = false, tear = false, tier = null } = {}) {
   return el("div", {
-    class: "booster-pack" + (empty ? " empty" : "") + (test ? " test" : "") + (big ? " big" : ""),
+    class: "booster-pack" + (empty ? " empty" : "") + (test ? " test" : "") + (big ? " big" : "") + (tier ? ` tier-${tier}` : ""),
     role: "img", "aria-label": empty ? "Booster verrouillé : aucun booster en stock" : "Booster Collecto",
   },
     tear
@@ -750,10 +837,14 @@ function viewAuth() {
 
 function header() {
   return el("header", { class: "topbar" },
-    el("strong", { class: "brand" }, icon("card", 20), "Collecto"),
+    el("strong", { class: "brand" }, icon("card", 20), el("span", { class: "brand-name" }, "Collecto")),
     el("div", { class: "pills" },
       el("span", { class: "pill", title: "Boosters en stock" }, icon("booster", 16), el("span", { "data-stock": "" }, `${me.boosters}/${MAX_BOOSTERS}`)),
-      el("span", { class: "pill gold", title: "Ton solde" }, icon("coin", 16), money(me.abris))
+      el("span", { class: "pill gold", title: "Ton solde" }, icon("coin", 16), money(me.abris)),
+      el("button", {
+        class: "gear-btn" + (ui.settings ? " active" : ""), type: "button", "aria-label": "Paramètres",
+        onclick: () => { ui.settings = true; ui.visit = null; render(); window.scrollTo(0, 0); },
+      }, icon("settings", 18))
     )
   );
 }
@@ -764,6 +855,7 @@ function nav() {
       class: "nav-btn" + (ui.tab === id ? " active" : ""),
       onclick: () => {
         ui.tab = id;
+        ui.settings = false;
         ui.visit = null;
         ui.confirmReset = false;
         render();
@@ -789,7 +881,8 @@ function render() {
   if (ui.fatal) return $app.replaceChildren(viewFatal());
   if (ui.loading) return $app.replaceChildren(el("p", { class: "muted center loading" }, "Chargement…"));
   if (!me) return $app.replaceChildren(viewAuth());
-  const view = ui.tab === "boosters" ? viewBoosters()
+  const view = ui.settings ? viewSettings()
+    : ui.tab === "boosters" ? viewBoosters()
     : ui.tab === "collection" ? viewCollection()
     : ui.tab === "friends" ? viewFriends()
     : viewProfile();
@@ -813,7 +906,15 @@ function viewBoosters() {
   const testMode = isAdmin() && ui.admin.test;
   const canOpen = (me.boosters > 0 || testMode) && !ui.busy;
 
+  const segBtn = (id, label, ico) => el("button", {
+    class: ui.boosterTab === id ? "active" : "", type: "button",
+    onclick: () => { ui.boosterTab = id; render(); },
+  }, icon(ico, 16), label);
+  const tabs = el("div", { class: "seg" }, segBtn("mine", "Mes boosters", "booster"), segBtn("shop", "Boutique", "shop"));
+  if (ui.boosterTab === "shop") return el("section", { class: "view" }, tabs, viewShop());
+
   return el("section", { class: "view" },
+    tabs,
     boosterPack(testMode),
     pips,
     el("p", { class: "center stock-line" }, `${me.boosters} / ${MAX_BOOSTERS} boosters`),
@@ -836,7 +937,104 @@ function viewBoosters() {
   );
 }
 
-const reducedMotion = () => !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+/* ---------- Interface : boutique ---------- */
+
+function viewShop() {
+  const cards = SHOP.map((t) => {
+    const odds = shopOdds(t).filter((o) => o.r.tier >= 2);          // rare et au-dessus : c'est là que ça change
+    const can = me.abris >= t.price;
+    const rows = odds.map(({ r, pct, boost }) => {
+      const row = el("div", { class: "shop-odd" },
+        el("i", { class: "dot" }),
+        el("span", { class: "shop-odd-name" }, r.label),
+        boost > 1 ? el("em", { class: "boost" }, `×${boost.toLocaleString("fr-FR")}`) : null,
+        el("b", {}, fmtPct(pct)));
+      row.style.setProperty("--rc", r.color);
+      return row;
+    });
+    return el("article", { class: `shop-card tier-${t.id}` },
+      el("div", { class: "shop-pack" }, makePack({ tier: t.id })),
+      el("div", { class: "shop-info" },
+        el("div", { class: "shop-head" },
+          el("h3", {}, `Booster ${t.name}`),
+          el("span", { class: "shop-price" }, icon("coin", 14), money(t.price))),
+        el("p", { class: "muted small shop-tag" }, `${t.tag} · ${BOOSTER_SIZE} cartes`),
+        el("div", { class: "shop-odds" }, rows),
+        el("button", {
+          class: "primary shop-buy", type: "button", disabled: can && !ui.busy ? null : "",
+          onclick: () => buyBooster(t.id),
+        }, ui.busy === "buy" ? "Achat…" : can ? `Acheter · ${money(t.price)}` : `Il te manque ${money(t.price - me.abris)}`)));
+  });
+  return el("div", {},
+    el("p", { class: "muted small" }, "Les boosters de la boutique ne consomment pas ton stock : ils s'ouvrent tout de suite."),
+    el("div", { class: "shop-list" }, cards));
+}
+
+/* ---------- Interface : paramètres ---------- */
+
+function viewSettings() {
+  const back = el("button", { class: "linklike left with-ico", type: "button", onclick: () => { ui.settings = false; ui.confirmReset = false; render(); } },
+    icon("back", 16), "Retour");
+
+  // Installation
+  let installBody;
+  if (isStandalone()) {
+    installBody = el("p", { class: "set-ok" }, icon("check", 16), "Application déjà installée");
+  } else if (deferredPrompt) {
+    installBody = el("button", { class: "primary with-ico", type: "button", onclick: installApp },
+      icon("download", 18), "Installer Collecto sur l'appareil");
+  } else if (isIOS()) {
+    installBody = el("div", {},
+      el("p", { class: "set-steps" }, icon("share", 18), el("span", {}, "Touche ", el("strong", {}, "Partager"), " puis ", el("strong", {}, "Sur l'écran d'accueil"), ".")),
+      el("p", { class: "muted small" }, "Depuis Safari uniquement. Collecto s'ouvrira ensuite comme une vraie application, en plein écran."));
+  } else {
+    installBody = el("p", { class: "muted small" },
+      "Ton navigateur ne propose pas l'installation automatique pour l'instant. Ouvre son menu (⋮ ou Partager) et choisis « Installer l'application » ou « Ajouter à l'écran d'accueil ».");
+  }
+
+  const toggle = (key, label, hint) => el("label", { class: "set-row" },
+    el("span", { class: "set-text" }, el("strong", {}, label), el("small", { class: "muted" }, hint)),
+    el("input", {
+      type: "checkbox", class: "switch", checked: !!prefs[key],
+      onchange: (e) => { prefs[key] = e.target.checked; savePrefs(); applyPrefs(); if (key === "vibrate") vibe(25); },
+    }));
+
+  const reset = ui.confirmReset
+    ? el("div", { class: "reset-row" },
+        el("p", { class: "warning" }, icon("alert", 15), "Toutes tes cartes seront effacées. Tes Abri$ ne changent pas."),
+        el("button", { class: "secondary danger", type: "button", onclick: async () => { await resetCollection(); } }, "Oui, effacer mes cartes"),
+        el("button", { class: "secondary", type: "button", onclick: () => { ui.confirmReset = false; render(); } }, "Annuler"))
+    : el("button", { class: "secondary danger-outline", type: "button", onclick: () => { ui.confirmReset = true; render(); } },
+        icon("reset", 16), "Remettre ma collection à zéro");
+
+  return el("section", { class: "view settings" },
+    back,
+    el("h2", { class: "section-title" }, "Paramètres"),
+
+    el("div", { class: "set-card" },
+      el("h3", {}, "Installer l'application"),
+      installBody),
+
+    el("div", { class: "set-card" },
+      el("h3", {}, "Préférences"),
+      toggle("vibrate", "Vibrations", "Retour tactile à l'ouverture des boosters"),
+      toggle("calm", "Réduire les animations", "Moins d'effets : plus fluide sur un téléphone ancien")),
+
+    el("div", { class: "set-card" },
+      el("h3", {}, "Compte"),
+      el("p", { class: "muted small" }, "Connecté en tant que ", el("strong", {}, me.pseudo)),
+      el("button", { class: "secondary", type: "button", onclick: logout }, "Se déconnecter")),
+
+    el("div", { class: "set-card danger-zone" },
+      el("h3", {}, "Zone de danger"),
+      reset),
+
+    isAdmin() ? adminPanel() : null,
+    el("p", { class: "muted small center set-version" }, `Collecto · version ${APP_VERSION}`)
+  );
+}
+
+const reducedMotion = () => !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) || prefs.calm;
 
 function viewOpening() {
   if (ui.openStage === "tear") return viewOpenStage();
@@ -863,7 +1061,7 @@ function viewOpenStage() {
   let torn = ui.openStage === "reveal";
   let tearDone = torn;
 
-  const pack = makePack({ big: true, tear: true });
+  const pack = makePack({ big: true, tear: true, tier: ui.openTier });
   const btn = el("button", { class: "tear-btn", type: "button", "aria-label": "Ouvrir le booster (glisse sur le haut du paquet de gauche à droite, ou touche-le)" }, pack);
   const slit = el("div", { class: "os-slit" });
   const pouch = el("div", { class: "os-pouch" }, slit, btn);
@@ -928,7 +1126,7 @@ function viewOpenStage() {
       card.setAttribute("aria-label", "Carte suivante");
       if (tier >= 3) {                       // Épique / Légendaire / Divin : halo + secousse
         card.classList.add("fx", `fx-${tier}`);
-        if (navigator.vibrate) navigator.vibrate(tier >= 4 ? [30, 40, 60] : 30);
+        vibe(tier >= 4 ? [30, 40, 60] : 30);
       }
       hint.textContent = "Glisse la carte dans n'importe quel sens, ou touche-la";
     };
@@ -964,7 +1162,7 @@ function viewOpenStage() {
         });
         setTimeout(() => card.remove(), 650);
       }
-      if (navigator.vibrate) navigator.vibrate(12);
+      vibe(12);
       ui.openIdx = idx + 1;
       if (idx + 1 >= n) setTimeout(() => { ui.openStage = "recap"; render(); }, reducedMotion() ? 0 : 420);
       else setTimeout(() => emerge(idx + 1, reducedMotion()), reducedMotion() ? 0 : 140);
@@ -1013,7 +1211,7 @@ function viewOpenStage() {
     pouch.style.setProperty("--tear", "1");
     pack.classList.add("torn");
     ui.openStage = "reveal"; ui.openIdx = 0;
-    if (navigator.vibrate) navigator.vibrate(30);
+    vibe(30);
     setMode();
     if (reducedMotion()) { dock(true); emerge(0, true); return; }
     stage.after(flash);
@@ -1201,20 +1399,11 @@ function viewProfile() {
     return row;
   });
 
-  const reset = ui.confirmReset
-    ? el("div", { class: "reset-row" },
-        el("button", { class: "secondary danger", onclick: resetCollection }, "Oui, effacer mes cartes"),
-        el("button", { class: "secondary", onclick: () => { ui.confirmReset = false; render(); } }, "Annuler"))
-    : el("button", { class: "linklike", onclick: () => { ui.confirmReset = true; render(); } }, "Remettre ma collection à zéro");
-
   return el("section", { class: "view" },
     passport,
     el("h2", { class: "section-title" }, "Progression par rareté"),
     el("div", { class: "rbars" }, rows),
-    achievementsSection(),
-    el("button", { class: "secondary", onclick: logout }, "Se déconnecter"),
-    reset,
-    isAdmin() ? adminPanel() : null
+    achievementsSection()
   );
 }
 
@@ -1607,10 +1796,11 @@ function lotView(cards, abris, label) {
   const groups = groupCards(cards.map((c) => cardFromServer(c.id, c.rarete)));
   const cols = Math.min(3, Math.max(1, groups.length));
   const grid = el("div", { class: `lot-cards cols-${cols}` }, groups.map(([c, n]) => miniCard(c, n)));
-  return el("div", { class: "side lot" },
-    el("span", { class: "side-label" }, `${label} · ${cards.length}`),
+  const only = !groups.length && abris > 0;      // 0 carte de ce côté : le badge doré occupe seul le camp, centré
+  return el("div", { class: "side lot" + (only ? " abris-only" : "") },
+    el("span", { class: "side-label" }, groups.length || !only ? `${label} · ${cards.length}` : label),
     groups.length ? grid : null,
-    abris > 0 ? el("span", { class: "abris-badge" }, icon("coin", 13), `+${fmtNum(abris)} ${CURRENCY}`) : null);
+    abris > 0 ? el("span", { class: "abris-badge" + (only ? " big" : "") }, icon("coin", only ? 18 : 13), `+${fmtNum(abris)} ${CURRENCY}`) : null);
 }
 
 // "ADN ×2, César + 30 Abri$"
@@ -1652,11 +1842,12 @@ function renderTradeModal() {
     lotView(toLot(t.requested), t.ask, "Tu reçois"));
   let duel = makeDuel();
 
+  // chaque camp donne quelque chose (carte ou Abri$), avec au moins 1 carte dans l'échange
   const sendBtn = el("button", { class: "primary", type: "button", onclick: sendTrade }, "Envoyer la proposition");
   const refresh = () => {
     const d = makeDuel(); duel.replaceWith(d); duel = d;
     pickers.forEach((p) => p.update());
-    sendBtn.disabled = !(t.offered.length >= 1 && t.requested.length >= 1);
+    sendBtn.disabled = !tradeValid(t);
   };
 
   /* sélecteur : toucher une carte = +1 exemplaire ; boutons − / + ; 5 cartes max par camp */
@@ -1756,19 +1947,18 @@ function renderTradeModal() {
     abrisRow("give", "Ajouter des Abri$ à mon offre", myMax, "toi"),
     abrisRow("ask", "Demander des Abri$ en plus", hisMax, t.to));
 
-  const body = !t.mine.length
-    ? emptyState("booster", "Rien à proposer", "Tu n'as encore aucune carte. Ouvre un booster !")
-    : !t.theirs.length
-      ? emptyState("collection", `${t.to} n'a encore aucune carte`)
-      : [
-          duel,
-          picker("mine", "Je donne", t.mine, me.owned, "offered"),
-          picker("theirs", `Je veux (de ${t.to})`, t.theirs, theirOwned, "requested"),
-          abrisBox,
-          el("p", { class: "muted small center" }, "L'échange ne se fait que si " + t.to + " accepte. Les cartes et les Abri$ ne bougent qu'à ce moment-là."),
-        ];
+  const none = (txt) => el("p", { class: "muted small center no-cards" }, txt);
+  const body = !t.mine.length && !t.theirs.length
+    ? emptyState("booster", "Rien à échanger", "Ni toi ni " + t.to + " n'avez encore de carte.")
+    : [
+        duel,
+        t.mine.length ? picker("mine", "Je donne", t.mine, me.owned, "offered") : none("Tu n'as aucune carte à donner : propose des Abri$ contre ses cartes."),
+        t.theirs.length ? picker("theirs", `Je veux (de ${t.to})`, t.theirs, theirOwned, "requested") : none(`${t.to} n'a aucune carte : demande-lui des Abri$ contre tes cartes.`),
+        abrisBox,
+        el("p", { class: "muted small center" }, "Cartes contre cartes, ou cartes contre Abri$ (d'un seul côté). L'échange ne se fait que si " + t.to + " accepte."),
+      ];
 
-  const ready = t.mine.length > 0 && t.theirs.length > 0;
+  const ready = t.mine.length > 0 || t.theirs.length > 0;
   const box = el("div", { class: "modal-box trade-modal", role: "dialog", "aria-label": "Proposer un échange" },
     el("button", { class: "modal-x", type: "button", "aria-label": "Fermer", onclick: closeModal }, icon("close", 20)),
     el("h2", { class: "section-title center" }, `Échange avec ${t.to}`),
@@ -1782,9 +1972,14 @@ function renderTradeModal() {
   if (ready) refresh();
 }
 
+const tradeValid = (t) =>
+  (t.offered.length + (t.give > 0 ? 1 : 0)) >= 1 &&
+  (t.requested.length + (t.ask > 0 ? 1 : 0)) >= 1 &&
+  t.offered.length + t.requested.length >= 1;
+
 async function sendTrade() {
   const t = ui.trade;
-  if (ui.busy || !t || !t.offered.length || !t.requested.length) return;
+  if (ui.busy || !t || !tradeValid(t)) return;
   ui.busy = true;
   try {
     await rpc("propose_trade", {
