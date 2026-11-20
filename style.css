@@ -1226,3 +1226,28 @@ html.calm *, html.calm *::before, html.calm *::after { animation: none !importan
 .loading-line, .mk-list .empty-grid { padding: 24px 0; }
 .locked-big { width: min(52%, 190px); margin: 4px auto 10px; pointer-events: none; }
 .buy-name { margin: 2px 0 0; overflow-wrap: anywhere; }
+
+/* =====================================================================
+   v1.8 : Marché (offres du jour + offres entre joueurs)
+   ===================================================================== */
+.seg.tabs3 button { padding-inline: 4px; font-size: .84rem; gap: 5px; min-width: 0; }
+.mkt { min-width: 0; }
+.mkt-timer { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; padding: 9px 12px; margin-bottom: 6px; border-radius: 12px; background: var(--panel); border: 1px solid rgba(255, 255, 255, .07); font-size: .85rem; }
+.mkt-timer strong { font-variant-numeric: tabular-nums; color: var(--gold); }
+.mkt-h { margin: 14px 0 8px; font-size: 1rem; display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 8px; }
+.mkt-h small { font-size: .72rem; font-weight: 500; }
+.mkt-foot { margin-top: 14px; }
+.mkt-new { margin: 6px 0 10px; width: 100%; }
+.mkt-filters { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.mkt-btn { padding: 6px 12px; font-size: .78rem; border-radius: 10px; min-height: 0; white-space: nowrap; max-width: 100%; }
+.mkt-btn svg { vertical-align: -2px; margin-right: 3px; }
+.mk-price.gain { color: var(--ok); }
+.mkt-deal.is-done { opacity: .6; }
+.mkt-offer.mine { border-style: dashed; }
+.mkt-field { display: flex; flex-direction: column; gap: 4px; margin: 10px 0; }
+.mkt-select, .mkt-price-in {
+  width: 100%; min-width: 0; padding: 11px 12px; border-radius: 12px; font-size: 1rem; color: var(--text);
+  background: var(--panel-2); border: 1px solid rgba(255, 255, 255, .12);
+}
+.mkt-ref { margin: 0 0 8px; min-height: 1.2em; }
+.modal-box .seg { margin-bottom: 4px; }

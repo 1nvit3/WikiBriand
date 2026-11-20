@@ -82,6 +82,9 @@ let clockOffset = 0;          // heure du serveur - heure de l'appareil (ms)
 const ADMIN_PSEUDOS = ["test"];
 const isAdmin = () => !!me && ADMIN_PSEUDOS.includes(me.pseudo.toLowerCase());
 
+function newMkt() {
+  return { tab: "daily", daily: null, dailyAt: 0, dailyErr: false, dailyOffset: 0, offers: null, offersAt: 0, offersErr: false, maxOpen: 5, filter: "all", mine: false };
+}
 const ui = {
   rarity: null,               // filtre de rareté (clé de RARITIES) ou null
   filtersOpen: !!(window.matchMedia && window.matchMedia("(min-width: 768px)").matches),   // tiroir de filtres
@@ -110,12 +113,14 @@ const ui = {
   shopTab: "packs",           // packs | cards (Boutique : boosters ou cartes à l'unité)
   market: null,               // { total_players, cards: [{ id, rarete, owners_count, price }] } (get_card_market)
   marketAt: 0, marketErr: false, marketQ: "", marketSort: { key: "price", dir: "asc" }, marketOnlyNew: false,
+  mkt: newMkt(),              // Marché : offres du jour + offres entre joueurs
+  offerForm: null,            // brouillon de la modale « Nouvelle offre »
   openTier: null,             // palier du booster en cours d'ouverture (visuel du paquet)
 };
 
 /* ---------- Préférences locales (enregistrées dans le navigateur) ---------- */
 
-const APP_VERSION = "1.7.0";
+const APP_VERSION = "1.8.0";
 const PREFS_KEY = "wikibrand-prefs";
 const prefs = { vibrate: true, calm: false };       // calm : réduit les animations
 try { Object.assign(prefs, JSON.parse(localStorage.getItem(PREFS_KEY) || "{}")); } catch {}
@@ -254,7 +259,14 @@ function friendlyError(err) {
   if (status === 429 || /rate limit|too many/i.test(msg)) return "Trop de tentatives. Réessaie dans quelques minutes.";
   if (/CONFIRM_EMAIL/.test(msg)) return "Configuration : désactive « Confirm email » dans Supabase (Authentication > Sign In / Providers > Email).";
   if (/email.*(invalid|not allowed)|invalid.*email/i.test(msg)) return "Configuration : Supabase refuse le domaine e-mail. Change EMAIL_DOMAIN dans config.js.";
-  if (/already_claimed/.test(msg)) return "Succès déjà réclamé.";
+  if (/already_claimed/.test(msg)) return ui.boosterTab === "market" ? "Offre du jour déjà utilisée." : "Succès déjà réclamé.";
+  if (/offer_not_available/.test(msg)) return "Cette offre du jour n'existe plus. Actualise le marché.";
+  if (/offer_not_open/.test(msg)) return "Cette offre n'est plus disponible (déjà prise ou annulée).";
+  if (/offer_not_found/.test(msg)) return "Offre introuvable.";
+  if (/own_offer/.test(msg)) return "Tu ne peux pas accepter ta propre offre.";
+  if (/not_your_offer/.test(msg)) return "Ce n'est pas ton offre.";
+  if (/too_many_offers/.test(msg)) return "Tu as déjà 5 offres ouvertes. Annule-en une d'abord.";
+  if (/invalid_price/.test(msg)) return "Prix invalide.";
   if (/not_unlocked/.test(msg)) return "Ce succès n'est pas encore débloqué.";
   if (/unknown_achievement/.test(msg)) return "Succès inconnu.";
   if (/unauthorized/.test(msg)) return "Action réservée au compte testeur.";
@@ -576,6 +588,7 @@ async function logout() {
   ui.confirmReset = false;
   ui.settings = false;
   ui.achPage = false;
+  ui.mkt = newMkt(); ui.offerForm = null;
   ui.boosterTab = "mine";
   ui.authMode = null;
   ui.visit = null;
@@ -736,13 +749,15 @@ function renderBuyModal(card) {
 
 function closeModal() {
   ui.modal = null;
+  ui.offerForm = null;
   ui.trade = null;
   $modal.replaceChildren();
 }
 
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
 
-function renderModal() {
+function renderModal(force) {
+  if (ui.offerForm && me) return renderOfferModal(force);
   if (!ui.modal || !me) return closeModal();
   const card = byId.get(ui.modal.id);
   const count = card ? me.owned[card.id] || 0 : 0;
@@ -943,7 +958,7 @@ function nav() {
 
 // Identifie « l'écran » affiché : tant qu'il ne change pas, un nouveau rendu garde la position de défilement
 let lastViewKey = "";
-const viewKey = () => [ui.settings, ui.achPage, ui.tab, ui.boosterTab, ui.shopTab, ui.friendsTab, !!ui.visit, ui.opening ? "o" + ui.openStage : ""].join("|");
+const viewKey = () => [ui.settings, ui.achPage, ui.tab, ui.boosterTab, ui.shopTab, ui.mkt.tab, ui.friendsTab, !!ui.visit, ui.opening ? "o" + ui.openStage : ""].join("|");
 
 function render() {
   if (configMissing || !sb) return $app.replaceChildren(viewSetup());
@@ -991,10 +1006,11 @@ function viewBoosters() {
 
   const segBtn = (id, label, ico) => el("button", {
     class: ui.boosterTab === id ? "active" : "", type: "button",
-    onclick: () => { ui.boosterTab = id; render(); },
+    onclick: () => { ui.boosterTab = id; render(); if (id === "market") loadMarketHub(true); },
   }, icon(ico, 16), label);
-  const tabs = el("div", { class: "seg" }, segBtn("mine", "Mes boosters", "booster"), segBtn("shop", "Boutique", "shop"));
+  const tabs = el("div", { class: "seg tabs3" }, segBtn("mine", "Boosters", "booster"), segBtn("shop", "Boutique", "shop"), segBtn("market", "Marché", "swap"));
   if (ui.boosterTab === "shop") return el("section", { class: "view" }, tabs, viewShop());
+  if (ui.boosterTab === "market") return el("section", { class: "view" }, tabs, viewMarketHub());
 
   return el("section", { class: "view" },
     tabs,
@@ -1175,6 +1191,299 @@ async function buyCard(card) {
   ui.marketAt = 0; loadMarket(true);                    // les prix ont bougé : on les recharge
   render();
   if (ui.modal) renderModal();
+}
+
+/* ---------- Marché : offres du jour + offres entre joueurs (market_v2.sql) ---------- */
+
+const onMarketView = () => me && ui.tab === "boosters" && ui.boosterTab === "market" && !ui.settings && !ui.achPage && !ui.opening;
+let dailyBusy = false, offersBusy = false;
+
+async function loadDaily(force = false) {
+  if (dailyBusy || !me) return;
+  if (!force && ui.mkt.daily && Date.now() - ui.mkt.dailyAt < 30000) return;
+  dailyBusy = true;
+  try {
+    const d = await rpc("get_daily_market");
+    ui.mkt.daily = d; ui.mkt.dailyAt = Date.now(); ui.mkt.dailyErr = false;
+    ui.mkt.dailyOffset = d.server_now_ms - Date.now();
+  } catch (e) { console.warn("get_daily_market:", e); ui.mkt.dailyErr = true; }
+  dailyBusy = false;
+  if (onMarketView()) render();
+}
+async function loadOffers(force = false) {
+  if (offersBusy || !me) return;
+  if (!force && ui.mkt.offers && Date.now() - ui.mkt.offersAt < 15000) return;
+  offersBusy = true;
+  try {
+    const d = await rpc("list_player_offers");
+    ui.mkt.offers = d.offers || []; ui.mkt.maxOpen = d.max_open || 5; ui.mkt.offersAt = Date.now(); ui.mkt.offersErr = false;
+  } catch (e) { console.warn("list_player_offers:", e); ui.mkt.offersErr = true; }
+  offersBusy = false;
+  if (onMarketView()) render();
+  if (ui.offerForm) renderModal(true);
+}
+function loadMarketHub(force = false) {
+  if (ui.mkt.tab === "daily") loadDaily(force); else loadOffers(force);
+}
+
+// cartes que j'ai déjà mises en vente (elles ne sont plus disponibles pour une autre offre)
+const committedCards = (id) => (ui.mkt.offers || []).filter((o) => o.mine && o.side === "sell" && o.card_id === id).length;
+const freeCopies = (id) => Math.max(0, ((me && me.owned[id]) || 0) - committedCards(id));
+const myOpenOffers = () => (ui.mkt.offers || []).filter((o) => o.mine);
+
+function fmtLeft(ms) {
+  const s = Math.max(0, Math.floor(ms / 1000));
+  return `${String(Math.floor(s / 3600)).padStart(2, "0")}:${String(Math.floor((s % 3600) / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+}
+const dailyLeftMs = () => ui.mkt.daily ? ui.mkt.daily.next_ms - (Date.now() + (ui.mkt.dailyOffset || 0)) : 0;
+let dailyReloadAt = 0;
+function tickDaily() {
+  const nodes = document.querySelectorAll("[data-daycount]");
+  if (!nodes.length || !ui.mkt.daily) return;
+  const left = dailyLeftMs();
+  nodes.forEach((n) => { n.textContent = fmtLeft(left); });
+  if (left <= 0 && Date.now() - dailyReloadAt > 5000) { dailyReloadAt = Date.now(); loadDaily(true); }
+}
+
+function viewMarketHub() {
+  const sub = (id, label, ico) => el("button", {
+    class: ui.mkt.tab === id ? "active" : "", type: "button",
+    onclick: () => { ui.mkt.tab = id; render(); loadMarketHub(); },
+  }, icon(ico, 15), label);
+  const subTabs = el("div", { class: "seg sub" }, sub("daily", "Offres du jour", "star"), sub("players", "Entre joueurs", "friends"));
+  if (ui.mkt.tab === "daily") { if (!ui.mkt.daily && !ui.mkt.dailyErr) loadDaily(true); }
+  else if (!ui.mkt.offers && !ui.mkt.offersErr) loadOffers(true);
+  return el("div", { class: "mkt" }, subTabs, ui.mkt.tab === "daily" ? viewDaily() : viewPlayerOffers());
+}
+
+function mktError(text, retry) {
+  return el("div", { class: "empty-grid center" }, el("p", { class: "muted small" }, text),
+    el("button", { class: "secondary", type: "button", onclick: retry }, "Réessayer"));
+}
+
+/* ----- offres du jour ----- */
+function viewDaily() {
+  const d = ui.mkt.daily;
+  if (!d) {
+    return ui.mkt.dailyErr
+      ? mktError("Impossible de charger les offres du jour (SQL market_v2.sql exécuté ?).", () => { ui.mkt.dailyErr = false; render(); loadDaily(true); })
+      : el("p", { class: "muted center small loading-line" }, "Chargement des offres…");
+  }
+  const row = (o) => {
+    const card = byId.get(o.card_id); if (!card) return null;
+    const buy = o.kind === "buy";
+    const own = (me.owned[o.card_id] || 0);
+    const can = buy ? me.abris >= o.price : freeCopies(o.card_id) >= 1;
+    const label = o.claimed ? "Déjà pris" : buy ? (can ? "Acheter" : "Solde insuffisant") : (can ? "Vendre" : "Tu n'en as pas");
+    const r = el("div", { class: "mk-row mkt-deal" + (o.claimed ? " is-done" : "") },
+      el("i", { class: "dot" }),
+      el("span", { class: "mk-main" },
+        el("strong", {}, card.titre),
+        el("small", { class: "muted" }, `${card.rarity.label} · ${own ? `tu en as ×${own}` : "tu ne l'as pas"}`),
+        el("small", { class: "muted" }, buy ? `Prix normal ${money(o.base_price)}` : `Valeur marché ${money(o.base_price)}`)),
+      el("span", { class: "mk-side" },
+        el("b", { class: "mk-price" + (buy ? "" : " gain") }, icon("coin", 12), (buy ? "" : "+") + money(o.price)),
+        el("button", {
+          class: (o.claimed ? "secondary" : "primary") + " mkt-btn", type: "button",
+          disabled: o.claimed || !can || ui.busy ? "" : null, onclick: () => claimDaily(o),
+        }, o.claimed ? [icon("check", 13), label] : label)));
+    r.style.setProperty("--rc", card.rarity.color);
+    return r;
+  };
+  const buys = d.offers.filter((o) => o.kind === "buy"), sells = d.offers.filter((o) => o.kind === "sell");
+  return el("div", {},
+    el("div", { class: "mkt-timer" }, icon("reset", 15), el("span", {}, "Nouvelles offres dans "),
+      el("strong", { "data-daycount": "" }, fmtLeft(dailyLeftMs()))),
+    el("h3", { class: "mkt-h" }, "À acheter", el("small", { class: "muted" }, "environ −25 % sur le prix normal")),
+    el("div", { class: "mk-list" }, buys.map(row)),
+    el("h3", { class: "mkt-h" }, "Le marché te rachète", el("small", { class: "muted" }, "tarif de reprise garanti")),
+    el("div", { class: "mk-list" }, sells.map(row)),
+    el("p", { class: "muted small center mkt-foot" }, "Chaque offre est utilisable une fois par jour et par joueur. Les prix suivent la rareté des cartes chez les joueurs."));
+}
+
+async function claimDaily(o) {
+  if (ui.busy || !me) return;
+  const card = byId.get(o.card_id);
+  ui.busy = "daily"; render();
+  try {
+    const seq = ++seqIssued;
+    const j = await rpc("claim_daily_offer", { p_kind: o.kind, p_card_id: o.card_id });
+    if (seq > seqApplied) { seqApplied = seq; applyProfile(j.profile); }
+    vibe(30);
+    toast(o.kind === "buy" ? `${card.titre} acheté · −${money(j.price)}` : `${card.titre} repris · +${money(j.price)}`);
+  } catch (err) {
+    toast(friendlyError(err));
+    await refreshProfile({ force: true });
+  }
+  ui.busy = false;
+  ui.market = null; ui.marketAt = 0;                      // les prix ont bougé
+  await loadDaily(true); render();
+}
+
+/* ----- offres entre joueurs ----- */
+function viewPlayerOffers() {
+  const all = ui.mkt.offers;
+  const newBtn = el("button", {
+    class: "primary with-ico mkt-new", type: "button",
+    onclick: () => { ui.offerForm = { side: "sell", card: "", price: "" }; renderModal(true); loadMarket(); },
+  }, icon("plus", 16), "Nouvelle offre");
+  if (!all) {
+    return el("div", {}, newBtn, ui.mkt.offersErr
+      ? mktError("Impossible de charger les offres (SQL market_v2.sql exécuté ?).", () => { ui.mkt.offersErr = false; render(); loadOffers(true); })
+      : el("p", { class: "muted center small loading-line" }, "Chargement des offres…"));
+  }
+  const f = ui.mkt.filter;
+  const chip = (id, label) => el("button", {
+    class: "chip" + (f === id ? " active" : ""), type: "button", "aria-pressed": f === id ? "true" : "false",
+    onclick: () => { ui.mkt.filter = id; render(); },
+  }, label);
+  const mineChip = el("button", {
+    class: "chip" + (ui.mkt.mine ? " active" : ""), type: "button", "aria-pressed": ui.mkt.mine ? "true" : "false",
+    onclick: () => { ui.mkt.mine = !ui.mkt.mine; render(); },
+  }, `Mes offres (${myOpenOffers().length}/${ui.mkt.maxOpen})`);
+  const rows = all
+    .filter((o) => (f === "all" || o.side === f) && (!ui.mkt.mine || o.mine))
+    .map((o) => {
+      const card = byId.get(o.card_id); if (!card) return null;
+      const sells = o.side === "sell";
+      let action;
+      if (o.mine) {
+        action = el("button", { class: "secondary mkt-btn", type: "button", disabled: ui.busy ? "" : null, onclick: () => cancelOffer(o) }, "Annuler");
+      } else if (sells) {
+        const can = me.abris >= o.price;
+        action = el("button", { class: "primary mkt-btn", type: "button", disabled: can && !ui.busy ? null : "", onclick: () => acceptOffer(o) },
+          can ? "Acheter" : "Solde insuffisant");
+      } else {
+        const can = freeCopies(o.card_id) >= 1;
+        action = el("button", { class: "primary mkt-btn", type: "button", disabled: can && !ui.busy ? null : "", onclick: () => acceptOffer(o) },
+          can ? "Vendre" : "Tu n'en as pas");
+      }
+      const r = el("div", { class: "mk-row mkt-offer" + (o.mine ? " mine" : "") },
+        el("i", { class: "dot" }),
+        el("span", { class: "mk-main" },
+          el("strong", {}, card.titre),
+          el("small", { class: "muted" }, `${sells ? "Vend" : "Cherche"} · ${card.rarity.label} · ${o.mine ? "toi" : o.pseudo}`),
+          sells && !o.mine ? el("small", { class: "muted" }, me.owned[o.card_id] ? `Tu en as ×${me.owned[o.card_id]}` : "Nouvelle pour toi") : null),
+        el("span", { class: "mk-side" },
+          el("b", { class: "mk-price" }, icon("coin", 12), money(o.price)),
+          action));
+      r.style.setProperty("--rc", card.rarity.color);
+      return r;
+    }).filter(Boolean);
+  return el("div", {},
+    el("p", { class: "muted small" }, "Mets une carte en vente ou propose d'en acheter une : un autre joueur peut accepter ton prix à tout moment."),
+    newBtn,
+    el("div", { class: "chips mkt-filters" }, chip("all", "Tout"), chip("sell", "Ventes"), chip("buy", "Achats"), mineChip),
+    el("div", { class: "mk-list" }, rows.length ? rows : el("p", { class: "muted small empty-grid center" }, "Aucune offre pour ce filtre.")));
+}
+
+async function acceptOffer(o) {
+  if (ui.busy || !me) return;
+  const card = byId.get(o.card_id);
+  ui.busy = "offer"; render();
+  try {
+    const seq = ++seqIssued;
+    const j = await rpc("accept_player_offer", { p_offer_id: o.id });
+    if (seq > seqApplied) { seqApplied = seq; applyProfile(j.profile); }
+    if (j.stale) toast("Offre périmée : son auteur ne peut plus l'honorer. Tu n'as rien payé.");
+    else {
+      vibe(30);
+      toast(j.side === "sell" ? `${card.titre} acheté · −${money(j.price)}` : `${card.titre} vendu · +${money(j.price)}`);
+    }
+  } catch (err) {
+    toast(friendlyError(err));
+    await refreshProfile({ force: true });
+  }
+  ui.busy = false;
+  ui.market = null; ui.marketAt = 0;
+  await loadOffers(true); render();
+}
+
+async function cancelOffer(o) {
+  if (ui.busy) return;
+  ui.busy = "offer"; render();
+  try {
+    await rpc("cancel_player_offer", { p_offer_id: o.id });
+    toast("Offre annulée.");
+  } catch (err) { toast(friendlyError(err)); }
+  ui.busy = false;
+  await loadOffers(true); render();
+}
+
+// Modale « Nouvelle offre »
+function renderOfferModal(force) {
+  const form = ui.offerForm;
+  const typing = document.activeElement && $modal.contains(document.activeElement) && /INPUT|SELECT/.test(document.activeElement.tagName);
+  if (typing && !force) return;                                   // ne casse pas la saisie quand le profil se rafraîchit
+  const sell = form.side === "sell";
+  const cards = DECK_LIST_FOR_OFFERS();
+  const options = cards
+    .filter((c) => sell ? freeCopies(c.id) >= 1 : true)
+    .sort((a, b) => a.rarity.tier - b.rarity.tier || a.titre.localeCompare(b.titre, "fr"));
+  if (form.card && !options.some((c) => c.id === form.card)) form.card = "";
+  const select = el("select", { class: "mkt-select", "aria-label": "Carte" },
+    el("option", { value: "" }, sell ? "Choisis une carte à vendre" : "Choisis la carte voulue"),
+    options.map((c) => el("option", { value: c.id, selected: c.id === form.card ? "" : null },
+      `${c.titre} · ${c.rarity.label}${sell ? ` (×${freeCopies(c.id)})` : ""}`)));
+  select.value = form.card;
+  const ref = el("p", { class: "muted small mkt-ref" });
+  const price = el("input", {
+    class: "mkt-price-in", type: "number", inputmode: "numeric", min: "1", step: "1", placeholder: "Prix en Abri$", value: form.price,
+    "aria-label": "Prix en Abri$", autocomplete: "off",
+  });
+  const mine = myOpenOffers().length, max = ui.mkt.maxOpen || 5;
+  const submit = el("button", { class: "primary", type: "button" }, "Publier l'offre");
+  const refresh = () => {
+    const x = form.card ? marketEntry(form.card) : null;
+    ref.textContent = x ? `Prix de la boutique pour cette carte : ${money(x.price)}` : "";
+    const p = Math.floor(Number(form.price));
+    const bad = !form.card || !(p > 0) || p > 10000000;
+    const needAbris = !sell && p > 0 && me.abris < p;
+    submit.disabled = bad || needAbris || mine >= max || !!ui.busy;
+    submit.textContent = mine >= max ? `Limite de ${max} offres atteinte`
+      : needAbris ? `Il te manque ${money(p - me.abris)}` : sell ? "Mettre en vente" : "Publier ma demande d'achat";
+  };
+  select.addEventListener("change", () => { form.card = select.value; refresh(); });
+  price.addEventListener("input", () => { form.price = price.value; refresh(); });
+  submit.addEventListener("click", () => publishOffer());
+  const seg = (side, label) => el("button", {
+    class: form.side === side ? "active" : "", type: "button",
+    onclick: () => { form.side = side; form.card = ""; renderModal(true); },
+  }, label);
+  refresh();
+  const box = el("div", { class: "modal-box", role: "dialog", "aria-label": "Nouvelle offre" },
+    el("button", { class: "modal-x", type: "button", "aria-label": "Fermer", onclick: closeModal }, icon("close", 20)),
+    el("h3", { class: "center" }, "Nouvelle offre"),
+    el("div", { class: "seg" }, seg("sell", "Vendre une carte"), seg("buy", "Acheter une carte")),
+    el("label", { class: "mkt-field" }, el("span", { class: "muted small" }, "Carte"), select),
+    el("label", { class: "mkt-field" }, el("span", { class: "muted small" }, "Prix"), price),
+    ref,
+    el("p", { class: "muted small" }, sell
+      ? "La carte reste dans ta collection jusqu'à ce qu'un joueur accepte. Tu reçois les Abri$ à ce moment-là."
+      : "Les Abri$ ne sont débités que lorsqu'un joueur accepte ta demande. Garde-les en réserve : sinon l'offre sera annulée."),
+    submit,
+    el("button", { class: "secondary", type: "button", onclick: closeModal }, "Fermer"));
+  $modal.replaceChildren(el("div", { class: "modal-backdrop", onclick: (e) => { if (e.target === e.currentTarget) closeModal(); } }, box));
+}
+const DECK_LIST_FOR_OFFERS = () => [...byId.values()];
+
+async function publishOffer() {
+  const f = ui.offerForm;
+  if (!f || ui.busy || !me) return;
+  const p = Math.floor(Number(f.price));
+  if (!f.card || !(p > 0)) return;
+  ui.busy = "offer"; renderModal(true);
+  let done = false;
+  try {
+    await rpc("create_player_offer", { p_side: f.side, p_card_id: f.card, p_price: p });
+    const card = byId.get(f.card);
+    toast(f.side === "sell" ? `${card.titre} mis en vente · ${money(p)}` : `Demande publiée : ${card.titre} · ${money(p)}`);
+    done = true;
+  } catch (err) { toast(friendlyError(err)); }
+  ui.busy = false;
+  if (done) { ui.offerForm = null; ui.modal = null; $modal.replaceChildren(); ui.mkt.mine = true; ui.mkt.filter = "all"; }
+  await loadOffers(true);
+  render(); if (ui.offerForm) renderModal(true);
 }
 
 /* ---------- Interface : paramètres ---------- */
@@ -2358,6 +2667,7 @@ function tick() {
   }
   const left = fmtClock(msToNextBooster(me));
   document.querySelectorAll("[data-countdown]").forEach((n) => { n.textContent = left; });
+  tickDaily();
 }
 
 /* ---------- Démarrage ---------- */
