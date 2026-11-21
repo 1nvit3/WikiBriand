@@ -465,7 +465,7 @@
       "categorie": "Clubs",
       "rarete": "legendaire",
       "statistiques": "Motivation : 1000% |",
-      "image": "images/clubs/irreductible.jpg",
+      "image": "images/club/irreductible.jpg",
       "description": "jsp"
     },
     {
@@ -492,7 +492,7 @@
       "categorie": "Club",
       "rarete": "rare",
       "statistiques": "JSP a mettre",
-      "image": "images/clubs/theatre.jpg",
+      "image": "images/club/theatre.jpg",
       "description": "jsp"
     },
     {
@@ -501,7 +501,7 @@
       "categorie": "Club",
       "rarete": "epique",
       "statistiques": "Niveau : Expert | Mal de tête : Garanti",
-      "image": "images/clubs/appro_maths.jpg",
+      "image": "images/club/appro_maths.jpg",
       "description": "Pour ceux qui aiment s'arracher les cheveux sur des équations complexes alors qu'ils pourraient manger tranquillement."
     },
     {
@@ -510,7 +510,7 @@
       "categorie": "Club",
       "rarete": "rare",
       "statistiques": "Fun : Quantique | Énigmes : solvable (pour une fois)",
-      "image": "images/clubs/midi_maths.jpg",
+      "image": "images/club/midi_maths.jpg",
       "description": "jsp"
     },
     {
