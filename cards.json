@@ -334,6 +334,24 @@
       "description": "Traverser la longueur du bassin en essayant de ne pas couler tout en gardant un minimum de dignité avec le bonnet"
     },
     {
+      "id": "sport_tennis_table",
+      "titre": "Tennis de Table",
+      "categorie": "Sport",
+      "rarete": "commun",
+      "statistiques": " ",
+      "image": "images/sport/sport_tennis_table.jpg",
+      "description": " "
+    },
+    {
+      "id": "sport_ultimate",
+      "titre": "Ultimate",
+      "categorie": "Sport",
+      "rarete": "peu-commun",
+      "statistiques": " ",
+      "image": "images/sport/sport_ultimate.jpg",
+      "description": " "
+    },
+    {
       "id": "fil_sti2d",
       "titre": "STI2D",
       "categorie": "Matières",
@@ -1133,6 +1151,213 @@
       "statistiques": "Utilité : Vitale | Consultation : Rare",
       "image": "images/alarmes/plan_evacuation_c.jpg",
       "description": "jsp"
+    },
+    {
+      "id": "francais",
+      "titre": "Français",
+      "categorie": "Matières",
+      "rarete": "commun",
+      "statistiques": " ",
+      "image": " ",
+      "description": " "
+    },
+    {
+      "id": "maths",
+      "titre": "Maths",
+      "categorie": "Matières",
+      "rarete": "commun",
+      "statistiques": " ",
+      "image": " ",
+      "description": " "
+    },
+    {
+      "id": "histoire",
+      "titre": "Histoire",
+      "categorie": "Matières",
+      "rarete": "commun",
+      "statistiques": " ",
+      "image": " ",
+      "description": " "
+    },
+    {
+      "id": "geographie",
+      "titre": "Géographie",
+      "categorie": "Matières",
+      "rarete": "commun",
+      "statistiques": " ",
+      "image": " ",
+      "description": " "
+    },
+    {
+      "id": "emc",
+      "titre": "EMC",
+      "categorie": "Matières",
+      "rarete": "commun",
+      "statistiques": " ",
+      "image": " ",
+      "description": " "
+    },
+    {
+      "id": "anglais",
+      "titre": "Anglais",
+      "categorie": "Matières",
+      "rarete": "commun",
+      "statistiques": " ",
+      "image": " ",
+      "description": " "
+    },
+    {
+      "id": "espagnol",
+      "titre": "Espagnol",
+      "categorie": "Matières",
+      "rarete": "commun",
+      "statistiques": " ",
+      "image": " ",
+      "description": " "
+    },
+    {
+      "id": "allemand",
+      "titre": "Allemand",
+      "categorie": "Matières",
+      "rarete": "commun",
+      "statistiques": " ",
+      "image": " ",
+      "description": " "
+    },
+    {
+      "id": "philosophie",
+      "titre": "Philosophie",
+      "categorie": "Matières",
+      "rarete": "commun",
+      "statistiques": " ",
+      "image": " ",
+      "description": " "
+    },
+    {
+      "id": "ses",
+      "titre": "SES",
+      "categorie": "Matières",
+      "rarete": "commun",
+      "statistiques": " ",
+      "image": " ",
+      "description": " "
+    },
+    {
+      "id": "physique",
+      "titre": "Physique",
+      "categorie": "Matières",
+      "rarete": "commun",
+      "statistiques": " ",
+      "image": " ",
+      "description": " "
+    },
+    {
+      "id": "chimie",
+      "titre": "Chimie",
+      "categorie": "Matières",
+      "rarete": "commun",
+      "statistiques": " ",
+      "image": " ",
+      "description": " "
+    },
+    {
+      "id": "eps",
+      "titre": "EPS",
+      "categorie": "Matières",
+      "rarete": "commun",
+      "statistiques": " ",
+      "image": " ",
+      "description": " "
+    },
+    {
+      "id": "snt",
+      "titre": "SNT",
+      "categorie": "Matières",
+      "rarete": "commun",
+      "statistiques": " ",
+      "image": " ",
+      "description": " "
+    },
+    {
+      "id": "svt",
+      "titre": "SVT",
+      "categorie": "Matières",
+      "rarete": "commun",
+      "statistiques": " ",
+      "image": " ",
+      "description": " "
+    },
+    {
+      "id": "Option Management et Gestion",
+      "titre": "opt_management_gestion",
+      "categorie": "Matières",
+      "rarete": "rare",
+      "statistiques": " ",
+      "image": " ",
+      "description": " "
+    },
+    {
+      "id": "Option Musique",
+      "titre": "opt_musique",
+      "categorie": "Matières",
+      "rarete": "rare",
+      "statistiques": " ",
+      "image": " ",
+      "description": " "
+    },
+    {
+      "id": "Option Arts Plastiques",
+      "titre": "opt_arts_plastique",
+      "categorie": "Matières",
+      "rarete": "rare",
+      "statistiques": " ",
+      "image": " ",
+      "description": " "
+    },
+    {
+      "id": "Option Euro Espagnol",
+      "titre": "opt_euro_espagnol",
+      "categorie": "Matières",
+      "rarete": "rare",
+      "statistiques": " ",
+      "image": " ",
+      "description": " "
+    },
+    {
+      "id": "Option Latin",
+      "titre": "opt_latin",
+      "categorie": "Matières",
+      "rarete": "rare",
+      "statistiques": " ",
+      "image": " ",
+      "description": " "
+    },
+    {
+      "id": "Option Science et Laboratoire",
+      "titre": "opt_science_labo",
+      "categorie": "Matières",
+      "rarete": "rare",
+      "statistiques": " ",
+      "image": " ",
+      "description": " "
+    },
+    {
+      "id": "Option Droit et Grands Enjeux du Monde Comptemporain (DGEMC)",
+      "titre": "opt_dgemc",
+      "categorie": "Matières",
+      "rarete": "rare",
+      "statistiques": " ",
+      "image": " ",
+      "description": " "
+    },
+    {
+      "id": "Option Maths Complémentaires",
+      "titre": "opt_maths_complementaire",
+      "categorie": "Matières",
+      "rarete": "rare",
+      "statistiques": " ",
+      "image": " ",
+      "description": " "
     }
   ]
 }
