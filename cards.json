@@ -753,7 +753,7 @@
       "categorie": "Instance",
       "rarete": "epique",
       "statistiques": "Poubelles de tri : Respectées (ou pas)",
-      "image": "images/instance/eco_delegue.jpg",
+      "image": "images/instance/ecodelegue.jpg",
       "description": "Chargé de sensibiliser ses camarades au tri sélectif, il ne fait rien de tout cela"
     },
     {
@@ -852,7 +852,7 @@
       "categorie": "Cour",
       "rarete": "commun",
       "statistiques": "Style : Nazairien",
-      "image": "images/cour/cheminee_bateau_c_coeur.jpg",
+      "image": "images/cour/cheminee_bateau_c_coeur.jpeg",
       "description": "Le rappel ultime qu'on est bien à Saint-Nazaire, avec ce morceau de patrimoine maritime posé au milieu du campus."
     },
     {
@@ -861,7 +861,7 @@
       "categorie": "Cour",
       "rarete": "commun",
       "statistiques": "Style : Nazairien",
-      "image": "images/cour/cheminee_bateau_c_portail.jpg",
+      "image": "images/cour/cheminee_bateau_c_portail.jpeg",
       "description": "jsp"
     },
     {
@@ -870,7 +870,7 @@
       "categorie": "Cour",
       "rarete": "peu-commun",
       "statistiques": "Utilité : Théorique | État : Décoloré par le soleil",
-      "image": "images/cour/plan_cite_cote_droit.jpg",
+      "image": "images/cour/plan_cite_cote_droit.jpeg",
       "description": "Le grand panneau d'affichage défraîchi que personne ne regarde jamais"
     },
     {
@@ -915,7 +915,7 @@
       "categorie": "Instance",
       "rarete": "commun",
       "statistiques": "Sucre : 100%",
-      "image": "images/instance/vente_gateau_bijou.jpg",
+      "image": "images/instance/gateau_bijou.jpeg",
       "description": "L'opération incontournable organisée pour financer les projets de classe"
     },
     {
