@@ -582,7 +582,7 @@
       "categorie": "Cantine",
       "rarete": "commun",
       "statistiques": "Épluchage : Minutieux",
-      "image": "images/cantine/clementines_cantine.jpg",
+      "image": "images/cantine/clementines_cantine.jpeg",
       "description": "Le rituel de l'hiver"
     },
     {
@@ -879,7 +879,7 @@
       "categorie": "Cour",
       "rarete": "commun",
       "statistiques": "Confort: 0/10 | Chevilles : En danger",
-      "image": "images/cour/paves.jpg",
+      "image": "images/cour/paves.jpeg",
       "description": "jsp"
     },
     {
