@@ -1,6 +1,5 @@
 {
   "cards": [
-
     {
       "id": "bat_coeur",
       "titre": "Le Cœur",
@@ -55,8 +54,6 @@
       "image": "images/batiments/gym_leo.png",
       "description": "Un gymnase tout ce qu'il y a de plus classique à l'echelle du lycée."
     },
-
-
     {
       "id": "bus_h1",
       "titre": "Ligne H1 (Gavy / Montoir)",
@@ -82,10 +79,8 @@
       "rarete": "rare",
       "statistiques": "Fréquence : de temps en temps | Passage : Aléatoire",
       "image": "images/bus/l13.png",
-      "description": "Bus aléatoire, avec zéro espace, mais heureusement très peu de personne le prennent. Est-ce que ça craint? Oui."
+      "description": "Bus aléatoire, avec zéro espace, mais heureusement très peu de personne le prennent. Est-ce que ça craint? Oui"
     },
-
-
     {
       "id": "spe_nsi",
       "titre": "Spécialité NSI",
@@ -111,7 +106,7 @@
       "rarete": "rare",
       "statistiques": "Potins :  ∞  | Compréhension : 10%",
       "image": "images/matieres/opt_si.jpeg",
-      "description": "Option de seconde où on fait tout, sauf de la SI. Entre séance potins, jeux sur ordi, et créations d'une maison en 3D, difficile de s'ennuyer. "
+      "description": "Option de seconde où on fait tout, sauf de la SI. Entre séance potins, jeux sur ordi, et créations d'une maison en 3D."
     },
     {
       "id": "es_svt",
@@ -129,10 +124,8 @@
       "rarete": "peu-commun",
       "statistiques": "Utilité : 0 |  Apprecié par : Personne  ",
       "image": "images/matieres/es_pc.jpeg",
-      "description": "Tout le monde se demande à quoi ça sert,  personne n'a la réponse. Au final, ça donne juste des notes éclatés"
+      "description": "Tout le monde se demande à quoi ça sert,  personne n'a la réponse. Au final, ça donne juste des notes éclatés."
     },
-
-
     {
       "id": "event_blocus",
       "titre": "Le Blocus",
@@ -158,7 +151,7 @@
       "rarete": "commun",
       "statistiques": "Espoir : -1000 | Utilité : 0",
       "image": "images/vie_scolaire/radiateur_froid.png",
-      "description": "L'illusion parfaite. Tu t'approches en espérant te réchauffer les mains, mais tu te rends compte qu'il est curieusement plus glacial que le mur extérieur.  Et le pire, c'est que tu continue de t'approcher des suivants, espérant tomber sur le saint-Graal."
+      "description": "L'illusion parfaite. Tu t'approches en espérant te réchauffer les mains, mais tu te rends compte qu'il est curieusement plus glacial que le mur extérieur.  Et le pire, c'est que tu continue de t'approcher des suivants, espérant tomber sur le saint-Graal"
     },
     {
       "id": "radiateur_chaud",
@@ -183,70 +176,70 @@
       "titre": "Prefa 1 et 2",
       "categorie": "Bâtiments",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Température : Aléatoire | Accès PMR",
       "image": "images/batiments/bat_prefa1.jpeg",
-      "description": "JSP"
+      "description": "Mdrrr imagine y'a plus de classe dans les bâtiments du coup on t'a mis là"
     },
     {
       "id": "bat_prefa2",
       "titre": "Prefa 3 et 4",
       "categorie": "Bâtiments",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Température : Aléatoire",
       "image": "images/batiments/prefa2.jpeg",
-      "description": "JSP"
+      "description": "Mdrrr imagine y'a plus de classe ni dans les bâtiments ni en prefa 1 et 2 du coup on t'a mis là"
     },
     {
       "id": "salle_permanence",
       "titre": "Salle de Permanence",
       "categorie": "Vie Scolaire",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Travail : 50% | Ordinateur : Marche 1 fois sur 2",
       "image": "images/vie_scolaire/permanence.jpeg",
-      "description": "JSP"
+      "description": "On dirait qu'il n'y a plus de place au CDI ? À moins que tu as été exclus de cour ?"
     },
     {
       "id": "poubelle_tague",
       "titre": "Poubelle Taguée",
       "categorie": "Vie Scolaire",
       "rarete": "peu-commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Slay: 1000 | Rescapé de Guerre",
       "image": "images/vie_scolaire/poubelle_tague.jpeg",
-      "description": "JSP"
+      "description": "Le blocus est par ici"
     },
     {
       "id": "banc_j_b",
       "titre": "Banc entre le J et le B",
       "categorie": "Vie Scolaire",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Disponibilité : 5% |  Utile",
       "image": "images/vie_scolaire/banc_j_b.jpeg",
-      "description": "JSP"
+      "description": "C'est un banc"
     },
     {
       "id": "video_proj",
       "titre": "Projecteur",
       "categorie": "Materiel",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Banger |  Surchauffe: 1000",
       "image": "images/vie_scolaire/projecteur.jpg",
-      "description": "JSP"
+      "description": "engin de destruction massive qui éclate les yeux quand on fait un exposé"
     },
     {
       "id": "alarme_incendie",
       "titre": "Incendie",
       "categorie": "Alarme",
       "rarete": "epique",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Décibels : 120 | Météo : Toujours de la pluie",
       "image": "images/alarmes/alarme_incendie.jpg",
-      "description": "jsp"
+      "description": "Tout le monde rigole avec un grand sourire en évacuant avant de se rendre compte qu'il y a VRAIMENT le feu."
     },
     {
       "id": "ppms_risq_maj",
       "titre": "PPMS Risques Majeurs",
       "categorie": "Alarme",
       "rarete": "legendaire",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Consigne : Rester confiné | Patience : Limitée",
       "image": "images/alarmes/alarme.jpeg",
       "description": "jsp"
     },
@@ -255,70 +248,70 @@
       "titre": "PPMS Attentat-Intrusion",
       "categorie": "Alarme",
       "rarete": "legendaire",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Silence : Absolu | Adrénaline : Maximum",
       "image": "images/alarmes/alarme.jpeg",
-      "description": "jsp"
+      "description": "Confinement total dans la classe, barricade de tables et fou rire nerveux obligatoire au bout de cinq minutes d'immobilité complète."
     },
     {
       "id": "sport_bad",
       "titre": "Badminton",
       "categorie": "Sport",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Banger |",
       "image": "images/sport/bad.jpg",
-      "description": "jsp"
+      "description": "Volant : Plus souvent par Terre qu'en l'air"
     },
     {
       "id": "sport_danse",
       "titre": "Danse",
       "categorie": "Sport",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Rythme : Aléatoire | Coordination : En option",
       "image": "images/sport/sport_danse.jpg",
-      "description": "jsp"
+      "description": "L'art de se mélanger les pinceaux sur une chorégraphie pas du tout préparée tout en essayant de garder un minimum de dignité devant les copains."
     },
     {
       "id": "sport_cdd",
       "titre": "CDD",
       "categorie": "Sport",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Souffle : -100% | Pointe de Coté : 1 / 2min",
       "image": "images/sport/sport_cdd.jpeg",
-      "description": "jsp"
+      "description": "L'épreuve reine de la torture physique en plein hiver à 8h du matin."
     },
     {
       "id": "sport_co",
       "titre": "CO",
       "categorie": "Sport",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Sens de l'orientation : -500 | Balise : Introuvable",
       "image": "images/sport/sport_co.jpg",
-      "description": "jsp"
+      "description": "L'art de chercher des balises pendant 5 minutes pour apprendre au final qu'elle a disparu dans le lac, ou simplement perdu."
     },
     {
       "id": "sport_volley",
       "titre": "Volley",
       "categorie": "Sport",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Esprit d'équipe : 80% | Ballon : Dégonflé",
       "image": "images/sport/sport_volley.jpg",
-      "description": "jsp"
+      "description": "Le match s'arrête toujours au moment où quelqu'un envoie la balle à l'autre bout du gymnase ou dans la tete de quelqu'un"
     },
     {
       "id": "sport_hand",
       "titre": "Hand-ball",
       "categorie": "Sport",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Puissance de tir : 9000 / 5 | Arbitrage : Approximatif",
       "image": "images/sport/sport_hand.jpg",
-      "description": "jsp"
+      "description": "Le sport où l'on passe son temps à éviter de se prendre un boulet de canon tiré à trois mètres par le bourrin de la classe."
     },
     {
       "id": "sport_basket",
       "titre": "Basket-ball",
       "categorie": "Sport",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Esprit d'équipe : Bancale | Dribbles : Approximatifs",
       "image": "images/sport/sport_basket.jpg",
       "description": "jsp"
     },
@@ -327,43 +320,43 @@
       "titre": "Musculation",
       "categorie": "Sport",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Effort : Minimal | Objectif : Se poser",
       "image": "images/sport/sport_muscu.jpeg",
-      "description": "jsp"
+      "description": "Le sport idéale pour faire semblant d'etre a fond tout en discutant tranquillement avec les copains."
     },
     {
       "id": "sport_natation",
       "titre": "Natation",
       "categorie": "Sport",
       "rarete": "rare",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Eau : Chlorée | Effectif : 7",
       "image": "images/sport/sport_natation.jpeg",
-      "description": "jsp"
+      "description": "Traverser la longueur du bassin en essayant de ne pas couler tout en gardant un minimum de dignité avec le bonnet"
     },
     {
       "id": "fil_sti2d",
       "titre": "STI2D",
       "categorie": "Matières",
       "rarete": "rare",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Projets : Réels",
       "image": "images/matieres/filiere_sti2d.jpg",
-      "description": "jsp"
+      "description": "Le repère de ceux qui préfèrent concevoir des projets concrets et manipuler de vrais outils plutôt que d'écrire des dissertations."
     },
     {
       "id": "fil_st2s",
       "titre": "ST2S",
       "categorie": "Matières",
       "rarete": "rare",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Empathie : 100% | Biologie : Intense",
       "image": "images/matieres/filiere_st2s.jpeg",
-      "description": "jsp"
+      "description": "Entre termes médicaux complexes et projets de santé, c'est la filière où l'on apprend à soigner le lycée tout entier (Enfin ça c'est sur le papier)"
     },
     {
       "id": "fil_stmg",
       "titre": "STMG",
       "categorie": "Matières",
       "rarete": "rare",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Esprit : Business |",
       "image": "images/matieres/stmg.jpeg",
       "description": "jsp"
     },
@@ -372,36 +365,36 @@
       "titre": "STL",
       "categorie": "Matières",
       "rarete": "rare",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Blouse : Blanche | Expériences : + amusante qu'au college",
       "image": "images/matieres/filiere_stl.jpeg",
-      "description": "jsp"
+      "description": "Le paradis des manipulations chimiques  (evitons de parler théorie)"
     },
     {
       "id": "spe_hggsp",
       "titre": "Spécialité HGGSP",
       "categorie": "Matières",
       "rarete": "rare",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Dissertations : Complexe |",
       "image": "images/matieres/spe_hggsp.jpg",
-      "description": "jsp"
+      "description": "L'art de décrypter les conflits mondiaux de la Guerre froide à nos jours en rédigeant des dissertations kilométriques."
     },
     {
       "id": "spe_hlp",
       "titre": "Spécialité HLP",
       "categorie": "Matières",
       "rarete": "rare",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Réflexion : Profonde |",
       "image": "images/matieres/spe_hlp.jpg",
-      "description": "jsp"
+      "description": "Le moment de la semaine où l'on se pose les vraies questions existentielles sur le sens de la vie en lisant de vieux textes."
     },
     {
       "id": "spe_llce",
       "titre": "Spécialité LLCE",
       "categorie": "Matières",
       "rarete": "rare",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Accent : Presque britannique | Livres à Lire : Beaucoup",
       "image": "images/matieres/spe_llce.jpg",
-      "description": "jsp"
+      "description": "Entre Shakespeare, les expressions impossibles et les accents plus ou moins convaincants, bienvenue dans le monde anglophone. Good luck !"
     },
     {
       "id": "spe_maths",
@@ -410,52 +403,52 @@
       "rarete": "rare",
       "statistiques": "Démonstration : Par l'absurde | Santé mentale : Instable",
       "image": "images/matieres/spe_maths.jpeg",
-      "description": "jsp"
+      "description": "Le terrain de jeu de ceux qui aiment s'arracher les cheveux sur des choses abstraites et des suites logiques, tout en regrettant d'avoir pris la Spé"
     },
     {
       "id": "spe_musique",
       "titre": "Spécialité Musique",
       "categorie": "Matières",
       "rarete": "rare",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Justesse : Variable | Volume sonore : Maximum",
       "image": "images/matieres/spe_musique.jpeg",
-      "description": "jsp"
+      "description": "L'endroit où les mélodies prennent vie, où les instruments résonnent et où chacun découvre si son oreille musicale est réellement fiable."
     },
     {
       "id": "spe_physique_chimie",
       "titre": "Spécialité Physique-Chimie",
       "categorie": "Matières",
       "rarete": "rare",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Blouse : Obligatoire | Précision : Au millilitre",
       "image": "images/matieres/spe_pc.jpg",
-      "description": "jsp"
+      "description": "Entre formules, expériences et calculs interminables, c'est le royaume de ceux qui aiment comprendre comment fonctionne le monde."
     },
     {
       "id": "spe_si",
       "titre": "Spécialité SI",
       "categorie": "Matières",
       "rarete": "rare",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Schémas : Complexes",
       "image": "images/matieres/spe_si.jpg",
-      "description": "jsp"
+      "description": "Le terrain de jeu des futurs ingénieurs, entre conception, mécanique et systèmes automatisés. On passe plus de temps à comprendre les schémas qu'à construire le prototype."
     },
     {
       "id": "spe_svt",
       "titre": "Spécialité SVT",
       "categorie": "Matières",
       "rarete": "rare",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Schémas : En couleur | Microscope : Poussiéreux",
       "image": "images/matieres/spe_svt.jpg",
-      "description": "jsp"
+      "description": "Le royaume de la biologie, de la génétique et des coupes de roches observées sous toutes les coutures."
     },
     {
       "id": "spe_ses",
       "titre": "Spécialité SES",
       "categorie": "Matières",
       "rarete": "rare",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Graphiques : À analyser | Sociologie : Appliquée",
       "image": "images/matieres/spe_ses.jpg",
-      "description": "jsp"
+      "description": "Déchiffrer le chômage, la monnaie et les marchés financiers tout en essayant de comprendre comment tourne la société. Tu penses faire de la sociologie, tu fais que de l'économie"
     },
     {
       "id": "louan",
@@ -471,7 +464,7 @@
       "titre": "Les Irréductibles",
       "categorie": "Clubs",
       "rarete": "legendaire",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Motivation : 1000% |",
       "image": "images/clubs/irreductible.jpg",
       "description": "jsp"
     },
@@ -480,16 +473,16 @@
       "titre": "Cahier",
       "categorie": "Materiel",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Notes : Illisibles",
       "image": "images/cantine/cantine.jpg",
-      "description": "jsp"
+      "description": "L'outil de travail qui commence l'année immaculé et finit avec des dessins bizarres sur toutes les marges."
     },
     {
       "id": "sport_assos",
       "titre": "Association Sportive",
       "categorie": "Club",
       "rarete": "rare",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Compétition : Féroce | Motivation : Variable",
       "image": "images/sport/sport_assos.png",
       "description": "jsp"
     },
@@ -507,16 +500,16 @@
       "titre": "Approfondissement Maths",
       "categorie": "Club",
       "rarete": "epique",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Niveau : Expert | Mal de tête : Garanti",
       "image": "images/clubs/appro_maths.jpg",
-      "description": "jsp"
+      "description": "Pour ceux qui aiment s'arracher les cheveux sur des équations complexes alors qu'ils pourraient manger tranquillement."
     },
     {
       "id": "midi_maths",
       "titre": "Midi des Maths",
       "categorie": "Club",
       "rarete": "rare",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Fun : Quantique | Énigmes : solvable (pour une fois)",
       "image": "images/clubs/midi_maths.jpg",
       "description": "jsp"
     },
@@ -525,27 +518,27 @@
       "titre": "La Cantine",
       "categorie": "Cantine",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Qualité : 50",
       "image": "images/materiel/cahier.jpg",
-      "description": "jsp"
+      "description": "Ce moment de la journée où l'on peut enfin souffler et discuter entre deux cours."
     },
     {
       "id": "carte_cantine",
       "titre": "Carte de Cantine",
       "categorie": "Cantine",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Dureté : Béton armé | Mastication : Intense",
       "image": "images/cantine/carte_cantine.jpg",
-      "description": "jsp"
+      "description": "Idéal pour tester la résistance du bouclier des CRS, ou pour ne pas avoir le ventre vide quand le repas n'est pas bon."
     },
     {
       "id": "grand_self",
       "titre": "Grand Self",
       "categorie": "Cantine",
       "rarete": "commun",
-      "statistiques": "JSP",
+      "statistiques": "Capacité : Énorme | Bruit : 120 dB",
       "image": "images/cantine/grand_self.jpg",
-      "description": "jsp"
+      "description": "La grande arène du midi où il faut slalomer habilement avec son plateau pour espérer trouver une table libre."
     },
     {
       "id": "petit_self",
@@ -554,14 +547,14 @@
       "rarete": "commun",
       "statistiques": "JSP",
       "image": "images/cantine/petit_self.jpg",
-      "description": "jsp"
+      "description": "La version miniature du grand self"
     },
     {
       "id": "fil_cantine",
       "titre": "Fil de la Cantine",
       "categorie": "Cantine",
       "rarete": "commun",
-      "statistiques": "JSP",
+      "statistiques": "Longueur : Infinie | Avancée : Très lente",
       "image": "images/cantine/fil_cantine.jpg",
       "description": "jsp"
     },
@@ -570,7 +563,7 @@
       "titre": "Le Pain de la Cantine",
       "categorie": "Cantine",
       "rarete": "commun",
-      "statistiques": "JSP",
+      "statistiques": "Croustillant : 0 |",
       "image": "images/cantine/pain_cantine.jpg",
       "description": "jsp"
     },
@@ -579,18 +572,18 @@
       "titre": "Les pommes de la Cantine",
       "categorie": "Cantine",
       "rarete": "commun",
-      "statistiques": "JSP",
+      "statistiques": "Croquant : 100%",
       "image": "images/cantine/pommes_cantine.jpg",
-      "description": "jsp"
+      "description": "Le dessert classique qui accompagne les repas. Certaines finissent dans les sacs, d'autres sont abandonnées dès la première bouchée."
     },
     {
       "id": "clementines_cantine",
       "titre": "Les clémentines de la cantine",
       "categorie": "Cantine",
       "rarete": "commun",
-      "statistiques": "JSP",
+      "statistiques": "Épluchage : Minutieux",
       "image": "images/cantine/clementines_cantine.jpg",
-      "description": "jsp"
+      "description": "Le rituel de l'hiver"
     },
     {
       "id": "oublie_carte_cantine",
@@ -598,16 +591,15 @@
       "categorie": "Cantine",
       "rarete": "commun",
       "statistiques": "JSP",
-      "image":"images/cantine/oublie_carte_cantine.jpg",
+      "image": "images/cantine/oublie_carte_cantine.jpg",
       "description": "jsp"
-    }
-    ,
+    },
     {
       "id": "coupe_feu",
       "titre": "Porte coupe feu",
       "categorie": "Alarme",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Efficacité : Théorique |",
       "image": "images/alarmes/coupe_feu.jpg",
       "description": "jsp"
     },
@@ -616,9 +608,9 @@
       "titre": "Voiture devant la MDL",
       "categorie": "Vie Scolaire",
       "rarete": "rare",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Stationnement : Très limite",
       "image": "images/vie_scolaire/vroom_mdl.jpeg",
-      "description": "jsp"
+      "description": "elle fait désormais partie du décor."
     },
     {
       "id": "souche_arbre",
@@ -627,23 +619,23 @@
       "rarete": "commun",
       "statistiques": "JSP a mettre",
       "image": "images/vie_scolaire/souche_arbre.jpeg",
-      "description": "Arbre Coupé"
+      "description": "Tout ce qu'il reste de l'arbre abattu l'année dernière, qui sert désormais de banc de fortune"
     },
     {
       "id": "trousse",
       "titre": "Trousse",
       "categorie": "Materiel",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Contenu : Inconnu | État : Usé",
       "image": "images/materiel/trousse.jpg",
-      "description": "jsp"
+      "description": "Une véritable capsule temporelle où s'entassent des stylos morts, des bouts de gomme et des feuilles volantes."
     },
     {
       "id": "sac_a_dos",
       "titre": "Sac à dos",
       "categorie": "Materiel",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Poids : 15 kg | Dos : En compote",
       "image": "images/materiel/sac_a_dos.jpg",
       "description": "jsp"
     },
@@ -652,7 +644,7 @@
       "titre": "Sac à main",
       "categorie": "Materiel",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Style : Élégant | Capacité : Mystérieusement infinie (sauf quand c'est le tiens)",
       "image": "images/materiel/sac_a_main.jpg",
       "description": "jsp"
     },
@@ -670,16 +662,16 @@
       "titre": "Stylo bic",
       "categorie": "Materiel",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Encre : Bientôt vide | Capuchon : Mâchouillé",
       "image": "images/materiel/stylo_bic.jpg",
-      "description": "jsp"
+      "description": "Le classique indémodable qui écrit toujours parfaitement."
     },
     {
       "id": "stylo_4_couleur",
       "titre": "Stylo 4 couleurs",
       "categorie": "Materiel",
       "rarete": "peu-commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Couleurs : 4 | Couleur noire : Introuvable",
       "image": "images/materiel/stylo_4_couleur.jpg",
       "description": "jsp"
     },
@@ -690,32 +682,32 @@
       "rarete": "commun",
       "statistiques": "JSP a mettre",
       "image": "images/materiel/surligneur.jpg",
-      "description": "jsp"
+      "description": "Idéal pour colorier la moitié de la page en pensant naïvement qu'on va mieux retenir le cours."
     },
     {
       "id": "materiel_regle",
       "titre": "Règle",
       "categorie": "Materiel",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Graduations : Effacées |",
       "image": "images/materiel/materiel_regle.jpg",
-      "description": "jsp"
+      "description": "Censée tracer des traits droits,"
     },
     {
       "id": "gomme",
       "titre": "Gomme",
       "categorie": "Materiel",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Taille : Minuscule | Efficacité : Tâches grises",
       "image": "images/materiel/gomme.jpg",
-      "description": "jsp"
+      "description": "Fini par étaler le crayon plutôt que de l'effacer."
     },
     {
       "id": "criterium",
       "titre": "Criterium",
       "categorie": "Materiel",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Mine : Cassée | Réserve : Introuvable",
       "image": "images/materiel/criterium.jpg",
       "description": "jsp"
     },
@@ -726,14 +718,14 @@
       "rarete": "commun",
       "statistiques": "JSP a mettre",
       "image": "images/materiel/crayon_de_bois.jpg",
-      "description": "jsp"
+      "description": "Le basique intemporel qui nécessite de passer par la case \"taille-crayon\" toutes les dix minutes."
     },
     {
       "id": "materiel_colle",
       "titre": "Colle",
       "categorie": "Materiel",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Adhérence : Aléatoire | Bouchon : Collé à jamais",
       "image": "images/materiel/materiel_colle.jpg",
       "description": "jsp"
     },
@@ -751,7 +743,7 @@
       "titre": "Délégué",
       "categorie": "Instance",
       "rarete": "rare",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Responsabilité : Lourde | Popularité : Variable",
       "image": "images/instance/delegue.jpg",
       "description": "jsp"
     },
@@ -760,36 +752,36 @@
       "titre": "éco-délégué",
       "categorie": "Instance",
       "rarete": "epique",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Poubelles de tri : Respectées (ou pas)",
       "image": "images/instance/eco_delegue.jpg",
-      "description": "jsp"
+      "description": "Chargé de sensibiliser ses camarades au tri sélectif, il ne fait rien de tout cela"
     },
     {
       "id": "membre_mdl",
       "titre": "Membre de la MDL",
       "categorie": "Instance",
       "rarete": "epique",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Événements : Nombreux | Motivation : 100%",
       "image": "images/instance/membre_mdl.jpg",
-      "description": "jsp"
+      "description": "Le pilier du foyer des élèves, toujours dans les bons coups pour organiser des événements."
     },
     {
       "id": "elu_cvl",
       "titre": "élu CVL",
       "categorie": "Instance",
       "rarete": "legendaire",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Propositions : Nombreuses",
       "image": "images/instance/elu_cvl.jpg",
-      "description": "jsp"
+      "description": "Le représentant officiel qui siège pour faire remonter les vraies demandes des élèves auprès de la direction.  Merci à eux d'ailleurs (surtout vu les blocus)"
     },
     {
       "id": "elu_ca",
       "titre": "élu au Conseil d'Administration",
       "categorie": "Instance",
       "rarete": "legendaire",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Réunions : Longues | Budget : Examiné à la loupe",
       "image": "images/instance/elu_ca.jpg",
-      "description": "jsp"
+      "description": "Le sommet de la politique lycéenne où l'on vote les grandes décisions stratégiques de l'établissement."
     },
     {
       "id": "conseil_de_classe",
@@ -798,7 +790,7 @@
       "rarete": "rare",
       "statistiques": "JSP a mettre",
       "image": "images/instance/conseil_de_classe.jpg",
-      "description": "jsp"
+      "description": "Le tribunal suprême où chaque trimestre se résume à la fameuse phrase : \"Peut mieux faire, l'élève bavarde trop\"."
     },
     {
       "id": "conseil_de_discipline",
@@ -807,44 +799,43 @@
       "rarete": "legendaire",
       "statistiques": "JSP a mettre",
       "image": "images/instance/conseil_de_discipline.jpg",
-      "description": "jsp"
+      "description": "Le niveau ultime du système judiciaire du lycée, convoqué uniquement pour les cas les plus légendaires."
     },
     {
       "id": "incendie_batj",
       "titre": "Incendie dans le bat J",
       "categorie": "Vie Scolaire",
       "rarete": "divin",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Chaos : Absolu | Cours : Annulés ? (ou pas)",
       "image": "images/vie_scolaire/incendie_batj.jpg",
-      "description": "jsp"
-    }
-    ,
+      "description": "L'événement dramatique ou chaotique qui transforme instantanément le bâtiment J en attraction principale du lycée."
+    },
     {
       "id": "autocollant_NPA",
       "titre": "Autocollant NPA",
       "categorie": "Aleatoire",
       "rarete": "epique",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Revendication : Permanente",
       "image": "images/aleatoire/autocollant_NPA.jpeg",
-      "description": "jsp"
+      "description": "Le sticker politique historique collé sur un panneau"
     },
     {
       "id": "parking_velo_arc_c",
       "titre": "Parking Vélo Arc C",
       "categorie": "Bâtiments",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Capacité : Saturée |",
       "image": "images/batiments/parking_velo_arc_c.jpeg",
-      "description": "jsp"
+      "description": "Le 2eme endroit où s'entassent les vélos serrés les uns contre les autres"
     },
     {
       "id": "velo_attache_poteau",
       "titre": "Vélo attaché a un Poteau",
       "categorie": "Aleatoire",
       "rarete": "epique",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Emplacement : Non réglementaire",
       "image": "images/aleatoire/velo_attache_poteau.jpeg",
-      "description": "jsp"
+      "description": "Quand les emplacements prévus ne suffisent plus, certains décident de faire preuve de créativité. Après tout, un poteau reste un poteau. Car pourquoi pas, au final"
     },
     {
       "id": "parking_prof_c",
@@ -860,16 +851,16 @@
       "titre": "Cheminée de Bateau Entre le C et le Coeur",
       "categorie": "Cour",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Style : Nazairien",
       "image": "images/cour/cheminee_bateau_c_coeur.jpg",
-      "description": "jsp"
+      "description": "Le rappel ultime qu'on est bien à Saint-Nazaire, avec ce morceau de patrimoine maritime posé au milieu du campus."
     },
     {
       "id": "cheminee_bateau_c_portail",
       "titre": "Cheminée de Bateau Entre le C et le Portail",
       "categorie": "Cour",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Style : Nazairien",
       "image": "images/cour/cheminee_bateau_c_portail.jpg",
       "description": "jsp"
     },
@@ -878,16 +869,16 @@
       "titre": "Plan de la Cité Scolaire Coté Droit",
       "categorie": "Cour",
       "rarete": "peu-commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Utilité : Théorique | État : Décoloré par le soleil",
       "image": "images/cour/plan_cite_cote_droit.jpg",
-      "description": "jsp"
+      "description": "Le grand panneau d'affichage défraîchi que personne ne regarde jamais"
     },
     {
       "id": "paves",
       "titre": "Les Pavés",
       "categorie": "Cour",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Confort: 0/10 | Chevilles : En danger",
       "image": "images/cour/paves.jpg",
       "description": "jsp"
     },
@@ -905,9 +896,9 @@
       "titre": "Autocollant La Boussole des Jeunes",
       "categorie": "Aleatoire",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Intérêt : 0",
       "image": "images/aleatoire/autocollant_boussole_jeunes.jpeg",
-      "description": "jsp"
+      "description": "Date surement des annees 2010, ennuyeux et vu, vu et revu."
     },
     {
       "id": "portes_cantine",
@@ -923,18 +914,18 @@
       "titre": "Vente de Gateaux Bijous",
       "categorie": "Instance",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Sucre : 100%",
       "image": "images/instance/vente_gateau_bijou.jpg",
-      "description": "jsp"
+      "description": "L'opération incontournable organisée pour financer les projets de classe"
     },
     {
       "id": "panneau_affiche_c",
       "titre": "Panneau d'affichage Hall C",
       "categorie": "Vie Scolaire",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Actualité : Relative",
       "image": "images/vie_scolaire/panneau_affiche_c.jpeg",
-      "description": "jsp"
+      "description": "Le mur d'annonces où s'entassent des feuilles que personne ne lit jamais en passant."
     },
     {
       "id": "poubelle_preau",
@@ -950,16 +941,16 @@
       "titre": "Bâtiment B",
       "categorie": "Bâtiments",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Étages : Beaucoup Trop",
       "image": "images/batiments/bat_b.jpeg",
-      "description": "jsp"
+      "description": "L'un des bâtiments centraux du lycée où l'on passe la moitié de son emploi du temps à monter et descendre des escaliers."
     },
     {
       "id": "bancs_soleils",
       "titre": "Bancs Soleils",
       "categorie": "Cour",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Disponibilité : Saisonnière",
       "image": "images/cour/bancs_soleils.jpeg",
       "description": "jsp"
     },
@@ -977,7 +968,7 @@
       "titre": "La cage d'escalier du bat. B",
       "categorie": "Bâtiments",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Cardio : Obligatoire",
       "image": "images/batiments/cage_escalier_b.jpeg",
       "description": "jsp"
     },
@@ -995,7 +986,7 @@
       "titre": "Le Gros Arbre devant le J",
       "categorie": "Cour",
       "rarete": "legendaire",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Taille : Monumentale | Ombre : Précieuse",
       "image": "images/cour/gros_arbre_j.jpeg",
       "description": "jsp"
     },
@@ -1040,7 +1031,7 @@
       "titre": "Portail Glauque de la Cantine",
       "categorie": "Cantine",
       "rarete": "epique",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Esthétique : -100 | Ambiance : Post-apocalyptique",
       "image": "images/cantine/portail_glauque_cantine.jpeg",
       "description": "jsp"
     },
@@ -1051,7 +1042,7 @@
       "rarete": "peu-commun",
       "statistiques": "JSP a mettre",
       "image": "images/cour/gaz_cantine.jpeg",
-      "description": "jsp"
+      "description": "La zone technique cachée derrière les cuisines où personne ne s'aventure jamais vraiment"
     },
     {
       "id": "panneau_livraison_cuisine",
@@ -1069,16 +1060,16 @@
       "rarete": "commun",
       "statistiques": "JSP a mettre",
       "image": "images/batiments/bat_h.jpeg",
-      "description": "jsp"
+      "description": "Le batiment associé aux DS. Et aux Prépas."
     },
     {
       "id": "plan_cite_cote_gauche",
       "titre": "Plan de la Cité Scolaire Coté Gauche",
       "categorie": "Cour",
       "rarete": "peu-commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Utilité : Proche de zéro | Décoloration : Totale",
       "image": "images/cour/plan_cite_cote_gauche.jpeg",
-      "description": "jsp"
+      "description": "Le symétrique parfait du panneau de droite : tout aussi effacé, tout aussi ignoré par les élèves pressés."
     },
     {
       "id": "escaliers_cantine",
@@ -1094,9 +1085,9 @@
       "titre": "Table de Pique-Nique",
       "categorie": "Cour",
       "rarete": "peu-commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Stabilité : Bancale",
       "image": "images/cour/table_pique_nique.jpeg",
-      "description": "jsp"
+      "description": "elle penche légèrement d'un côté."
     },
     {
       "id": "tourniquet_principal",
@@ -1105,7 +1096,7 @@
       "rarete": "commun",
       "statistiques": "JSP a mettre",
       "image": "images/cour/tourniquet_principal.jpeg",
-      "description": "jsp"
+      "description": "Le tourniquet métallique par lequel tout le monde transite à la sortie"
     },
     {
       "id": "poubelle_bat_b",
@@ -1114,16 +1105,16 @@
       "rarete": "commun",
       "statistiques": "JSP a mettre",
       "image": "images/cour/poubelle_bat_b.jpeg",
-      "description": "jsp"
+      "description": "Point de tri où s'accumulent les emballages de la pause de 10h"
     },
     {
       "id": "pigeon",
       "titre": "Pigeon",
       "categorie": "Aleatoire",
       "rarete": "commun",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Peur des humains : 0%",
       "image": "images/aleatoire/pigeon.jpg",
-      "description": "jsp"
+      "description": "Le véritable maître des lieux, toujours présent"
     },
     {
       "id": "coeur_ferme",
@@ -1139,7 +1130,7 @@
       "titre": "Plan d'évacuation Bât. C",
       "categorie": "Alarme",
       "rarete": "rare",
-      "statistiques": "JSP a mettre",
+      "statistiques": "Utilité : Vitale | Consultation : Rare",
       "image": "images/alarmes/plan_evacuation_c.jpg",
       "description": "jsp"
     }
